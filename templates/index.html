@@ -1,0 +1,137 @@
+<html>
+<head>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+</head>
+<body style="font-family:Consolas">
+
+<div>
+	<textarea id="seqtext" rows="4" cols="50">MSAEREIPAEDSIKVVCRFRPLNDSEEKAGSKFVVKFPNNVEENCISIAGKVYLFDKVFKPNASQEKVYNMSAEREIPAEDSIKVVCRFRPLNDSEEKAGSKFVVKFPNNVEENCISIAGKVYLFDKVFKPNASQEKVYN</textarea>	
+</div>
+
+<button id="submitbtn">Submit Sequence</button>
+
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function() {
+	var socket = io.connect('http://' + document.domain + ':' + location.port);
+    socket.on('connect', function() {
+        socket.emit('connected');
+    });
+
+	socket.on('result', function(msg) {
+		var j = JSON.parse(msg);
+		$('#' + j.pID).text(j.pred);
+		$('#' + j.cID).text(j.conf);
+		console.log(msg);
+		
+		colorCode(j.pID, j.pred);
+	});
+	
+	$('#submitbtn').on('click', function() {
+		socket.emit('sendSeq', {'data': $('#seqtext').val()});
+		$('#seq').text($('#seqtext').val());
+		console.log('Button Clicked!!!!!');
+	});
+});
+  
+//Takes element id and prediction string and color codes the element
+function colorCode(id, pred)
+{	
+	ele = document.getElementById(id);
+	
+	result = "";
+	
+	for(i = 0; i < pred.length; i++)
+	{
+		result += "<span style='color:" + getColor(pred.charAt(i)) + "';>" + pred.charAt(i) + "</span>";
+	}
+	
+	ele.innerHTML = result;
+}
+
+//Takes a character and returns a color
+function getColor(character)
+{
+	if (character == 'H')
+		return "blue";
+	else if (character == 'E')
+		return "green";
+	else if (character == 'C')
+		return "red";
+	
+	return "black";
+}
+
+</script>
+
+
+
+<table border="1">
+	<tr>
+		<td align="right"><br/></td>
+		<td id='charLabel'></td>
+	</tr>
+	<tr>
+		<td align="right" id='seqLabel'>Sequence:</td>
+		<td id='seq'></td>
+	</tr>
+	<tr>
+		<td align="right" id='PSIpredlabel'>PSI Pred:</td>
+		<td id='PSIpred'></td>
+	</tr>
+	<tr>
+		<td align="right" id='PSIpredlabel'>PSI Conf:</td>
+		<td id='PSIconf'></td>
+	</tr>
+	<tr id='JPred'>
+		<td align="right" id='JPredpredlabel'>JPred Pred:</td>
+		<td id='JPredpred'></td>
+	</tr>
+	<tr>
+		<td align="right" id='JPredpredlabel'>JPred Conf:</td>
+		<td id='JPredconf'></td>
+	</tr>
+	<tr id='PSI'>
+		<td align="right" id='RaptorXpredlabel'>RaptorX Pred:</td>
+		<td id='RaptorXpred'></td>
+	</tr>
+	<tr>
+		<td align="right" id='RaptorXpredlabel'>RaptorX Conf:</td>
+		<td id='RaptorXconf'></td>
+	</tr>
+	<tr id='PSI'>
+		<td align="right" id='PSSpredlabel'>PSS Pred:</td>
+		<td id='PSSpred'></td>
+	</tr>
+	<tr>
+		<td align="right" id='PSSconflabel'>PSS Conf:</td>
+		<td id='PSSconf'></td>
+	</tr>
+	<tr id='PSI'>
+		<td align="right" id='Yaspinpredlabel'>Yaspin Pred:</td>
+		<td id='Yaspinpred'></td>
+	</tr>
+	<tr>
+		<td align="right" id='Yaspinconflabel'>Yaspin Conf:</td>
+		<td id='Yaspinconf'></td>
+	</tr>
+	<tr id='PSI'>
+		<td align="right" id='Sablepredlabel'>Sable Pred:</td>
+		<td id='Sablepred'></td>
+	</tr>
+	<tr>
+		<td align="right" id='Sableconflabel'>Sable Conf:</td>
+		<td id='Sableconf'></td>
+	</tr>
+	<tr id='PSI'>
+		<td align="right" id='SSPropredlabel'>SSPro Pred:</td>
+		<td id='SSPropred'></td>
+	</tr>
+	<tr>
+		<td align="right" id='SSProconflabel'>SSPro Conf:</td>
+		<td id='SSProconf'></td>
+	</tr>
+</table>
+
+</body>
+</html>
