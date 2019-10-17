@@ -13,6 +13,7 @@ def get(seq, email_address, email_service):
 		SS.pred = "PSS down until Oct 22"
 		SS.conf = "PSS down until Oct 22"
 		SS.status = 2
+		return SS
 
 	if (len(seq) >= 4000):
 		SS.pred += "Sequence longer than 4000"
