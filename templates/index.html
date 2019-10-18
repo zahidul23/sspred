@@ -27,6 +27,14 @@ $(document).ready(function() {
 		colorCode(j.pID, j.pred);
 	});
 	
+	socket.on('resulturl', function(msg) {
+		$('#resulturl').text("Results");
+		$('#resulturl').attr('href','http://'+ document.domain + ':' + location.port + '/output/'+msg);
+		console.log(msg);
+		
+		colorCode(j.pID, j.pred);
+	});
+	
 	$('#submitbtn').on('click', function() {
 		socket.emit('sendSeq', {'data': $('#seqtext').val()});
 		$('#seq').text($('#seqtext').val());
@@ -65,7 +73,7 @@ function getColor(character)
 </script>
 
 
-
+<a id='resulturl'></a>
 <table border="1">
 	<tr>
 		<td align="right"><br/></td>
