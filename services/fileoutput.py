@@ -12,6 +12,24 @@ def createFolder(startTime):
 	else:
 		print("Created folder " + nameFormat + " at " + os.getcwd() + "\output\ to save output to.")
 
+#Displays character position 
+def drawCounter(mySeq):
+	j=0
+	p = 1
+
+	counterstr = 14*'&nbsp;'
+	while j < len(mySeq):
+		if j%10 != 0:
+			counterstr += ' '
+			j = j+1
+		else:
+			for k in range(len(str(p))):
+				counterstr += str(str(p)[k])
+				j=j+1
+			p = p+10
+	
+	return counterstr
+
 #Saves the output to an HTML file. Takes a startTime for naming and ssObject for the outputs
 #"pred month.day.year hr.min.sec" for file name
 def createHTML(startTime, ssobj, seq):
@@ -24,16 +42,16 @@ def createHTML(startTime, ssobj, seq):
 
 	output = "<!DOCTYPE html><html><body style='font-family:monospace;'>" #use monospace as font to have equal spacing between all characters
 
-	output += "<div> Sequence: " + seq + "</div>"
+	output += "<div>" + drawCounter(seq).replace(" ","&nbsp;") + "</div>"
+	output += "<div>&nbsp;&nbsp;&nbsp;&nbsp;Sequence:&nbsp;" + seq + "</div>"
 
 	for i in ssobj:
-		output+="<div>" + i.name + " Pred: " #prediction source
+		output+='<div>' + i.plabel.replace(" ","&nbsp;") + "&nbsp;" #prediction source
 		preds = i.pred #prediction results to be colored
 		for c in preds:
 			output += "<span style='color:" + getColor(c) + "';>" + c + "</span>"
 		output += "</div>"
-		output += "<div>" + i.name + " Conf: " + i.conf + "</div>"
-
+		output += "<div>" + i.clabel.replace(" ","&nbsp;") + "&nbsp;" + i.conf + "</div>"
 	'''
 	output += "<div>Majority Vote:"
 	for c in ssList[-1]:
