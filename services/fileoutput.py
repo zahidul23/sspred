@@ -4,7 +4,7 @@ import webbrowser
 
 #Creates folder in running directory using "pred month.day.year hr.min.sec" as the name (based off startTime)
 def createFolder(startTime):
-	nameFormat = getNameFormat(startTime)
+	nameFormat = startTime
 	try:
 		os.mkdir(os.getcwd() + "/output/" + nameFormat);
 	except OSError:
@@ -14,14 +14,17 @@ def createFolder(startTime):
 
 #Saves the output to an HTML file. Takes a startTime for naming and ssObject for the outputs
 #"pred month.day.year hr.min.sec" for file name
-def createHTML(startTime, ssobj):
-	nameFormat = getNameFormat(startTime)
-	filePath = os.getcwd() + "/output/" + nameFormat + "/pred " + nameFormat + ".html"
+def createHTML(startTime, ssobj, seq):
+	nameFormat = startTime
+	filePath = os.getcwd() + "/output/" + nameFormat + "/" + nameFormat + ".html"
+	print(filePath)
 	if os.path.exists(filePath):
 		os.remove(filePath)
 	file = open(filePath, "w+")
 
 	output = "<!DOCTYPE html><html><body style='font-family:monospace;'>" #use monospace as font to have equal spacing between all characters
+
+	output += "<div> Sequence: " + seq + "</div>"
 
 	for i in ssobj:
 		output+="<div>" + i.name + " Pred: " #prediction source
