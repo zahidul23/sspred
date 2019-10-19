@@ -44,7 +44,8 @@ def get(seq, email_address, email_service):
 			SS.pred += raw[i][6:].strip()
 		if raw[i].startswith(" Conf:"):
 			SS.conf += raw[i][6:].strip()
-	SS.pred.replace('-','C')
+	
+	SS.pred = SS.pred.replace('-','C')
 
 	SS.status = 1
 	print("Yaspin Complete")
