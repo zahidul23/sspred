@@ -2,141 +2,64 @@
 <head>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-<script src="{{url_for('static', filename='scripts/datamanager.js')}}"></script>
-<script src="{{url_for('static', filename='scripts/style.js')}}"></script>
 </head>
 <body style="font-family:Consolas">
 
 <div>
-	Sequence: <br />
+	<!--Sequence: <br />
 	<textarea id="seqtext" rows="4" cols="50">MSAEREIPAEDSIKVVCRFRPLNDSEEKAGSKFVVKFPNNVEENCISIAGKVYLFDKVFKPNASQEKVYNMSAEREIPAEDSIKVVCRFRPLNDSEEKAGSKFVVKFPNNVEENCISIAGKVYLFDKVFKPNASQEKVYN</textarea>	
+	<button id="clearbtn">Clear</button>
+	-->
+	{% block content %}
+		<form action="" method="post"> 
+			{{ form.hidden_tag() }}
+			{{ form.seqtext.label }}
+			<br>
+			{{ form.seqtext(cols="50", rows="4") }} 
+			<br>
+			{{ form.email.label }}
+			{{ form.email }}
+			<br>	
+			<table>
+				Send sequence to:
+				<tr>
+					<td>
+						{{ form.JPred(value='true') }}
+						{{ form.JPred.label }}
+					</td>
+					<td>
+						{{ form.PSI(value='true') }}
+						{{ form.PSI.label }}
+					</td>
+					<td>
+						{{ form.PSS(value='true') }}
+						{{ form.PSS.label }}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						{{ form.RaptorX(value='true') }}
+						{{ form.RaptorX.label }}
+					<td>
+						{{ form.Sable(value='true') }}
+						{{ form.Sable.label }}
+					</td>
+					<td>
+						{{ form.Yaspin(value='true') }}
+						{{ form.Yaspin.label }}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						{{ form.SSPro(value='true') }}
+						{{ form.SSPro.label }}
+					</td>
+				</tr>
+			</table>
+			<input type="reset"></input>
+			{{ form.submitbtn() }}
+		</form>
+	{% endblock  %}
 </div>
-
-<button id="clearbtn">Clear</button>
-
-<div>
-	<div>Email (Optional):<input type="text" id="Email" value=""></div>
-	<table>
-		Send sequence to:
-		<tr>
-			<td>
-				<input type="checkbox" id="0checkbox" checked>
-					<a href="http://www.compbio.dundee.ac.uk/jpred4/index_up.html">
-						JPred
-					</a>
-			</td>
-			<td>
-				<input type="checkbox" id="1checkbox" checked>
-					<a href="http://bioinf.cs.ucl.ac.uk/psipred/">
-						PsiPred
-					</a>
-			</td>
-			<td>
-				<input type="checkbox" id="2checkbox" checked>
-					<a href="https://zhanglab.ccmb.med.umich.edu/PSSpred/">
-						PSSPred
-					</a>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<input type="checkbox" id="3checkbox" checked>
-					<a href="http://raptorx.uchicago.edu/StructurePropertyPred/predict/">
-						RaptorX
-					</a>
-				</td>
-			<td>
-				<input type="checkbox" id="4checkbox" checked>
-					<a href="https://sable.cchmc.org/">
-						SABLE
-					</a>
-			</td>
-			<td>
-				<input type="checkbox" id="5checkbox" checked>
-					<a href="http://www.ibi.vu.nl/programs/yaspinwww/">
-						YASPIN
-					</a>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<input type="checkbox" id="6checkbox" checked>
-					<a href="http://scratch.proteomics.ics.uci.edu/">
-						SSPro
-					</a>
-			</td>
-		</tr>
-	</table>
-</div>
-
-<button id="submitbtn">Submit Sequence</button>
-<a id='resulturl'></a>
-<table border="1">
-	<tr>
-		<td align="right"><br/></td>
-		<td id='charLabel'></td>
-	</tr>
-	<tr>
-		<td align="right" id='seqLabel'>Sequence:</td>
-		<td id='seq'></td>
-	</tr>
-	<tr>
-		<td align="right" id='PSIpredlabel'>PSI Pred:</td>
-		<td id='PSIpred'></td>
-	</tr>
-	<tr>
-		<td align="right" id='PSIpredlabel'>PSI Conf:</td>
-		<td id='PSIconf'></td>
-	</tr>
-	<tr id='JPred'>
-		<td align="right" id='JPredpredlabel'>JPred Pred:</td>
-		<td id='JPredpred'></td>
-	</tr>
-	<tr>
-		<td align="right" id='JPredpredlabel'>JPred Conf:</td>
-		<td id='JPredconf'></td>
-	</tr>
-	<tr id='PSI'>
-		<td align="right" id='RaptorXpredlabel'>RaptorX Pred:</td>
-		<td id='RaptorXpred'></td>
-	</tr>
-	<tr>
-		<td align="right" id='RaptorXpredlabel'>RaptorX Conf:</td>
-		<td id='RaptorXconf'></td>
-	</tr>
-	<tr id='PSI'>
-		<td align="right" id='PSSpredlabel'>PSS Pred:</td>
-		<td id='PSSpred'></td>
-	</tr>
-	<tr>
-		<td align="right" id='PSSconflabel'>PSS Conf:</td>
-		<td id='PSSconf'></td>
-	</tr>
-	<tr id='PSI'>
-		<td align="right" id='Yaspinpredlabel'>Yaspin Pred:</td>
-		<td id='Yaspinpred'></td>
-	</tr>
-	<tr>
-		<td align="right" id='Yaspinconflabel'>Yaspin Conf:</td>
-		<td id='Yaspinconf'></td>
-	</tr>
-	<tr id='PSI'>
-		<td align="right" id='Sablepredlabel'>Sable Pred:</td>
-		<td id='Sablepred'></td>
-	</tr>
-	<tr>
-		<td align="right" id='Sableconflabel'>Sable Conf:</td>
-		<td id='Sableconf'></td>
-	</tr>
-	<tr id='PSI'>
-		<td align="right" id='SSPropredlabel'>SSPro Pred:</td>
-		<td id='SSPropred'></td>
-	</tr>
-	<tr>
-		<td align="right" id='SSProconflabel'>SSPro Conf:</td>
-		<td id='SSProconf'></td>
-	</tr>
-</table>
-
 </body>
 </html>

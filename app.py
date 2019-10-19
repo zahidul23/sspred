@@ -3,20 +3,22 @@ import time
 from services import ss, psi, jpred, raptorx, pss, sable, sspro, yaspin, emailtools, fileoutput
 from datetime import datetime
 
+from forms import SubmissionForm
 from flask import Flask, render_template, request, current_app,send_file
 from flask_socketio import SocketIO, emit, send
 import secrets
 
-#Order of sites to send  #0-Jpred 1-Psipred 2-Psspred	3-Raptorx 4-Sable 5-Yaspin 6-SSPro
+#Dictionary containing sites and their classes
 siteDict = {
 	"JPred": jpred,
 	"PSI": psi,
 	"PSS": pss,
 	"RaptorX": raptorx,
 	"Sable": sable,
-	"YASPIN": yaspin,
+	"Yaspin": yaspin,
 	"SSPro": sspro
 }
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
@@ -25,10 +27,27 @@ socketio = SocketIO(app)
 email_service = emailtools.login()
 email = emailtools.getEmailAddress(email_service)
 
-@app.route('/')
+#dictionary containing sent data
+post_data = {}
+
+@app.route('/', methods = ['GET', 'POST'])
 def hello(name=None):
-	return render_template('index.html')
-	
+	if request.method == 'POST':
+		global post_data
+		post_data = dict(request.form)
+		#print(post_data)
+		return render_template('sent.html')#output page. keeps the same url
+
+	else: #request.method == 'GET':
+		form = SubmissionForm() 
+		return render_template('index.html', form = form) #default submission page
+'''
+@app.route()
+	if request.method == 'POST':
+		post_data = dict(request.form)
+		print(post_data)
+		return render_template('sent.html')
+'''
 @app.route('/output/<var>')
 def showoutput(var):
 	print("showing output")
@@ -38,7 +57,7 @@ def showoutput(var):
 	except Exception as e:
 		return "not found"
 
-def run(predService, seq, email, name, sess, ssObject,
+def run(predService, seq, email, name, ssObject,
  startTime, email_service = None):
 	tempSS = predService.get(seq, email, email_service)
 
@@ -56,7 +75,7 @@ def run(predService, seq, email, name, sess, ssObject,
 		'pID': tempSS.name + 'pred',
 		'cID': tempSS.name + 'conf',
 		'status': tempSS.status}
-		),room=sess)
+		)) #missing session
 	
 	if tempSS.status == 1:
 		ssObject.append(tempSS)
@@ -70,35 +89,33 @@ def connected():
 	
     #print(request.sid)
     #clients.append(request.namespace)
-
-
-@socketio.on('sendSeq')
-def processInput(input_json):
-	currentsession = request.sid
-	print(currentsession)
-	seq = ''.join(input_json['data'].split())
-	print(seq)
-
-	#Get start time and prepare result url
-	startTime = emailtools.randBase62()
-	socketio.emit('resulturl', startTime,room = currentsession)
 	
-	#Send sequence to sites
-	print(input_json['targets'])
-	sendTo(input_json['targets'], currentsession, seq, startTime)
+@socketio.on('beginProcess') #send once socket is connected
+def processInput():
+	if post_data:
+		seq = post_data['seqtext']
+		socketio.emit('seqString', json.dumps({'seq':seq})) #send seq to update the seq row
+		
+		#user_email = post_data['email'] #currently unused
+		
+		startTime = emailtools.randBase62()
+		startTime = emailtools.randBase62()
+		socketio.emit('resulturl', startTime) #missing session
+		
+		#Stores currently completed predictions
+		ssObject = []
+		#Prepare files for saving results
+		fileoutput.createFolder(startTime)
+		fileoutput.createHTML(startTime, ssObject, seq)
+		
+		sendData(post_data, seq, startTime, ssObject)
 
 #Sends sequence based off whatever was selected before submission
-def sendTo(targets, currentsession, seq, startTime):
-	ssObject = []
-	fileoutput.createFolder(startTime)
-	fileoutput.createHTML(startTime, ssObject, seq)
-	
-	counter = 0
-	for key in siteDict.keys():
-		if targets[counter]:
-			socketio.start_background_task(run, siteDict[key], seq, email, key, currentsession, ssObject, startTime, email_service)
+def sendData(input, seq, startTime, ssObject):
+	for key in input.keys():
+		if key in siteDict:
+			socketio.start_background_task(run, siteDict[key], seq, email, key, ssObject, startTime, email_service)
 			print("Sending sequence to " + key)
-		counter += 1
 
 if __name__ == "__main__":
 	#socketio.run(app, debug=True) #Run on localhost 127.0.0.1:5000
