@@ -2,89 +2,74 @@
 <head>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="{{url_for('static', filename='scripts/datamanager.js')}}"></script>
+<script src="{{url_for('static', filename='scripts/style.js')}}"></script>
 </head>
 <body style="font-family:Consolas">
 
 <div>
+	Sequence: <br />
 	<textarea id="seqtext" rows="4" cols="50">MSAEREIPAEDSIKVVCRFRPLNDSEEKAGSKFVVKFPNNVEENCISIAGKVYLFDKVFKPNASQEKVYNMSAEREIPAEDSIKVVCRFRPLNDSEEKAGSKFVVKFPNNVEENCISIAGKVYLFDKVFKPNASQEKVYN</textarea>	
 </div>
 
 <button id="clearbtn">Clear</button>
+
+<div>
+	<div>Email (Optional):<input type="text" id="Email" value=""></div>
+	<table>
+		Send sequence to:
+		<tr>
+			<td>
+				<input type="checkbox" id="0checkbox" checked>
+					<a href="http://www.compbio.dundee.ac.uk/jpred4/index_up.html">
+						JPred
+					</a>
+			</td>
+			<td>
+				<input type="checkbox" id="1checkbox" checked>
+					<a href="http://bioinf.cs.ucl.ac.uk/psipred/">
+						PsiPred
+					</a>
+			</td>
+			<td>
+				<input type="checkbox" id="2checkbox" checked>
+					<a href="https://zhanglab.ccmb.med.umich.edu/PSSpred/">
+						PSSPred
+					</a>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="checkbox" id="3checkbox" checked>
+					<a href="http://raptorx.uchicago.edu/StructurePropertyPred/predict/">
+						RaptorX
+					</a>
+				</td>
+			<td>
+				<input type="checkbox" id="4checkbox" checked>
+					<a href="https://sable.cchmc.org/">
+						SABLE
+					</a>
+			</td>
+			<td>
+				<input type="checkbox" id="5checkbox" checked>
+					<a href="http://www.ibi.vu.nl/programs/yaspinwww/">
+						YASPIN
+					</a>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="checkbox" id="6checkbox" checked>
+					<a href="http://scratch.proteomics.ics.uci.edu/">
+						SSPro
+					</a>
+			</td>
+		</tr>
+	</table>
+</div>
+
 <button id="submitbtn">Submit Sequence</button>
-
-<script type="text/javascript" charset="utf-8">
-$(document).ready(function() {
-	var socket = io.connect('http://' + document.domain + ':' + location.port);
-	var j;
-	
-    socket.on('connect', function() {
-        socket.emit('connected');
-    });
-
-	socket.on('result', function(msg) {
-		j = JSON.parse(msg);
-		$('#' + j.pID).text(j.pred);
-		$('#' + j.cID).text(j.conf);
-		console.log(msg);
-		
-		if(j != null)
-			colorCode(j.pID, j.pred);
-	});
-	
-	socket.on('resulturl', function(msg) {
-		$('#resulturl').text("Results");
-		$('#resulturl').attr('href','http://'+ document.domain + ':' + location.port + '/output/'+msg);
-		$('#resulturl').attr('target','_blank');
-		console.log(msg);
-		
-		if(j != null)
-			colorCode(j.pID, j.pred);
-	});
-	
-	$('#submitbtn').on('click', function() {
-		socket.emit('sendSeq', {'data': $('#seqtext').val()});
-		$('#seq').text($('#seqtext').val());
-		console.log('Button Clicked!!!!!');
-		$('#submitbtn').attr('disabled','disabled');
-		$('#clearbtn').attr('disabled','disabled');
-	});
-
-	$('#clearbtn').on('click', function() {
-		$('#seqtext').val("")
-	});
-});
-  
-//Takes element id and prediction string and color codes the element
-function colorCode(id, pred)
-{	
-	ele = document.getElementById(id);
-	
-	result = "";
-	
-	for(i = 0; i < pred.length; i++)
-	{
-		result += "<span style='color:" + getColor(pred.charAt(i)) + "';>" + pred.charAt(i) + "</span>";
-	}
-	
-	ele.innerHTML = result;
-}
-
-//Takes a character and returns a color
-function getColor(character)
-{
-	if (character == 'H')
-		return "blue";
-	else if (character == 'E')
-		return "green";
-	else if (character == 'C')
-		return "red";
-	
-	return "black";
-}
-
-</script>
-
-
 <a id='resulturl'></a>
 <table border="1">
 	<tr>

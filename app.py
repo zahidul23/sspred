@@ -7,10 +7,20 @@ from flask import Flask, render_template, request, current_app,send_file
 from flask_socketio import SocketIO, emit, send
 import secrets
 
+#Order of sites to send  #0-Jpred 1-Psipred 2-Psspred	3-Raptorx 4-Sable 5-Yaspin 6-SSPro
+siteDict = {
+	"JPred": jpred,
+	"PSI": psi,
+	"PSS": pss,
+	"RaptorX": raptorx,
+	"Sable": sable,
+	"YASPIN": yaspin,
+	"SSPro": sspro
+}
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 socketio = SocketIO(app)
-
 
 email_service = emailtools.login()
 email = emailtools.getEmailAddress(email_service)
@@ -67,23 +77,28 @@ def processInput(input_json):
 	currentsession = request.sid
 	print(currentsession)
 	seq = ''.join(input_json['data'].split())
-	
-	ssObject = []
-	
-	startTime = emailtools.randBase62()
-	fileoutput.createFolder(startTime)
-	fileoutput.createHTML(startTime, ssObject, seq)
+	print(seq)
 
+	#Get start time and prepare result url
+	startTime = emailtools.randBase62()
 	socketio.emit('resulturl', startTime,room = currentsession)
 	
-	print(seq)
-	socketio.start_background_task(run, psi, seq, email, "PSI", currentsession, ssObject, startTime)
-	socketio.start_background_task(run, jpred, seq, email, "JPred", currentsession, ssObject, startTime)
-	socketio.start_background_task(run, raptorx, seq, email, "RaptorX", currentsession, ssObject, startTime)
-	socketio.start_background_task(run, pss, seq, email, "PSS", currentsession, ssObject, startTime)
-	socketio.start_background_task(run, yaspin, seq, email, "Yaspin", currentsession, ssObject, startTime)
-	socketio.start_background_task(run, sable, seq, email, "Sable", currentsession, ssObject, startTime, email_service)
-	socketio.start_background_task(run, sspro, seq, email, "SSPro", currentsession, ssObject, startTime, email_service)
+	#Send sequence to sites
+	print(input_json['targets'])
+	sendTo(input_json['targets'], currentsession, seq, startTime)
+
+#Sends sequence based off whatever was selected before submission
+def sendTo(targets, currentsession, seq, startTime):
+	ssObject = []
+	fileoutput.createFolder(startTime)
+	fileoutput.createHTML(startTime, ssObject, seq)
+	
+	counter = 0
+	for key in siteDict.keys():
+		if targets[counter]:
+			socketio.start_background_task(run, siteDict[key], seq, email, key, currentsession, ssObject, startTime, email_service)
+			print("Sending sequence to " + key)
+		counter += 1
 
 if __name__ == "__main__":
 	#socketio.run(app, debug=True) #Run on localhost 127.0.0.1:5000
