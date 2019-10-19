@@ -57,7 +57,7 @@ def showoutput(var):
 	except Exception as e:
 		return "not found"
 
-def run(predService, seq, email, name, ssObject,
+def run(predService,sess, seq, email, name, ssObject,
  startTime, email_service = None):
 	tempSS = predService.get(seq, email, email_service)
 
@@ -75,7 +75,7 @@ def run(predService, seq, email, name, ssObject,
 		'pID': tempSS.name + 'pred',
 		'cID': tempSS.name + 'conf',
 		'status': tempSS.status}
-		)) #missing session
+		), room=sess) #missing session
 	
 	if tempSS.status == 1:
 		ssObject.append(tempSS)
@@ -93,14 +93,15 @@ def connected():
 @socketio.on('beginProcess') #send once socket is connected
 def processInput():
 	if post_data:
-		seq = post_data['seqtext']
-		socketio.emit('seqString', json.dumps({'seq':seq})) #send seq to update the seq row
+		sess = request.sid
+		seq = ''.join(post_data['seqtext'].split()) #removes all whitespaces
+		socketio.emit('seqString', json.dumps({'seq':seq}), room=sess) #send seq to update the seq row
 		
 		#user_email = post_data['email'] #currently unused
 		
 		startTime = emailtools.randBase62()
 		startTime = emailtools.randBase62()
-		socketio.emit('resulturl', startTime) #missing session
+		socketio.emit('resulturl', startTime, room=sess) #missing session
 		
 		#Stores currently completed predictions
 		ssObject = []
@@ -108,13 +109,13 @@ def processInput():
 		fileoutput.createFolder(startTime)
 		fileoutput.createHTML(startTime, ssObject, seq)
 		
-		sendData(post_data, seq, startTime, ssObject)
+		sendData(post_data,sess, seq, startTime, ssObject)
 
 #Sends sequence based off whatever was selected before submission
-def sendData(input, seq, startTime, ssObject):
+def sendData(input,sess, seq, startTime, ssObject):
 	for key in input.keys():
 		if key in siteDict:
-			socketio.start_background_task(run, siteDict[key], seq, email, key, ssObject, startTime, email_service)
+			socketio.start_background_task(run, siteDict[key],sess, seq, email, key, ssObject, startTime, email_service)
 			print("Sending sequence to " + key)
 
 if __name__ == "__main__":
