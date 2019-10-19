@@ -108,7 +108,7 @@ def processInput():
 		fileoutput.createFolder(startTime)
 		fileoutput.createHTML(startTime, ssObject, seq)
 		
-		#sendData(post_data, seq, startTime, ssObject)
+		sendData(post_data, seq, startTime, ssObject)
 
 #Sends sequence based off whatever was selected before submission
 def sendData(input, seq, startTime, ssObject):
