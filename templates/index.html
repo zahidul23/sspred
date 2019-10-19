@@ -9,6 +9,7 @@
 	<textarea id="seqtext" rows="4" cols="50">MSAEREIPAEDSIKVVCRFRPLNDSEEKAGSKFVVKFPNNVEENCISIAGKVYLFDKVFKPNASQEKVYNMSAEREIPAEDSIKVVCRFRPLNDSEEKAGSKFVVKFPNNVEENCISIAGKVYLFDKVFKPNASQEKVYN</textarea>	
 </div>
 
+<button id="clearbtn">Clear</button>
 <button id="submitbtn">Submit Sequence</button>
 
 <script type="text/javascript" charset="utf-8">
@@ -30,6 +31,7 @@ $(document).ready(function() {
 	socket.on('resulturl', function(msg) {
 		$('#resulturl').text("Results");
 		$('#resulturl').attr('href','http://'+ document.domain + ':' + location.port + '/output/'+msg);
+		$('#resulturl').attr('target','_blank');
 		console.log(msg);
 		
 		colorCode(j.pID, j.pred);
@@ -39,6 +41,12 @@ $(document).ready(function() {
 		socket.emit('sendSeq', {'data': $('#seqtext').val()});
 		$('#seq').text($('#seqtext').val());
 		console.log('Button Clicked!!!!!');
+		$('#submitbtn').attr('disabled','disabled');
+		$('#clearbtn').attr('disabled','disabled');
+	});
+
+	$('#clearbtn').on('click', function() {
+		$('#seqtext').val("")
 	});
 });
   
