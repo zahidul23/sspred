@@ -15,17 +15,20 @@
 <script type="text/javascript" charset="utf-8">
 $(document).ready(function() {
 	var socket = io.connect('http://' + document.domain + ':' + location.port);
+	var j;
+	
     socket.on('connect', function() {
         socket.emit('connected');
     });
 
 	socket.on('result', function(msg) {
-		var j = JSON.parse(msg);
+		j = JSON.parse(msg);
 		$('#' + j.pID).text(j.pred);
 		$('#' + j.cID).text(j.conf);
 		console.log(msg);
 		
-		colorCode(j.pID, j.pred);
+		if(j != null)
+			colorCode(j.pID, j.pred);
 	});
 	
 	socket.on('resulturl', function(msg) {
@@ -34,7 +37,8 @@ $(document).ready(function() {
 		$('#resulturl').attr('target','_blank');
 		console.log(msg);
 		
-		colorCode(j.pID, j.pred);
+		if(j != null)
+			colorCode(j.pID, j.pred);
 	});
 	
 	$('#submitbtn').on('click', function() {
