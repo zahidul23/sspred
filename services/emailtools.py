@@ -26,6 +26,10 @@ def login():
 	
 	return service
 
+#Send email to target email
+def sendEmail(service, target):
+	return 0;
+
 #Gets email address
 def getEmailAddress(service):
 	address = service.users().getProfile(userId='me').execute()

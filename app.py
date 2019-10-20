@@ -27,7 +27,7 @@ socketio = SocketIO(app)
 email_service = emailtools.login()
 email = emailtools.getEmailAddress(email_service)
 
-#dictionary containing sent data
+#Dictionary containing sent data
 post_data = {}
 
 @app.route('/', methods = ['GET', 'POST'])
@@ -36,18 +36,14 @@ def hello(name=None):
 		global post_data
 		post_data = dict(request.form)
 		#print(post_data)
-		return render_template('sent.html')#output page. keeps the same url
+		
+		if validate_sites(post_data) and validate_seq(post_data['seqtext']):				
+			return render_template('sent.html')#output page. keeps the same url
 
-	else: #request.method == 'GET':
-		form = SubmissionForm() 
-		return render_template('index.html', form = form) #default submission page
-'''
-@app.route()
-	if request.method == 'POST':
-		post_data = dict(request.form)
-		print(post_data)
-		return render_template('sent.html')
-'''
+	#request.method == 'GET':
+	form = SubmissionForm() 
+	return render_template('index.html', form = form) #default submission page
+
 @app.route('/output/<var>')
 def showoutput(var):
 	print("showing output")
@@ -57,17 +53,9 @@ def showoutput(var):
 	except Exception as e:
 		return "not found"
 
-def run(predService, seq, email, name, ssObject,
+def run(predService,sess, seq, email, name, ssObject,
  startTime, email_service = None):
 	tempSS = predService.get(seq, email, email_service)
-
-	'''
-	#test without running any prediction scripts
-	tempSS = ss.SS(name)
-	tempSS.pred = datetime.now().strftime("%H:%M:%S")
-	tempSS.conf = datetime.now().strftime("%H:%M:%S")
-	tempSS.status = 1
-	#''' 
 	
 	socketio.emit('result', json.dumps({
 		'pred': tempSS.pred,
@@ -75,14 +63,12 @@ def run(predService, seq, email, name, ssObject,
 		'pID': tempSS.name + 'pred',
 		'cID': tempSS.name + 'conf',
 		'status': tempSS.status}
-		)) #missing session
+		), room=sess)
 	
 	if tempSS.status == 1:
 		ssObject.append(tempSS)
 		fileoutput.createHTML(startTime, ssObject, seq)
 	
-	#'''
-
 @socketio.on('connected')
 def connected():
 	print()
@@ -93,14 +79,14 @@ def connected():
 @socketio.on('beginProcess') #send once socket is connected
 def processInput():
 	if post_data:
-		seq = post_data['seqtext']
-		socketio.emit('seqString', json.dumps({'seq':seq})) #send seq to update the seq row
+		sess = request.sid
+		seq = ''.join(post_data['seqtext'].split()) #removes all whitespaces
+		socketio.emit('seqString', json.dumps({'seq':seq}), room=sess) #send seq to update the seq row
 		
 		#user_email = post_data['email'] #currently unused
 		
 		startTime = emailtools.randBase62()
-		startTime = emailtools.randBase62()
-		socketio.emit('resulturl', startTime) #missing session
+		socketio.emit('resulturl', startTime, room=sess)
 		
 		#Stores currently completed predictions
 		ssObject = []
@@ -108,14 +94,25 @@ def processInput():
 		fileoutput.createFolder(startTime)
 		fileoutput.createHTML(startTime, ssObject, seq)
 		
-		sendData(post_data, seq, startTime, ssObject)
+		sendData(post_data,sess, seq, startTime, ssObject)
 
 #Sends sequence based off whatever was selected before submission
-def sendData(input, seq, startTime, ssObject):
+def sendData(input,sess, seq, startTime, ssObject):
 	for key in input.keys():
 		if key in siteDict:
-			socketio.start_background_task(run, siteDict[key], seq, email, key, ssObject, startTime, email_service)
+			socketio.start_background_task(run, siteDict[key],sess, seq, email, key, ssObject, startTime, email_service)
 			print("Sending sequence to " + key)
+
+def validate_seq(seq):
+	if seq == "":
+		return False
+	return True
+#Takes a form from post and checks if at least one site is in it
+def validate_sites(form):
+	for key in siteDict.keys():
+		if key in form:
+			return True
+	return False		
 
 if __name__ == "__main__":
 	#socketio.run(app, debug=True) #Run on localhost 127.0.0.1:5000

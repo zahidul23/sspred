@@ -5,10 +5,6 @@
 </head>
 <body style="font-family:Consolas">	
 <div>
-	<!--Sequence: <br />
-	<textarea id="seqtext" rows="4" cols="50">MSAEREIPAEDSIKVVCRFRPLNDSEEKAGSKFVVKFPNNVEENCISIAGKVYLFDKVFKPNASQEKVYNMSAEREIPAEDSIKVVCRFRPLNDSEEKAGSKFVVKFPNNVEENCISIAGKVYLFDKVFKPNASQEKVYN</textarea>	
-	<button id="clearbtn">Clear</button>
-	-->
 	{% block content %}
 		<form action="" method="post"> 
 			{{ form.hidden_tag() }}
@@ -21,7 +17,7 @@
 			{{ form.email.label }}
 			{{ form.email }}
 			<br>	
-			<table>
+			<table onclick = "checkCount()">
 				Send sequence to:
 				<tr>
 					<td>
@@ -62,11 +58,22 @@
 		</form>
 	{% endblock  %}
 </div>
-<script type="text/javascript" >	
+<script type="text/javascript" >
 	function clearseq() 
 	{
 		seqtext = document.getElementById('seqtext');
 		seqtext.innerHTML = "";
+	}
+	
+	function checkCount()
+	{
+		checks = $('input[type="checkbox"]:checked').length;
+		submit = document.getElementById('submitbtn');
+		
+		if(checks <= 0)
+			submit.disabled = true;
+		else
+			submit.disabled = false;
 	}
 </script>
 </body>
