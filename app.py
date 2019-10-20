@@ -86,7 +86,7 @@ def processInput():
 		#user_email = post_data['email'] #currently unused
 		
 		startTime = emailtools.randBase62()
-		socketio.emit('resulturl', startTime, room=sess)
+		socketio.emit('resulturl', startTime, room=sess)1
 		
 		#Stores currently completed predictions
 		ssObject = []
