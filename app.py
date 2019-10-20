@@ -103,11 +103,12 @@ def sendData(input,sess, seq, startTime, ssObject):
 			socketio.start_background_task(run, siteDict[key],sess, seq, email, key, ssObject, startTime, email_service)
 			print("Sending sequence to " + key)
 
+#Takes a form from post and checks if seq is empty or not. Backup measure in case elements are editted
 def validate_seq(seq):
 	if seq == "":
 		return False
 	return True
-#Takes a form from post and checks if at least one site is in it
+#Takes a form from post and checks if at least one site is in it. Backup measure in case elements are editted
 def validate_sites(form):
 	for key in siteDict.keys():
 		if key in form:
