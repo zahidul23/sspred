@@ -6,7 +6,11 @@
 <script src="{{url_for('static', filename='scripts/style.js')}}"></script>
 </head>
 <body style="font-family:Consolas">
-
+<script>
+//Contains form data
+var post_data = '{{ post }}';
+post_data = post_data.replace(/&#39;/g, "\"");
+</script>
 <div>
 <a id='resulturl'></a>
 <div id = 'emaildiv'></div>

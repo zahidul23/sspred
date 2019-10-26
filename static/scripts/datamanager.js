@@ -4,7 +4,7 @@ $(document).ready(function() {
 
 	var socket = io.connect('http://' + document.domain + ':' + location.port);
     socket.on('connect', function() {
-        socket.emit('beginProcess');
+        socket.emit('beginProcess', post_data); //post_data contained in sent.html
     });
 	
 	socket.on('seqString', function(msg)
