@@ -7,7 +7,7 @@ import re
 from services import ss, emailtools
 
 def get(seq, email_address, email_service):
-
+	#needs length constraint as short sequences will not return output
 	SS = ss.SS("Sable")
 	SS.status = 0
 	

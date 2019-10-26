@@ -4,11 +4,12 @@ import pickle
 import email
 import os.path
 import base64
+from email.mime.text import MIMEText
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
 
 #Logs in using token.pickle
 def login():
@@ -27,8 +28,13 @@ def login():
 	return service
 
 #Send email to target email
-def sendEmail(service, target):
-	return 0;
+def sendEmail(service, target, subject, msg):
+	message = MIMEText(msg)
+	message['to'] = target
+	message['from'] = getEmailAddress(service)
+	message['subject'] = subject
+	message = {'raw': base64.urlsafe_b64encode(message.as_string().encode()).decode()}
+	service.users().messages().send(userId='me', body=message).execute()
 
 #Gets email address
 def getEmailAddress(service):
@@ -65,3 +71,11 @@ def randBase62():
 		integer, remainder = divmod(integer, 62)
 		result = chars[remainder]+result
 	return result
+	
+#Create token.pickle. Needed to change emails or update scopes
+def createPickle():
+	flow = InstalledAppFlow.from_client_secrets_file('services/credentials.json', SCOPES)
+	creds = flow.run_local_server(port=0)
+	# Save the credentials for the next run
+	with open('services/token.pickle', 'wb') as token:
+		pickle.dump(creds, token)

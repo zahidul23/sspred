@@ -51,7 +51,8 @@ def createHTML(startTime, ssobj, seq):
 		for c in preds:
 			output += "<span style='color:" + getColor(c) + "';>" + c + "</span>"
 		output += "</div>"
-		output += "<div>" + i.clabel.replace(" ","&nbsp;") + "&nbsp;" + i.conf + "</div>"
+		if i.conf != "": #only display conf if it is not empty. needed in order for SSPro to not display the conf
+			output += "<div>" + i.clabel.replace(" ","&nbsp;") + "&nbsp;" + i.conf + "</div>"
 	'''
 	output += "<div>Majority Vote:"
 	for c in ssList[-1]:
@@ -61,6 +62,19 @@ def createHTML(startTime, ssobj, seq):
 	output += "</div></body></html>"
 	file.write(output)
 
+#Returns the output as a string
+def createText(ssObject, seq): #needs results to be split between lines (jpred splits by 60 chars per line)
+	output = ''
+	output += drawCounter(seq).replace("&nbsp;", " ") + "\n"
+	output += "Sequence:".rjust(14) + seq + "\n"
+	
+	for i in ssObject:
+		if i.status == 1:
+			output+=i.plabel.rjust(14) + i.pred+ "\n"
+			if i.conf != "":
+				output+=i.clabel.rjust(14) + i.conf+ "\n"
+	#output += "\nMajority Vote:" + ssList[-1]
+	return output
 
 #Takes a character and returns the color it should be represented as
 #Helix = blue, Strand = green, Coil = red

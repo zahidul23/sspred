@@ -4,13 +4,15 @@ $(document).ready(function() {
 
 	var socket = io.connect('http://' + document.domain + ':' + location.port);
     socket.on('connect', function() {
-		console.log("sent results");
         socket.emit('beginProcess');
     });
 	
 	socket.on('seqString', function(msg)
 	{
-		$('#seq').text(JSON.parse(msg).seq);
+		parse = JSON.parse(msg);
+		$('#seq').text(parse.seq);
+		if(parse.email != "")
+			$('#emaildiv').text("Results will also be sent to " + parse.email);
 	});
 	
 	var j;
@@ -30,7 +32,6 @@ $(document).ready(function() {
 		$('#resulturl').attr('href','http://'+ document.domain + ':' + location.port + '/output/'+msg);
 		$('#resulturl').attr('target','_blank');
 		console.log(msg);
-		
 		if(j != null)
 			colorCode(j.pID, j.pred);
 	});

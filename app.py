@@ -30,6 +30,9 @@ email = emailtools.getEmailAddress(email_service)
 #Dictionary containing sent data
 post_data = {}
 
+#Counter for checking if all predictions are completed
+completed = 0
+
 @app.route('/', methods = ['GET', 'POST'])
 def hello(name=None):
 	if request.method == 'POST':
@@ -37,7 +40,9 @@ def hello(name=None):
 		post_data = dict(request.form)
 		#print(post_data)
 		
-		if validate_sites(post_data) and validate_seq(post_data['seqtext']):				
+		total_sites = validate_sites(post_data)
+		post_data.update({'total_sites' : total_sites}) # add total into to post_data dictionary
+		if total_sites > 0 and validate_seq(post_data['seqtext']):				
 			return render_template('sent.html')#output page. keeps the same url
 
 	#request.method == 'GET':
@@ -64,10 +69,19 @@ def run(predService,sess, seq, email, name, ssObject,
 		'cID': tempSS.name + 'conf',
 		'status': tempSS.status}
 		), room=sess)
-	
-	if tempSS.status == 1:
-		ssObject.append(tempSS)
-		fileoutput.createHTML(startTime, ssObject, seq)
+
+	if tempSS.status >= 1:
+		if tempSS.status == 1:
+			ssObject.append(tempSS)
+			fileoutput.createHTML(startTime, ssObject, seq)
+		
+		global completed
+		completed += 1
+		if completed == post_data['total_sites']:
+			print("All predictions completed.")
+			if post_data['email'] != "": #if all completed and user email is not empty, send email
+				print ("Sending results to " + post_data['email'])
+				emailtools.sendEmail(email_service, post_data['email'],"Prediction Results", fileoutput.createText(ssObject, post_data['seqtext']) + "\n\nResults can also be viewed at:\n" + "siteurl" + '/output/' + startTime +'/' + startTime + '.html')
 	
 @socketio.on('connected')
 def connected():
@@ -79,26 +93,24 @@ def connected():
 @socketio.on('beginProcess') #send once socket is connected
 def processInput():
 	if post_data:
+		print(post_data)
 		sess = request.sid
 		seq = ''.join(post_data['seqtext'].split()) #removes all whitespaces
-		socketio.emit('seqString', json.dumps({'seq':seq}), room=sess) #send seq to update the seq row
-		
-		#user_email = post_data['email'] #currently unused
-		
+		socketio.emit('seqString', json.dumps({'seq':seq, 'email': post_data['email']}), room=sess) #send seq and email to update their elements in sent.html
+
 		startTime = emailtools.randBase62()
-		socketio.emit('resulturl', startTime, room=sess)1
+		socketio.emit('resulturl', startTime, room=sess)
 		
 		#Stores currently completed predictions
 		ssObject = []
 		#Prepare files for saving results
 		fileoutput.createFolder(startTime)
-		fileoutput.createHTML(startTime, ssObject, seq)
 		
-		sendData(post_data,sess, seq, startTime, ssObject)
+		sendData(sess, seq, startTime, ssObject)
 
 #Sends sequence based off whatever was selected before submission
-def sendData(input,sess, seq, startTime, ssObject):
-	for key in input.keys():
+def sendData(sess, seq, startTime, ssObject):
+	for key in post_data.keys():
 		if key in siteDict:
 			socketio.start_background_task(run, siteDict[key],sess, seq, email, key, ssObject, startTime, email_service)
 			print("Sending sequence to " + key)
@@ -108,12 +120,14 @@ def validate_seq(seq):
 	if seq == "":
 		return False
 	return True
-#Takes a form from post and checks if at least one site is in it. Backup measure in case elements are editted
+
+#Takes a form from post and returns the number of sites it. Backup measure in case elements are editted, and for checking if all predictions are finished
 def validate_sites(form):
+	count = 0
 	for key in siteDict.keys():
 		if key in form:
-			return True
-	return False		
+			count += 1
+	return count	
 
 if __name__ == "__main__":
 	#socketio.run(app, debug=True) #Run on localhost 127.0.0.1:5000
