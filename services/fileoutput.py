@@ -87,8 +87,7 @@ def getColor(character):
 		return "red"
 	
 	return "black"
-	
+
 #Takes a start time and returns a format for file naming
 def getNameFormat(startTime):
 	return time.strftime("%m.%d.%Y %H.%M.%S",time.localtime(startTime))
-	

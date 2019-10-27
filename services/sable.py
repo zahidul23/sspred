@@ -7,8 +7,14 @@ import re
 from services import ss, emailtools
 
 def get(seq, email_address, email_service):
-	#needs length constraint as short sequences will not return output
+	
 	SS = ss.SS("Sable")
+	if len(seq) <= 12:
+		SS.status = 2
+		SS.pred += "Sequence is shorter than or equal to 12"
+		SS.conf += "Sequence is shorter than or equal to 12"
+		print("SABLE failed: Sequence is shorter than or equal to 12")
+		
 	SS.status = 0
 	
 	randName = emailtools.randBase62()
