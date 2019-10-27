@@ -21,7 +21,8 @@
 			<br>
 			{{ form.seqtext(cols="50", rows="4") }}
 			<br>
-			<!-- <button id="clearbtn" type="button" onclick="clearseq()">Clear Sequence</button> -->
+			<button id="clearbtn" type="button">Clear Sequence</button>
+			<button id="genbtn" type="button">Generate Random Sequence</button>
 			<br>
 			{{ form.email.label }}
 			{{ form.email }}
@@ -30,34 +31,34 @@
 				Send sequence to:
 				<tr>
 					<td>
-						{{ form.JPred(value='true') }}
+						{{ form.JPred }}
 						{{ form.JPred.label }}
 					</td>
 					<td>
-						{{ form.PSI(value='true') }}
+						{{ form.PSI }}
 						{{ form.PSI.label }}
 					</td>
 					<td>
-						{{ form.PSS(value='true') }}
+						{{ form.PSS }}
 						{{ form.PSS.label }}
 					</td>
 				</tr>
 				<tr>
 					<td>
-						{{ form.RaptorX(value='true') }}
+						{{ form.RaptorX }}
 						{{ form.RaptorX.label }}
 					<td>
-						{{ form.Sable(value='true') }}
+						{{ form.Sable }}
 						{{ form.Sable.label }}
 					</td>
 					<td>
-						{{ form.Yaspin(value='true') }}
+						{{ form.Yaspin }}
 						{{ form.Yaspin.label }}
 					</td>
 				</tr>
 				<tr>
 					<td>
-						{{ form.SSPro(value='true') }}
+						{{ form.SSPro }}
 						{{ form.SSPro.label }}
 					</td>
 				</tr>
@@ -67,11 +68,49 @@
 		</form>
 	{% endblock  %}
 </div>
+
+
+<div> 
+-----------------------------------------------------------------------------------
+<br />
+<br />
+<br />Upon submission, you will be redirected to a page showing your sequence 
+<br />The page will reload every 30 seconds displaying results as they are completed
+<br />
+<br />Typical Wait Times for Sequence of 150 Residues  
+<br />&nbsp;&nbsp;&nbsp;&nbsp;PSI: <1 minute
+<br />&nbsp;Yaspin: 1-3 minutes (Often offline)
+<br />&nbsp;&nbsp;&nbsp;&nbsp;PSS: 1-3 minutes	(Currently broken)
+<br />&nbsp;&nbsp;Jpred: 3-5 minutes
+<br />&nbsp;&nbsp;Sable: 5-7 minutes
+<br />RaptorX: 5-7 minutes	
+<br />&nbsp;&nbsp;SSPro: 8 minutes
+<br />
+<br />
+<br />An email containing the final results will be sent to the address provided above
+<br />
+<br /><a href="/archive" target="_blank">All previously submitted results can be found by clicking here</a>
+</div>
+
+
 <script type="text/javascript" >
-	function clearseq() 
-	{
-		seqtext = document.getElementById('seqtext');
-		seqtext.innerHTML = "";
+	$('#clearbtn').on('click', function() {
+		$('#seqtext').val("");
+	});
+
+	$('#genbtn').on('click', function() {
+		$('#seqtext').val(randSeq());
+	});
+
+	function randSeq() {
+  		 var result           = '';
+   		 var characters       = 'ACDEFGHIKLMNPQRSTVWY';
+  		 var charactersLength = characters.length;
+		 var length = Math.floor(Math.random() * 140) + 60 
+   		 for ( var i = 0; i < length; i++ ) {
+    		 	result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   		 }
+   		 return result;
 	}
 	
 	function checkCount()
