@@ -10,8 +10,8 @@ class SS:
 		
 	def __init__(self, name):
 		self.name = name
-		self.plabel = name.rjust(7) + " Pred:"
-		self.clabel = name.rjust(7) + " Conf:"
+		self.plabel = name.rjust(8) + " Pred:"
+		self.clabel = name.rjust(8) + " Conf:"
 		self.pred = ""
 		self.conf = ""
 		self.cconf = []

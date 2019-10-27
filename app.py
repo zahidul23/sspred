@@ -45,21 +45,6 @@ if siteurl is None :
 
 @app.route('/', methods = ['GET', 'POST'])
 def hello(name=None):
-	'''
-	if request.method == 'POST':
-		post_data = dict(request.form) #Dictionary containing sent data
-		print(post_data)
-		
-		total_sites = validate_sites(post_data)
-		post_data.update({'total_sites' : total_sites, 'completed': 0}) # add total into to post_data dictionary and a completed prediction counter
-		post_data['seqtext'] = ''.join(post_data['seqtext'].split()) #removes all whitespaces
-		print(post_data)
-		if total_sites > 0 and validate_seq(post_data['seqtext']):
-			return render_template('sent.html', post = post_data)#output page. keeps the same url. send post_data to begin predictions
-
-	#request.method == 'GET':
-
-	'''
 	form = SubmissionForm() 
 	if form.validate_on_submit():
 		post_data = {
@@ -81,9 +66,7 @@ def hello(name=None):
 		startTime = emailtools.randBase62()
 		if post_data['email'] != "": #send email to let users know input was received
 			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/output/" + startTime +"</div>")
-			
-			#Non HTML version
-			#emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "Input received for the following sequence:\n" + seq + "\n\nResults will be displayed at the following link as soon as they are available:\n" + siteurl + "/output/" + startTime +"/" + startTime + ".html")
+
 		#Stores currently completed predictions
 		ssObject = []
 		#Prepare files for saving results
@@ -126,11 +109,11 @@ def run(predService, seq, email, name, ssObject,
  startTime, post_data, email_service = None):
 	tempSS = predService.get(seq, email, email_service)
 	runningCounter[tempSS.name] -= 1
-
+	
 	if tempSS.status >= 1:
 		if tempSS.status == 1 or tempSS.status == 3:
 			ssObject.append(tempSS)
-			post_data.update({'output' : fileoutput.createHTML(startTime, ssObject, seq)}) #create HTML and store it in post_data
+			post_data.update({'output' : fileoutput.createHTML(startTime, ssObject, seq, majorityVote(seq, ssObject))}) #create HTML and store it in post_data
 
 		post_data['completed'] += 1
 		if post_data['completed'] == post_data['total_sites']:
@@ -149,6 +132,39 @@ def sendData(seq, startTime, ssObject, post_data):
 				pool.apply_async(run, (siteDict[key], seq, email, key, ssObject, startTime, post_data, email_service))
 				print("Sending sequence to " + key)
 				runningCounter[key] += 1
+
+#Takes current completed outputs and conducts a majority vote then returns it. If a majority vote results in an equal value, currently defaults to 'X'
+def majorityVote(seq, ssObject):
+	output = ''
+	if len(ssObject) >= 2: #vote only if more than 2 ssObjects exist (at least 2 predictions)
+		#create a counter for each character appearance
+		seqLength = len(seq)
+		cCount = [0] * seqLength
+		hCount = [0] * seqLength
+		eCount = [0] * seqLength
+		
+		for i in ssObject:
+			if i.status == 1 or i.status == 3:
+				for j in range(0, seqLength):
+					if i.pred[j] == 'C':
+						cCount[j] += 1
+					elif i.pred[j] == 'E':
+						eCount[j] += 1
+					elif i.pred[j] == 'H':
+						hCount[j] += 1
+
+		for i in range(0, seqLength):
+			if eCount[i] > hCount[i] and eCount[i] > cCount[i]:
+				output += 'E'
+			elif hCount[i] > cCount[i] and hCount[i] > eCount[i]:
+				output += 'H'
+			elif cCount[i] > hCount[i] and cCount[i] > eCount[i]:
+				output += 'C'
+			else:
+				output += 'X' #use X if unsure - typically shows when not all predictions are completed
+	else:
+		return None
+	return output
 
 #Takes a form from post and checks if seq is empty or not. Backup measure in case elements are editted
 def validate_seq(seq):
