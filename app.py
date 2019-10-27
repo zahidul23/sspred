@@ -1,6 +1,7 @@
 import json
 import time
 import os
+from lxml import html
 from services import ss, psi, jpred, raptorx, pss, sable, sspro, yaspin, emailtools, fileoutput
 from datetime import datetime
 
@@ -47,6 +48,25 @@ def hello(name=None):
 	#request.method == 'GET':
 	form = SubmissionForm() 
 	return render_template('index.html', form = form) #default submission page
+
+
+@app.route('/archive')
+def showall():
+	namelist = []
+	timelist= []
+	seqlist= []
+	for x in os.listdir(path='output'):
+		if x != '.blankfile':
+			namelist.append(str(x))
+			timelist.append(os.path.getmtime('output/' + x))
+			with open (r'output/' + x + '/' + x + '.html', 'r') as f:
+				page = f.read()
+			seq = html.fromstring(page).xpath('/html/body/div[2]/text()')[0][14:]
+			seqlist.append(seq)
+			
+
+	return render_template('archives.html', namedata=namelist, timedata=timelist, seqdata=seqlist)
+
 
 @app.route('/output/<var>')
 def showoutput(var):
@@ -111,6 +131,7 @@ def processInput(post):
 		ssObject = []
 		#Prepare files for saving results
 		fileoutput.createFolder(startTime)
+		fileoutput.createHTML(startTime, ssObject, seq)
 		
 		sendData(sess, seq, startTime, ssObject, post_data)
 
