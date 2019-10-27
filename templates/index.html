@@ -6,13 +6,22 @@
 <body style="font-family:Consolas">	
 <div>
 	{% block content %}
-		<form action="" method="post"> 
+		<form method="POST" action=""> 
 			{{ form.hidden_tag() }}
+			{% if form.errors %}
+    				<ul class="errors">
+        				{% for field_name, field_errors in form.errors|dictsort if field_errors %}
+            					{% for error in field_errors %}
+                					<li> {{ error }}</li>
+            					{% endfor %}
+        				{% endfor %}
+    				</ul>
+			{% endif %}
 			{{ form.seqtext.label }}
 			<br>
-			{{ form.seqtext(cols="50", rows="4") }} 
+			{{ form.seqtext(cols="50", rows="4") }}
 			<br>
-			<button id="clearbtn" type="button" onclick="clearseq()">Clear Sequence</button>
+			<!-- <button id="clearbtn" type="button" onclick="clearseq()">Clear Sequence</button> -->
 			<br>
 			{{ form.email.label }}
 			{{ form.email }}

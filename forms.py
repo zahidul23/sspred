@@ -1,11 +1,17 @@
 from flask_wtf import FlaskForm
 from wtforms import TextAreaField, SubmitField, StringField, BooleanField, validators, ValidationError
 from wtforms.widgets import TextArea
+import re
 		
 class SubmissionForm(FlaskForm):
 	defaultseq = "MSAEREIPAEDSIKVVCRFRPLNDSEEKAGSKFVVKFPNNVEENCISIAGKVYLFDKVFKPNASQEKVYNMSAEREIPAEDSIKVVCRFRPLNDSEEKAGSKFVVKFPNNVEENCISIAGKVYLFDKVFKPNASQEKVYN"
 	#maybe include seqtext length
-	seqtext = TextAreaField('Sequence', [validators.Required("Sequence required.")], widget=TextArea(), default= defaultseq)
+	seqtext = TextAreaField('Sequence', [
+		validators.Required("Sequence required."), 
+		validators.Length(min=30,max=4000, message="Sequence must be between 40 and 4000 characters"),
+		validators.Regexp(regex='^[A,R,N,D,C,E,Q,G,H,I,L,K,M,F,P,S,T,W,Y,V]*$', flags = re.IGNORECASE, message="Invalid Characters")  	
+		], 
+		widget=TextArea(), default= defaultseq)
 	email = StringField('Email (Optional):', [validators.Email("Invalid email address."), validators.Optional()])
 	
 	JPred = BooleanField('JPred', [validators.Optional()],default="checked")
