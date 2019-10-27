@@ -29,6 +29,13 @@ def get(seq, email_address, email_service):
 	r= requests.post('https://zhanglab.ccmb.med.umich.edu/cgi-bin/PSSpred.pl', data=payload)
 
 	soup = BeautifulSoup(r.text, 'html.parser')
+	
+	#Exit if no links available in the response
+	if soup.a is None: 
+		SS.pred = "Failed to submit, server possibly under load"
+		SS.conf = "Failed to submit, server possibly under load"
+		SS.status = 2
+		return SS
 
 	ssurl = soup.a.get('href')
 
