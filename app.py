@@ -21,6 +21,17 @@ siteDict = {
 	"SSPro": sspro
 }
 
+runningCounter = {
+	"JPred": 0,
+	"PSI": 0,
+	"PSS": 0,
+	"RaptorX": 0,
+	"Sable": 0,
+	"Yaspin": 0,
+	"SSPro": 0
+}
+
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 
@@ -81,7 +92,7 @@ def hello(name=None):
 		sendData(seq, startTime, ssObject, post_data)
 		return redirect(url_for('showoutput', var = startTime))
 
-	return render_template('index.html', form = form) #default submission page
+	return render_template('index.html', form = form, counter = runningCounter) #default submission page
 
 
 @app.route('/archive')
@@ -114,7 +125,7 @@ def showoutput(var):
 def run(predService, seq, email, name, ssObject,
  startTime, post_data, email_service = None):
 	tempSS = predService.get(seq, email, email_service)
-	
+	runningCounter[tempSS.name] -= 1
 
 	if tempSS.status >= 1:
 		if tempSS.status == 1 or tempSS.status == 3:
@@ -137,6 +148,7 @@ def sendData(seq, startTime, ssObject, post_data):
 			if post_data[key]:
 				pool.apply_async(run, (siteDict[key], seq, email, key, ssObject, startTime, post_data, email_service))
 				print("Sending sequence to " + key)
+				runningCounter[key] += 1
 
 #Takes a form from post and checks if seq is empty or not. Backup measure in case elements are editted
 def validate_seq(seq):
