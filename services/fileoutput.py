@@ -32,6 +32,7 @@ def drawCounter(mySeq):
 
 #Saves the output to an HTML file. Takes a startTime for naming and ssObject for the outputs
 #"pred month.day.year hr.min.sec" for file name
+#Returns the outputted HTML as a string so that it can be emailed
 def createHTML(startTime, ssobj, seq):
 	nameFormat = startTime
 	filePath = os.getcwd() + "/output/" + nameFormat + "/" + nameFormat + ".html"
@@ -61,7 +62,9 @@ def createHTML(startTime, ssobj, seq):
 	
 	output += "</div></body></html>"
 	file.write(output)
+	return output
 
+'''
 #Returns the output as a string
 def createText(ssObject, seq): #needs results to be split between lines (jpred splits by 60 chars per line)
 	output = ''
@@ -75,6 +78,7 @@ def createText(ssObject, seq): #needs results to be split between lines (jpred s
 				output+=i.clabel.rjust(14) + i.conf+ "\n"
 	#output += "\nMajority Vote:" + ssList[-1]
 	return output
+'''
 
 #Takes a character and returns the color it should be represented as
 #Helix = blue, Strand = green, Coil = red
@@ -87,7 +91,8 @@ def getColor(character):
 		return "red"
 	
 	return "black"
-
+	
 #Takes a start time and returns a format for file naming
 def getNameFormat(startTime):
 	return time.strftime("%m.%d.%Y %H.%M.%S",time.localtime(startTime))
+	

@@ -27,9 +27,9 @@ def login():
 	
 	return service
 
-#Send email to target email
+#Send email to target email. Email will be sent in HTML format, so normal text formatting will not work (such as \n)
 def sendEmail(service, target, subject, msg):
-	message = MIMEText(msg)
+	message = MIMEText(msg, 'html')
 	message['to'] = target
 	message['from'] = getEmailAddress(service)
 	message['subject'] = subject

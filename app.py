@@ -69,14 +69,14 @@ def run(predService,sess, seq, email, name, ssObject,
 	if tempSS.status >= 1:
 		if tempSS.status == 1:
 			ssObject.append(tempSS)
-			fileoutput.createHTML(startTime, ssObject, seq)
+			post_data.update({'output' : fileoutput.createHTML(startTime, ssObject, seq)}) #create HTML and store it in post_data
 
 		post_data['completed'] += 1
 		if post_data['completed'] == post_data['total_sites']:
 			print("All predictions completed.")
 			if post_data['email'] != "": #if all completed and user email is not empty, send email
 				print ("Sending results to " + post_data['email'])
-				emailtools.sendEmail(email_service, post_data['email'],"Prediction Results", fileoutput.createText(ssObject, post_data['seqtext']) + "\n\nResults can also be viewed at:\n" + siteurl + '/output/' + startTime +'/' + startTime + '.html')
+				emailtools.sendEmail(email_service, post_data['email'],"Prediction Results", post_data['output'])
 	
 @socketio.on('connected')
 def connected():
@@ -99,8 +99,11 @@ def processInput(post):
 		socketio.emit('resulturl', startTime, room=sess)
 		
 		if post_data['email'] != "": #send email to let users know input was received
-			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "Input received for the following sequence:\n" + seq + "\n\nResults will be displayed at the following link as soon as they are available:\n" + siteurl + "/output/" + startTime +"/" + startTime + ".html")
-
+			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/output/" + startTime +"/" + startTime + ".html</div>")
+			
+			#Non HTML version
+			#emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "Input received for the following sequence:\n" + seq + "\n\nResults will be displayed at the following link as soon as they are available:\n" + siteurl + "/output/" + startTime +"/" + startTime + ".html")
+			
 		#Stores currently completed predictions
 		ssObject = []
 		#Prepare files for saving results
