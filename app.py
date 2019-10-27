@@ -51,7 +51,6 @@ def hello(name=None):
 	'''
 	form = SubmissionForm() 
 	if form.validate_on_submit():
-		print('yoyoyo')
 		post_data = {
 			'seqtext': ''.join(form.seqtext.data.split()),
 			'email': form.email.data,
@@ -82,7 +81,6 @@ def hello(name=None):
 		sendData(seq, startTime, ssObject, post_data)
 		return redirect(url_for('showoutput', var = startTime))
 
-	print('lalalal')
 	return render_template('index.html', form = form) #default submission page
 
 
@@ -136,8 +134,9 @@ def sendData(seq, startTime, ssObject, post_data):
 	pool = ThreadPool(processes=post_data['total_sites'])
 	for key in post_data.keys():
 		if key in siteDict:
-			pool.apply_async(run, (siteDict[key], seq, email, key, ssObject, startTime, post_data, email_service))
-			print("Sending sequence to " + key)
+			if post_data[key]:
+				pool.apply_async(run, (siteDict[key], seq, email, key, ssObject, startTime, post_data, email_service))
+				print("Sending sequence to " + key)
 
 #Takes a form from post and checks if seq is empty or not. Backup measure in case elements are editted
 def validate_seq(seq):
@@ -149,7 +148,7 @@ def validate_seq(seq):
 def validate_sites(form):
 	count = 0
 	for key in siteDict.keys():
-		if key in form:
+		if form[key]:
 			count += 1
 	return count	
 
