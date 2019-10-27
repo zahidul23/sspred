@@ -52,7 +52,7 @@ def createHTML(startTime, ssobj, seq):
 		for c in preds:
 			output += "<span style='color:" + getColor(c) + "';>" + c + "</span>"
 		output += "</div>"
-		if i.conf != "": #only display conf if it is not empty. needed in order for SSPro to not display the conf
+		if i.status != 3: #only display conf if it is not empty. needed in order for SSPro to not display the conf
 			output += "<div>" + i.clabel.replace(" ","&nbsp;") + "&nbsp;" + i.conf + "</div>"
 	'''
 	output += "<div>Majority Vote:"

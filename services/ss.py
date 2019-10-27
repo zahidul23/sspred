@@ -24,5 +24,6 @@ class SS:
 			0 = not finished
 			1 = finished
 			2 = ended with error
+			3 = finished with no conf
 	'''
 	

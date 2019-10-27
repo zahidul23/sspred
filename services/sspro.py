@@ -50,8 +50,8 @@ def get(seq, email_address, email_service): #may need to check if all slots in q
 				SS.pred += message_parts[index]
 			finished_scrape = True
 
-	#SS.conf = "SSPro Does Not Provide Any Conf" 
-	SS.conf = "" #Use empty string to not display the conf in output
-	SS.status = 1
+	SS.conf = "SSPro Does Not Provide Any Conf" 
+	#SS.conf = "" #Use empty string to not display the conf in output
+	SS.status = 3
 	print("SSpro Complete")
 	return SS

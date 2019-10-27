@@ -1,5 +1,6 @@
 import json
 import time
+import os
 from services import ss, psi, jpred, raptorx, pss, sable, sspro, yaspin, emailtools, fileoutput
 from datetime import datetime
 
@@ -27,7 +28,9 @@ email_service = emailtools.login()
 email = emailtools.getEmailAddress(email_service)
 
 #Url of hosted site
-siteurl = "siteurl"
+siteurl = os.environ.get('SITE_URL')
+if siteurl is None :
+	siteurl = ""
 
 @app.route('/', methods = ['GET', 'POST'])
 def hello(name=None):
@@ -67,7 +70,7 @@ def run(predService,sess, seq, email, name, ssObject,
 		), room=sess)
 
 	if tempSS.status >= 1:
-		if tempSS.status == 1:
+		if tempSS.status == 1 or tempSS.status == 3:
 			ssObject.append(tempSS)
 			post_data.update({'output' : fileoutput.createHTML(startTime, ssObject, seq)}) #create HTML and store it in post_data
 
@@ -99,7 +102,7 @@ def processInput(post):
 		socketio.emit('resulturl', startTime, room=sess)
 		
 		if post_data['email'] != "": #send email to let users know input was received
-			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/output/" + startTime +"/" + startTime + ".html</div>")
+			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/output/" + startTime +"</div>")
 			
 			#Non HTML version
 			#emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "Input received for the following sequence:\n" + seq + "\n\nResults will be displayed at the following link as soon as they are available:\n" + siteurl + "/output/" + startTime +"/" + startTime + ".html")
