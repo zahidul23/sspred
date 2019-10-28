@@ -33,7 +33,9 @@ runningCounter = {
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
+app.config['SECRET_KEY'] = os.environ.get('SECRET')
+if app.config['SECRET_KEY'] is None:
+	app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 
 email_service = emailtools.login()
 email = emailtools.getEmailAddress(email_service)
