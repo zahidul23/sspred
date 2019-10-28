@@ -41,7 +41,7 @@ def createHTML(startTime, ssobj, seq, majority = None):
 		os.remove(filePath)
 	file = open(filePath, "w+")
 
-	output = "<!DOCTYPE html><head><meta http-equiv='refresh' content='30'></head><html><body style='font-family:monospace;'>" #use monospace as font to have equal spacing between all characters
+	output = "<!DOCTYPE html><head><meta http-equiv='refresh' content='30'></head><html><body style='font-family:consolas;'>" #use consolas as font to have equal spacing between all characters
 
 	output += "<div>" + drawCounter(seq).replace(" ","&nbsp;") + "</div>"
 	output += "<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sequence:&nbsp;" + seq + "</div>"

@@ -72,7 +72,7 @@ def hello(name=None):
 		#Prepare files for saving results
 		fileoutput.createFolder(startTime)
 		fileoutput.createHTML(startTime, ssObject, seq)
-		sendData(seq, startTime, ssObject, post_data)
+		#sendData(seq, startTime, ssObject, post_data)
 		return redirect(url_for('showoutput', var = startTime))
 
 	return render_template('index.html', form = form, counter = runningCounter) #default submission page
