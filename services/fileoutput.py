@@ -33,7 +33,7 @@ def drawCounter(mySeq):
 #Takes a startTime for naming and ssObject,seq, and optional majority vote for the outputs
 #"pred month.day.year hr.min.sec" for file name
 #Returns the outputted HTML as a string so that it can be emailed
-def createHTML(startTime, ssobj, seq, majority = None):
+def createHTML(startTime, ssobj, seq, majority = None, hColor = "blue", eColor = "green", cColor = "red"):
 	nameFormat = startTime
 	filePath = os.getcwd() + "/output/" + nameFormat + "/" + nameFormat + ".html"
 	print(filePath)
@@ -41,7 +41,7 @@ def createHTML(startTime, ssobj, seq, majority = None):
 		os.remove(filePath)
 	file = open(filePath, "w+")
 
-	output = "<!DOCTYPE html><head><meta http-equiv='refresh' content='30'></head><html><body style='font-family:consolas;'>" #use consolas as font to have equal spacing between all characters
+	output = "<!DOCTYPE html><head><meta http-equiv='refresh' content='30'></head><html><body style='font-family:Consolas;'>" #use consolas as font to have equal spacing between all characters
 
 	output += "<div>" + drawCounter(seq).replace(" ","&nbsp;") + "</div>"
 	output += "<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sequence:&nbsp;" + seq + "</div>"
@@ -50,14 +50,14 @@ def createHTML(startTime, ssobj, seq, majority = None):
 		output+='<div>' + i.plabel.replace(" ","&nbsp;") + "&nbsp;" #prediction source
 		preds = i.pred #prediction results to be colored
 		for c in preds:
-			output += "<span style='color:" + getColor(c) + "';>" + c + "</span>"
+			output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"
 		output += "</div>"
 		if i.status != 3: #Only display conf if status is not 3
 			output += "<div>" + i.clabel.replace(" ","&nbsp;") + "&nbsp;" + i.conf + "</div>"
 	if majority:
 		output += "<div>Majority Vote: "
 		for c in majority:
-			output += "<span style='color:" + getColor(c) + "';>" + c + "</span>"	
+			output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"	
 		output += "</div>"
 	output += "</body></html>"
 	

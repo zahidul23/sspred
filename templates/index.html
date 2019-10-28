@@ -63,7 +63,25 @@
 					</td>
 				</tr>
 			</table>
-			<input type="reset"></input>
+			<table style="text-align: center; padding-left:20px; padding-bottom: 10px">
+				Color Coding Options:
+				<tr>
+					<td>Helix</td>
+					<td>Coil</td>
+					<td>Beta</td>
+				</tr>
+				<tr>
+					<td>{{ form.helixcolor }}</td>
+					<td>{{ form.coilcolor }}</td>
+					<td>{{ form.betacolor }}</td>
+				</tr>
+			</table>
+			<div id = "colorCodeIE" style="display:none">
+			Internet Explorer does not support color picking. To choose colors, either get a color code from 
+				<a href="https://www.w3schools.com/colors/colors_picker.asp">here</a>
+			or switch to a compatible browser such as Google Chrome or Mozilla Firefox.
+			</div>
+			<input type="reset">
 			{{ form.submitbtn() }}
 		</form>
 	{% endblock  %}
@@ -142,6 +160,17 @@ Instances Running:
 			submit.disabled = true;
 		else
 			submit.disabled = false;
+	}
+	
+	
+	// Display a message about color coding if user is using IE
+	var ua = window.navigator.userAgent;
+	var isIE = /MSIE|Trident/.test(ua);
+	
+	if(isIE)
+	{
+		ieDiv = document.getElementById("colorCodeIE");
+		ieDiv.style.display = 'block';
 	}
 </script>
 </body>

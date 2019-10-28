@@ -57,13 +57,18 @@ def hello(name=None):
 			'Sable':   form.Sable.data,
 			'Yaspin':   form.Yaspin.data,
 			'SSPro':   form.SSPro.data,
+			'helixcolor': str(form.helixcolor.data),
+			'coilcolor': str(form.coilcolor.data),
+			'betacolor': str(form.betacolor.data),
 			'submitbtn': 'Submit'
 			}
+
 		total_sites = validate_sites(post_data)
 		post_data.update({'total_sites' : total_sites, 'completed': 0}) # add total into to post_data dictionary and a completed prediction counter
 		print(post_data)
 		seq = post_data['seqtext']
 		startTime = emailtools.randBase62()
+
 		if post_data['email'] != "": #send email to let users know input was received
 			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/output/" + startTime +"</div>")
 
@@ -98,7 +103,7 @@ def showall():
 
 @app.route('/output/<var>')
 def showoutput(var):
-	print("showing output")
+	#print("showing output")
 	print('output/'+var+'/'+var+'.html')
 	try:
 		return send_file('output/'+var+'/'+var+'.html')
@@ -113,8 +118,8 @@ def run(predService, seq, email, name, ssObject,
 	if tempSS.status >= 1:
 		if tempSS.status == 1 or tempSS.status == 3:
 			ssObject.append(tempSS)
-			post_data.update({'output' : fileoutput.createHTML(startTime, ssObject, seq, majorityVote(seq, ssObject))}) #create HTML and store it in post_data
-
+			post_data.update({'output' : fileoutput.createHTML(startTime, ssObject, seq, majorityVote(seq, ssObject), post_data['helixcolor'], post_data['betacolor'], post_data['coilcolor'])}) #create HTML and store it in post_data
+		
 		post_data['completed'] += 1
 		if post_data['completed'] == post_data['total_sites']:
 			print("All predictions completed.")
