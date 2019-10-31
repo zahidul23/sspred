@@ -10,6 +10,35 @@ from flask import Flask, render_template, request, current_app,send_file, redire
 from multiprocessing.pool import ThreadPool
 import secrets
 
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from psycopg2 import sql
+
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+
+def dbselect(rowid):
+	cursor = conn.cursor(cursor_factory=RealDictCursor)
+	cursor.execute("SELECT * FROM seqtable WHERE ID = (%s)",(rowid,))
+	jsonresults = json.dumps(cursor.fetchall(), indent=2)
+	cursor.close()
+	return jsonresults
+
+def dbinsert(rowid, rowseq):
+	cursor = conn.cursor()
+	cursor.execute("INSERT INTO seqtable (ID, SEQ) VALUES (%s, %s)", (rowid, rowseq))
+	conn.commit()
+	cursor.close()
+
+def dbupdate(rowid, rowcol, rowval):
+	cursor = conn.cursor()
+	cursor.execute(
+		sql.SQL("UPDATE seqtable SET {} = (%s) WHERE ID = (%s)")
+		.format(sql.Identifier(rowcol.lower())),(rowval, rowid))
+	conn.commit()
+	cursor.close()
+
 #Dictionary containing sites and their classes
 siteDict = {
 	"JPred": jpred,
@@ -79,6 +108,9 @@ def hello(name=None):
 		#Prepare files for saving results
 		fileoutput.createFolder(startTime)
 		fileoutput.createHTML(startTime, ssObject, seq)
+		
+		dbinsert(startTime, seq)
+		
 		sendData(seq, startTime, ssObject, post_data)
 		return redirect(url_for('showoutput', var = startTime))
 
@@ -90,17 +122,14 @@ def showall():
 	namelist = []
 	timelist= []
 	seqlist= []
-	for x in os.listdir(path='output'):
-		if x != '.blankfile':
-			namelist.append(str(x))
-			timelist.append(os.path.getmtime('output/' + x))
-			with open (r'output/' + x + '/' + x + '.html', 'r') as f:
-				page = f.read()
-			seq = html.fromstring(page).xpath('/html/body/div[2]/text()')[0][14:]
-			seqlist.append(seq)
-			
+	
+	cursor = conn.cursor(cursor_factory=RealDictCursor)
+	cursor.execute("SELECT id, seq FROM seqtable")
+	jsonresults = json.dumps(cursor.fetchall(), indent=2)
+	
+	cursor.close()		
 
-	return render_template('archives.html', namedata=namelist, timedata=timelist, seqdata=seqlist)
+	return render_template('archives.html', data = jsonresults)
 
 
 @app.route('/output/<var>')
@@ -112,15 +141,28 @@ def showoutput(var):
 	except Exception as e:
 		return "not found"
 
+@app.route('/dboutput/<var>')
+def showdboutput(var):
+	outputjson = dbselect(var)
+	try:
+		return render_template('dboutput.html', data = outputjson)
+	except Exception as e:
+		return "not found"
+
 def run(predService, seq, email, name, ssObject,
  startTime, post_data, email_service = None):
 	tempSS = predService.get(seq, email, email_service)
 	runningCounter[tempSS.name] -= 1
 	
+	dbupdate(startTime, tempSS.name + "pred", tempSS.pred)
+	dbupdate(startTime, tempSS.name + "conf", tempSS.conf)
+	dbupdate(startTime, tempSS.name + "stat", tempSS.status)
 	if tempSS.status >= 1:
 		if tempSS.status == 1 or tempSS.status == 3:
 			ssObject.append(tempSS)
-			post_data.update({'output' : fileoutput.createHTML(startTime, ssObject, seq, majorityVote(seq, ssObject), post_data['helixcolor'], post_data['betacolor'], post_data['coilcolor'])}) #create HTML and store it in post_data
+			majority = majorityVote(seq, ssObject)
+			dbupdate(startTime, 'majorityvote', majority)
+			post_data.update({'output' : fileoutput.createHTML(startTime, ssObject, seq, majority, post_data['helixcolor'], post_data['betacolor'], post_data['coilcolor'])}) #create HTML and store it in post_data
 		
 		post_data['completed'] += 1
 		if post_data['completed'] == post_data['total_sites']:

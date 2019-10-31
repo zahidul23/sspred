@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+</style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js" type="text/javascript">
+	</script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js">
+	</script>
+	<script src="{{url_for('static', filename='scripts/html2canvas.js')}}"></script>
+	<title></title>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0'><meta name="autorefresh" http-equiv='refresh' content='30'>
+</head>
+<body style="font-family:monospace;">
+	
+	
+<table id="mytable" border="0">
+
+	<tr id="counterRow" style="display:none;>
+		<td align="right"><br/></td>
+		<td id='charLabel'></td>
+	</tr>
+	
+	<tr id="seqRow">
+		<td align="right" id='seqLabel'>Sequence:</td>
+		<td id='seq'></td>
+	</tr>
+	
+	<tr id="psiprow" style="display:none;">
+		<td align="right">PSI Pred:</td>
+		<td id='psipred' class="pred"></td>
+	</tr>
+	<tr id="psicrow" style="display:none;">
+		<td align="right">PSI Conf:</td>
+		<td id='psiconf'></td>
+	</tr>
+	
+
+	<tr id="jpredprow" style="display:none;">
+		<td align="right">JPred Pred:</td>
+		<td id='jpredpred' class="pred"></td>
+	</tr>
+	<tr id="jpredcrow" style="display:none;">
+		<td align="right">JPred Conf:</td>
+		<td id='jpredconf'></td>
+	</tr>
+	
+	
+	
+	<tr id="raptorxprow" style="display:none;">
+		<td align="right">RaptorX Pred:</td>
+		<td id='raptorxpred' class="pred"></td>
+	</tr>
+	<tr id="raptorxcrow" style="display:none;">
+		<td align="right">RaptorX Conf:</td>
+		<td id='raptorxconf'></td>
+	</tr>
+	
+	
+	
+	<tr id="pssprow" style="display:none;">
+		<td align="right">PSS Pred:</td>
+		<td id='psspred' class="pred"></td>
+	</tr>
+	<tr id="psscrow" style="display:none;">
+		<td align="right">PSS Conf:</td>
+		<td id='pssconf'></td>
+	</tr>
+	
+	
+	
+	<tr id="yaspinprow" style="display:none;">
+		<td align="right">Yaspin Pred:</td>
+		<td id='yaspinpred' class="pred"></td>
+	</tr>
+	<tr id="yaspincrow" style="display:none;">
+		<td align="right">Yaspin Conf:</td>
+		<td id='yaspinconf'></td>
+	</tr>
+	
+	
+	
+	<tr id="sableprow" style="display:none;">
+		<td align="right">Sable Pred:</td>
+		<td id='sablepred' class="pred"></td>
+	</tr>
+	<tr id="sablecrow" style="display:none;">
+		<td align="right">Sable Conf:</td>
+		<td id='sableconf'></td>
+	</tr>
+	
+	
+	
+	<tr id="ssproprow" style="display:none;">
+		<td align="right">SSPro Pred:</td>
+		<td id='sspropred' class="pred"></td>
+	</tr>
+	<tr id="ssprocrow" style="display:none;">
+		<td align="right">SSPro Conf:</td>
+		<td id='ssproconf'></td>
+	</tr>
+	
+	<tr id="majrow" style="display:none;">
+		<td align="right">Majority Vote:</td>
+		<td id='majorityvote'></td>
+	</tr>
+</table>	
+
+<br/><br/><br/>
+<table style="text-align: center; padding-bottom: 10px; border-spacing: 15px 0rem;">
+<tr>
+	<td>
+		<p>Enable AutoRefresh</p>
+	</td>
+	<td>
+		<p>Show Majority Vote</p>
+	</td>
+</tr>
+<tr>
+	<td>
+	<label class="switch"> 
+	  <input type="checkbox" id="togglerefresh" onclick="toggleRefesh()" checked>
+	  <span class="slider round"></span>
+	</label>
+	</td>
+	
+	<td>
+	<label class="switch"> 
+	  <input type="checkbox" id="togglemajority" onclick="toggleMajority()" checked>
+	  <span class="slider round"></span>
+	</label>
+	</td>
+</tr>
+</table>
+			<table style="text-align: center; padding-bottom: 10px">
+				<tr>
+					<td>Helix</td>
+					<td>Coil</td>
+					<td>Beta</td>
+				</tr>
+				<tr>
+					<td><input id="hcolor" type="color" value="#0000FF"></td>
+					<td><input id="ccolor" type="color" value="#FF0000"></td>
+					<td><input id="ecolor" type="color" value="#008000"></td>
+					<td><button id="updatecolor">Update Colors</button></td>
+				</tr>
+</table>
+
+
+<p>Click the button below to generate an image of the data above<br/>
+Then right-click on the image to download the image to your device or copy to paste into your document</p>
+<button id="genimage">Generate Image</button>
+
+<table id='imgoutput' border="0">
+	<tr>
+		<td id="myimage"></td>
+	</tr>
+</table>
+
+<script type="text/javascript">
+	var a = {{ data | safe}};
+	document.getElementById('seq').innerHTML = a[0]['seq'];
+	mvotestring = a[0]['majorityvote'];
+	mvotestring = mvotestring.replace(/C/g,'<span class="c" style="color: red;">C</span>');
+	mvotestring = mvotestring.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
+	mvotestring = mvotestring.replace(/E/g,'<span class="e" style="color: green;">E</span>');
+	document.getElementById('majorityvote').innerHTML = mvotestring;
+	document.getElementById('majrow').style.display = "table-row";
+	
+	for (var key of Object.keys(a[0])){
+		if (key.slice(key.length -4) == "stat") {
+			if (a[0][key] == 1 || a[0][key] == 3){
+				var name = key.slice(0,-4);
+				var predstring  = a[0][name+'pred']
+				predstring = predstring.replace(/C/g,'<span class="c" style="color: red;">C</span>');
+				predstring = predstring.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
+				predstring = predstring.replace(/E/g,'<span class="e" style="color: green;">E</span>');
+				document.getElementById(name+'pred').innerHTML = predstring;
+				document.getElementById(name+'prow').style.display = "table-row";
+			}
+			if (a[0][key] == 1){
+				var name = key.slice(0,-4);
+				document.getElementById(name+'conf').innerHTML = a[0][name+'conf']
+				document.getElementById(name+'crow').style.display = "table-row";
+			}
+		}
+	}
+	
+	$('#updatecolor').on('click', function() {
+		var clist = document.getElementsByClassName('c');
+		for (var i = 0; i < clist.length; i++){
+			clist[i].style.color =  document.getElementById("ccolor").value;
+		}
+		
+		var elist = document.getElementsByClassName('e');
+		for (var i = 0; i < elist.length; i++){
+			elist[i].style.color =  document.getElementById("ecolor").value;
+		}
+		
+		var hlist = document.getElementsByClassName('h');
+		for (var i = 0; i < hlist.length; i++){
+			hlist[i].style.color =  document.getElementById("hcolor").value;
+		}
+	});
+	
+	function toggleRefesh(){
+		console.log("Toggled Refresh");
+		var checkBox = document.getElementById("togglerefresh");
+		if(checkBox.checked == true){
+			location.reload();
+		}
+		else{
+			window.stop();
+			
+		}
+	}
+	
+	function toggleMajority(){
+		var checkBox = document.getElementById("togglemajority");
+		if(checkBox.checked == true){
+			document.getElementById('majrow').style.display = "table-row";
+		}
+		else{
+			document.getElementById('majrow').style.display = "none";
+		}
+	}
+	
+	$('#genimage').on('click', function() {
+		html2canvas(document.getElementById('mytable'),{scale:1}).then(function(canvas) {
+		const myNode = document.getElementById("imgoutput");
+		while (myNode.firstChild) {
+			myNode.removeChild(myNode.firstChild);
+		 }
+		document.getElementById('imgoutput').append(canvas);
+		});
+	});
+	</script>
+</body>
+</html>

@@ -8,12 +8,12 @@
 	</script>
 	<title></title>
 </head>
-<body style="font-family:Consolas">
+<body style="font-family:Consolas;">
+	<div>CTRL+F to find your sequence</div>
 	<table border="1" id="myTable">
 		<tbody>
 			<tr>
 				<td>Link</td>
-				<td>Last Modified</td>
 				<td>Sequence</td>
 			</tr>
 		</tbody>
@@ -21,29 +21,29 @@
 	<script type="text/javascript">
 
 
-	   var times = {{timedata}};
-	   var names = {{namedata | safe}};
-	   var seq = {{seqdata | safe}};
+	   //var times = {{timedata}};
+	   //var names = {{namedata | safe}};
+	   //var seq = {{seqdata | safe}};
+
+		var data = {{data | safe}}
+
+	   //$.each(times, function(index,value){
+
+	   //});
 
 
 
-	   $.each(times, function(index,value){
-
-	   });
 
 
 
-
-
-
-	   for (i=0; i < names.length; i++) {
-	       var time = new Date(times[i] * 1000)
-	       var readabletime  = time.toLocaleString('en-US', { hour12: true });
+	   for (i=0; i < data.length; i++) {
+	       //var time = new Date(times[i] * 1000)
+	       //var readabletime  = time.toLocaleString('en-US', { hour12: true });
 	       var str = [""
 	                 ,"<tr>"
-	                 ,"<td><a href='http://" + document.domain + ":" + location.port + "/output/" + names[i] +"'>" + names[i] + "<\/a><\/td>"
-	                 ,"<td nowrap id='" + time.toString() + "' >"+ readabletime +"<\/td>"
-	                 ,"<td nowrap>"+ seq[i]+"<\/td>"
+	                 ,"<td><a href='http://" + document.domain + ":" + location.port + "/dboutput/" + data[i]['id'] +"'>" + data[i]['id'] + "<\/a><\/td>"
+	                 //,"<td nowrap id='" + time.toString() + "' >"+ readabletime +"<\/td>"
+	                 ,"<td nowrap>"+ data[i]['seq']+"<\/td>"
 	                 ,"<\/tr>"
 	                 ].join("").replace(",","");
 	       
@@ -86,7 +86,7 @@
 	    }
 	   }
 
-	   sortTable();
+	   //sortTable();
 
 
 
