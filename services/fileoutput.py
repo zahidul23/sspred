@@ -16,7 +16,8 @@ def createFolder(startTime):
 def drawCounter(mySeq):
 	j=0
 	p = 1
-	counterstr = 15*'&nbsp;'
+	#counterstr = 15*'&nbsp;'
+	counterstr = ''
 	while j < len(mySeq):
 		if j%10 != 0:
 			counterstr += ' '
@@ -32,6 +33,7 @@ def drawCounter(mySeq):
 #Saves the output to an HTML file. 
 #Takes a startTime for naming and ssObject,seq, and optional majority vote for the outputs
 #"pred month.day.year hr.min.sec" for file name
+#Splits outputs into lines of length 75 (15 for "source:", 60 for result)
 #Returns the outputted HTML as a string so that it can be emailed
 def createHTML(startTime, ssobj, seq, majority = None, hColor = "blue", eColor = "green", cColor = "red"):
 	nameFormat = startTime
@@ -42,23 +44,26 @@ def createHTML(startTime, ssobj, seq, majority = None, hColor = "blue", eColor =
 	file = open(filePath, "w+")
 
 	output = "<!DOCTYPE html><head><meta http-equiv='refresh' content='30'></head><html><body style='font-family:Consolas;'>" #use consolas as font to have equal spacing between all characters
-
-	output += "<div>" + drawCounter(seq).replace(" ","&nbsp;") + "</div>"
-	output += "<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sequence:&nbsp;" + seq + "</div>"
-
-	for i in ssobj:
-		output+='<div>' + i.plabel.replace(" ","&nbsp;") + "&nbsp;" #prediction source
-		preds = i.pred #prediction results to be colored
-		for c in preds:
-			output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"
-		output += "</div>"
-		if i.status != 3: #Only display conf if status is not 3
-			output += "<div>" + i.clabel.replace(" ","&nbsp;") + "&nbsp;" + i.conf + "</div>"
-	if majority:
-		output += "<div>Majority Vote: "
-		for c in majority:
-			output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"	
-		output += "</div>"
+	
+	counter = drawCounter(seq)
+	
+	for count in range(0, int(len(seq)/60) + 1):
+		output += "<div>" + (15*'&nbsp;') + (counter[60 * count : 60 * (count + 1)]).replace(" ", '&nbsp;') + "</div>"
+		output += "<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sequence:&nbsp;" + seq[60 * count : 60 * (count + 1)] + "</div>"
+		for obj in ssobj:
+			output+='<div>' + obj.plabel.replace(" ","&nbsp;") + "&nbsp;" #prediction source
+			preds = obj.pred #prediction results to be colored
+			for c in preds[60 * count : 60 * (count + 1)]:
+				output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"
+			output += "</div>"
+			if obj.status != 3: #Only display conf if status is not 3
+				output += "<div>" + obj.clabel.replace(" ","&nbsp;") + "&nbsp;" + obj.conf[60 * count : 60 * (count + 1)] +"</div>"
+		if majority:
+			output += "<div>Majority Vote: "
+			for c in majority[60 * count : 60 * (count + 1)]:
+				output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"	
+			output += "</div>"
+		output += "<br>"
 	output += "</body></html>"
 	
 	file.write(output)
