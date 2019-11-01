@@ -33,9 +33,9 @@ def drawCounter(mySeq):
 #Saves the output to an HTML file. 
 #Takes a startTime for naming and ssObject,seq, and optional majority vote for the outputs
 #"pred month.day.year hr.min.sec" for file name
-#Splits outputs into lines of length 75 (15 for "source:", 60 for result)
+#Splits outputs into lines of length depending on the rowlength parameter + 15
 #Returns the outputted HTML as a string so that it can be emailed
-def createHTML(startTime, ssobj, seq, majority = None, hColor = "blue", eColor = "green", cColor = "red"):
+def createHTML(startTime, ssobj, seq, majority = None, hColor = "blue", eColor = "green", cColor = "red", rowlength = 60):
 	nameFormat = startTime
 	filePath = os.getcwd() + "/output/" + nameFormat + "/" + nameFormat + ".html"
 	print(filePath)
@@ -47,20 +47,20 @@ def createHTML(startTime, ssobj, seq, majority = None, hColor = "blue", eColor =
 	
 	counter = drawCounter(seq)
 	
-	for count in range(0, int(len(seq)/60) + 1):
-		output += "<div>" + (15*'&nbsp;') + (counter[60 * count : 60 * (count + 1)]).replace(" ", '&nbsp;') + "</div>"
-		output += "<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sequence:&nbsp;" + seq[60 * count : 60 * (count + 1)] + "</div>"
+	for count in range(0, int(len(seq)/rowlength) + 1):
+		output += "<div>" + (15*'&nbsp;') + (counter[rowlength * count : rowlength * (count + 1)]).replace(" ", '&nbsp;') + "</div>"
+		output += "<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sequence:&nbsp;" + seq[rowlength * count : rowlength * (count + 1)] + "</div>"
 		for obj in ssobj:
 			output+='<div>' + obj.plabel.replace(" ","&nbsp;") + "&nbsp;" #prediction source
 			preds = obj.pred #prediction results to be colored
-			for c in preds[60 * count : 60 * (count + 1)]:
+			for c in preds[rowlength * count : rowlength * (count + 1)]:
 				output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"
 			output += "</div>"
 			if obj.status != 3: #Only display conf if status is not 3
-				output += "<div>" + obj.clabel.replace(" ","&nbsp;") + "&nbsp;" + obj.conf[60 * count : 60 * (count + 1)] +"</div>"
+				output += "<div>" + obj.clabel.replace(" ","&nbsp;") + "&nbsp;" + obj.conf[rowlength * count : rowlength * (count + 1)] +"</div>"
 		if majority:
 			output += "<div>Majority Vote: "
-			for c in majority[60 * count : 60 * (count + 1)]:
+			for c in majority[rowlength * count : rowlength * (count + 1)]:
 				output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"	
 			output += "</div>"
 		output += "<br>"
