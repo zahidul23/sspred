@@ -101,7 +101,7 @@ def hello(name=None):
 		startTime = emailtools.randBase62()
 
 		if post_data['email'] != "": #send email to let users know input was received
-			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/output/" + startTime +"</div>")
+			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/dboutput/" + startTime +"</div>")
 
 		#Stores currently completed predictions
 		ssObject = []
@@ -112,7 +112,7 @@ def hello(name=None):
 		dbinsert(startTime, seq)
 		
 		sendData(seq, startTime, ssObject, post_data)
-		return redirect(url_for('showoutput', var = startTime))
+		return redirect(url_for('showdboutput', var = startTime))
 
 	return render_template('index.html', form = form, counter = runningCounter) #default submission page
 
