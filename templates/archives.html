@@ -14,6 +14,7 @@
 		<tbody>
 			<tr>
 				<td>Link</td>
+				<td>Time Created</td>
 				<td>Sequence</td>
 			</tr>
 		</tbody>
@@ -32,23 +33,36 @@
 	   //});
 
 
+		function decodeBase62(c){
+			code  = c;
+			var timestamp = 0;
+			var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+			for (var i=0; i < code.length; i++){
+				timestamp += chars.indexOf(code[(code.length-1) - i]) * Math.pow(62, i);
+			}
+			if (timestamp != 0){
+				timestamp = timestamp / 100;
+			}
+			return timestamp;
+		}
 
 
-
-
-	   for (i=0; i < data.length; i++) {
-	       //var time = new Date(times[i] * 1000)
-	       //var readabletime  = time.toLocaleString('en-US', { hour12: true });
+	   for (var i=0; i < data.length; i++) {
+	       var time = new Date(decodeBase62(data[i]['id']));
+		   console.log(decodeBase62(data[i]['id']));
+	       var readabletime  = time.toLocaleString('en-US', {year : "2-digit", month : "2-digit", day : "2-digit", hour : "2-digit", minute : "2-digit", second: "2-digit"});
 	       var str = [""
 	                 ,"<tr>"
 	                 ,"<td><a href='http://" + document.domain + ":" + location.port + "/dboutput/" + data[i]['id'] +"'>" + data[i]['id'] + "<\/a><\/td>"
-	                 //,"<td nowrap id='" + time.toString() + "' >"+ readabletime +"<\/td>"
+	                 ,"<td nowrap id='" + time.toString() + "' >"+ readabletime +"<\/td>"
 	                 ,"<td nowrap>"+ data[i]['seq']+"<\/td>"
 	                 ,"<\/tr>"
 	                 ].join("").replace(",","");
 	       
 	      $('#myTable').append(str);
 	   }
+	   
+	   
 
 	   function sortTable() {
 	    var table, rows, switching, i, x, y, shouldSwitch;
@@ -67,10 +81,10 @@
 	        shouldSwitch = false;
 	        /*Get the two elements you want to compare,
 	        one from current row and one from the next:*/
-	        x = rows[i].getElementsByTagName("TD")[1];
-	        y = rows[i + 1].getElementsByTagName("TD")[1];
+	        x = rows[i].getElementsByTagName("TD")[0];
+	        y = rows[i + 1].getElementsByTagName("TD")[0];
 	        //check if the two rows should switch place:
-	        if (x.id < y.id) {
+	        if (x.innerHTML < y.innerHTML) {
 	          //if so, mark as a switch and break the loop:
 
 	          shouldSwitch = true;
@@ -86,7 +100,7 @@
 	    }
 	   }
 
-	   //sortTable();
+	   sortTable();
 
 
 

@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body style="font-family:monospace;">	
+<b> Please enter a single sequence only, spaces will be automatically removed <br />
+Error will occur if input contains non amino-acid letters <br/>
+Support for FASTA formats will be added in the future</b>
+<br/><br/><br/>
 <div>
 	{% block content %}
 		<form method="POST" action=""> 
@@ -107,7 +111,7 @@ Instances Running:
 <br />The page will reload every 30 seconds displaying results as they are completed
 <br />
 <br />Typical Wait Times for Sequence of 150 Residues  
-<br />&nbsp;&nbsp;&nbsp;&nbsp;PSI: <1 minute
+<br />&nbsp;&nbsp;&nbsp;&nbsp;PSI: 1-7 minutes
 <br />&nbsp;Yaspin: 1-3 minutes (Often offline)
 <br />&nbsp;&nbsp;&nbsp;&nbsp;PSS: 1-3 minutes	(Currently broken)
 <br />&nbsp;&nbsp;JPred: 3-5 minutes

@@ -75,9 +75,9 @@ input:checked + .slider:before {
 	
 <table id="mytable" border="0">
 
-	<tr id="counterRow" style="display:none;>
-		<td align="right"><br/></td>
-		<td id='charLabel'></td>
+	<tr id="counterRow" style="display:none;">
+		<td align="right"></td>
+		<td id='charCounter'></td>
 	</tr>
 	
 	<tr id="seqRow">
@@ -206,8 +206,10 @@ input:checked + .slider:before {
 </table>
 
 
-<p>Click the button below to generate an image of the data above<br/>
-Then right-click on the image to download the image to your device or copy to paste into your document</p>
+<p>Disable the auto-refresh before generating an image so it does not reload and disappear <br/>
+Disable majority vote before generating image if you do not wish to include it<br/>
+The image will display below after clicking the generate image button <br/>
+Right click on the image to save or copy to your document</p>
 <button id="genimage">Generate Image</button>
 
 <table id='imgoutput' border="0">
@@ -219,6 +221,8 @@ Then right-click on the image to download the image to your device or copy to pa
 <script type="text/javascript">
 	var a = {{ data | safe}};
 	document.getElementById('seq').innerHTML = a[0]['seq'];
+	document.getElementById('counterRow').style.display = "table-row";
+	document.getElementById('charCounter').innerHTML = drawCounter(a[0]['seq']);
 	mvotestring = a[0]['majorityvote'];
 	mvotestring = mvotestring.replace(/C/g,'<span class="c" style="color: red;">C</span>');
 	mvotestring = mvotestring.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
@@ -226,8 +230,10 @@ Then right-click on the image to download the image to your device or copy to pa
 	document.getElementById('majorityvote').innerHTML = mvotestring;
 	document.getElementById('majrow').style.display = "table-row";
 	
+	var statusproduct = 1
 	for (var key of Object.keys(a[0])){
 		if (key.slice(key.length -4) == "stat") {
+			statusproduct *= a[0][key];
 			if (a[0][key] == 1 || a[0][key] == 3){
 				var name = key.slice(0,-4);
 				var predstring  = a[0][name+'pred']
@@ -243,6 +249,11 @@ Then right-click on the image to download the image to your device or copy to pa
 				document.getElementById(name+'crow').style.display = "table-row";
 			}
 		}
+	}
+	
+	if (statusproduct != 0){
+		document.getElementById("togglerefresh").checked = false
+		window.stop();
 	}
 	
 	$('#updatecolor').on('click', function() {
@@ -283,6 +294,29 @@ Then right-click on the image to download the image to your device or copy to pa
 			document.getElementById('majrow').style.display = "none";
 		}
 	}
+	
+	function drawCounter(mySeq){
+		var j=0;
+		var p = 1;
+		var counterstr = '';
+		while (j < mySeq.length){
+			if (j%10 != 0){
+				counterstr += '&nbsp;';
+				j = j+1;
+			}
+			else{
+				for (k=0; k < p.toString().length; k++){
+					counterstr += p.toString()[k].toString();
+					j=j+1;
+				}
+				p = p+10;
+			}
+		}
+		console.log(counterstr);
+		return counterstr;
+	}
+	
+	
 	
 	$('#genimage').on('click', function() {
 		html2canvas(document.getElementById('mytable'),{scale:1}).then(function(canvas) {
