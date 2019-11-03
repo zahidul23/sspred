@@ -71,10 +71,9 @@ input:checked + .slider:before {
 	<meta name='viewport' content='width=device-width, initial-scale=1.0'><meta name="autorefresh" http-equiv='refresh' content='30'>
 </head>
 <body style="font-family:monospace;">
-	
-	
-<table id="mytable" border="0">
 
+<table id="mytable" border="0">
+<!--
 	<tr id="counterRow" style="display:none;">
 		<td align="right"></td>
 		<td id='charCounter'></td>
@@ -163,8 +162,8 @@ input:checked + .slider:before {
 		<td align="right">Majority Vote:</td>
 		<td id='majorityvote'></td>
 	</tr>
-</table>	
-
+-->
+</table>
 <br/><br/><br/>
 <table style="text-align: center; padding-bottom: 10px; border-spacing: 15px 0rem;">
 <tr>
@@ -178,7 +177,7 @@ input:checked + .slider:before {
 <tr>
 	<td>
 	<label class="switch"> 
-	  <input type="checkbox" id="togglerefresh" onclick="toggleRefesh()" checked>
+	  <input type="checkbox" id="togglerefresh" onclick="toggleRefresh()" checked>
 	  <span class="slider round"></span>
 	</label>
 	</td>
@@ -191,18 +190,29 @@ input:checked + .slider:before {
 	</td>
 </tr>
 </table>
-			<table style="text-align: center; padding-bottom: 10px">
-				<tr>
-					<td>Helix</td>
-					<td>Coil</td>
-					<td>Beta</td>
-				</tr>
-				<tr>
-					<td><input id="hcolor" type="color" value="#0000FF"></td>
-					<td><input id="ccolor" type="color" value="#FF0000"></td>
-					<td><input id="ecolor" type="color" value="#008000"></td>
-					<td><button id="updatecolor">Update Colors</button></td>
-				</tr>
+<div>
+	Amino Acids Per Row:
+	<select id="rowfield">
+	  <option value="60">60</option>
+	  <option value="70">70</option>
+	  <option value="80">80</option>
+	  <option value="90">90</option>
+	  <option value="100">100</option>
+	</select>
+	<button id="updaterows">Update Rows</button>
+</div>
+<table style="text-align: center; padding-bottom: 10px">
+	<tr>
+		<td>Helix</td>
+		<td>Coil</td>
+		<td>Beta</td>
+	</tr>
+	<tr>
+		<td><input id="hcolor" type="color" value="#0000FF"></td>
+		<td><input id="ccolor" type="color" value="#FF0000"></td>
+		<td><input id="ecolor" type="color" value="#008000"></td>
+		<td><button id="updatecolor">Update Colors</button></td>
+	</tr>
 </table>
 
 
@@ -220,6 +230,185 @@ Right click on the image to save or copy to your document</p>
 
 <script type="text/javascript">
 	var a = {{ data | safe}};
+	
+	var statusproduct = 1;
+	//Generates the rows of results. Takes a length which is the number of amino acids per row
+	function generateRows(length)
+	{
+		var sites = []; //array containing which sites are completed
+		
+		//fill sites
+		for (var key of Object.keys(a[0]))
+		{
+			if (key.slice(key.length -4) == "stat") 
+			{
+				statusproduct *= a[0][key];
+				if (a[0][key] == 1 || a[0][key] == 3)
+				{
+					var name = key.slice(0,-4);
+					sites.push(name); //push sites with status 1 or 3 into array
+				}
+			}
+		}
+		
+		
+		var counter = drawCounter(a[0]['seq']);
+		
+		var rows = 0;
+		if(a[0]['seq'].length%length != 0) //if the sequence length = row length, there only needs to be 1 row
+		{
+			rows = Math.floor(a[0]['seq'].length/length)
+		}
+		rows++;
+
+		var output = "";
+		for(var i = 0; i < rows; i++)
+		{
+			//counter row
+			output += "<tr class='counterRow' style='display: table-row;'><td align=''right'></td>";
+			output += "<td class='charCounter'>" + counter.substring(length * i, length * (i + 1)).replace(/ /g, "&nbsp;") + "</td></tr>"; //replace afterwards so that &nbsp will not be substringinged out
+			
+			//sequence row
+			output += "<tr class='seqRow'> <td align='right' class='seqLabel'>Sequence:</td>";
+			output += "<td class='seq'>" + a[0]['seq'].substring(length * i, length * (i + 1)) + "</td></tr>";
+		
+			//site rows
+			for(var j = 0; j < sites.length; j++)
+			{	
+				//pred
+				output += "<tr class='" + sites[j] + "prow' style='display: table-row;'>";
+				output += "<td align='right'>" + sites[j].toUpperCase() + " Pred:</td>";
+				output += "<td class='" + sites[j] + "pred' class='pred'>";
+				var predstring = a[0][sites[j]+'pred'].substring(length * i, length * (i + 1));
+				predstring = predstring.replace(/C/g,'<span class="c" style="color: red;">C</span>');
+				predstring = predstring.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
+				predstring = predstring.replace(/E/g,'<span class="e" style="color: green;">E</span>');
+				output += predstring + "</td></tr>";
+				
+				//conf
+				if(a[0][sites[j] + 'stat'] == 1) //only show conf is status is 1
+				{
+					output += "<tr class='" + sites[j] + "crow' style='display: table-row;'>";
+					output += "<td align='right'>" + sites[j].toUpperCase() + " Conf:</td>";
+					output += "<td class='" + sites[j] + "conf'>" + a[0][sites[j] + 'conf'].substring(length * i, length * (i + 1)) + "</td></tr>"
+				}
+			}
+			
+			if(a[0]['majorityvote'] != null)
+			{
+				//majority vote row
+				output += "<tr class='majrow' style='display: table-row;'><td align='right'>Majority Vote:</td>";
+				output += "<td class='majorityvote'>"
+				var mvotestring = a[0]['majorityvote'].substring(length * i, length * (i + 1));
+				mvotestring = mvotestring.replace(/C/g,'<span class="c" style="color: red;">C</span>');
+				mvotestring = mvotestring.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
+				mvotestring = mvotestring.replace(/E/g,'<span class="e" style="color: green;">E</span>');
+				output += mvotestring + "</td></tr>";
+			}
+			
+			output += "<br >";
+		}
+
+		var table = document.getElementById('mytable');
+		table.innerHTML = output;
+	}
+	
+	generateRows(60);
+	
+	if (statusproduct != 0){
+		document.getElementById("togglerefresh").checked = false
+		window.stop();
+	}
+	
+	$('#updaterows').on('click', function() 
+	{	//may need a better check for >=60 and decimals
+		var rownum = document.getElementById('rowfield');
+		if(rownum.value >= 60)
+		{
+			generateRows(rownum.value);
+		}
+	});
+	
+	$('#updatecolor').on('click', function() {
+		var clist = document.getElementsByClassName('c');
+		for (var i = 0; i < clist.length; i++){
+			clist[i].style.color =  document.getElementById("ccolor").value;
+		}
+		
+		var elist = document.getElementsByClassName('e');
+		for (var i = 0; i < elist.length; i++){
+			elist[i].style.color =  document.getElementById("ecolor").value;
+		}
+		
+		var hlist = document.getElementsByClassName('h');
+		for (var i = 0; i < hlist.length; i++){
+			hlist[i].style.color =  document.getElementById("hcolor").value;
+		}
+	});
+	
+	function toggleRefresh(){
+		console.log("Toggled Refresh");
+		var checkBox = document.getElementById("togglerefresh");
+		if(checkBox.checked == true){
+			location.reload();
+		}
+		else{
+			window.stop();
+		}
+	}
+	
+	function toggleMajority(){
+		var checkBox = document.getElementById("togglemajority");
+		var rows = document.getElementsByClassName("majrow");
+		
+		for(var i = 0; i < rows.length; i++)
+		{
+			if(checkBox.checked == true)
+			{
+				rows[i].style.display = "table-row";
+				//document.getElementById('majrow').style.display = "table-row";
+			}
+			else
+			{
+				rows[i].style.display = "none";
+				//document.getElementById('majrow').style.display = "none";
+			}
+		}
+	}
+	
+	function drawCounter(mySeq){
+		var j=0;
+		var p = 1;
+		var counterstr = '';
+		while (j < mySeq.length){
+			if (j%10 != 0){
+				//counterstr += '&nbsp;';
+				counterstr += ' ';
+				j = j+1;
+			}
+			else{
+				for (k=0; k < p.toString().length; k++){
+					counterstr += p.toString()[k].toString();
+					j=j+1;
+				}
+				p = p+10;
+			}
+		}
+		//console.log(counterstr);
+		return counterstr;
+	}
+	
+	$('#genimage').on('click', function() {
+		html2canvas(document.getElementById('mytable'),{scale:1}).then(function(canvas) {
+		const myNode = document.getElementById("imgoutput");
+		while (myNode.firstChild) {
+			myNode.removeChild(myNode.firstChild);
+		 }
+		document.getElementById('imgoutput').append(canvas);
+		});
+	});
+	
+	/*
 	document.getElementById('seq').innerHTML = a[0]['seq'];
 	document.getElementById('counterRow').style.display = "table-row";
 	document.getElementById('charCounter').innerHTML = drawCounter(a[0]['seq']);
@@ -229,6 +418,8 @@ Right click on the image to save or copy to your document</p>
 	mvotestring = mvotestring.replace(/E/g,'<span class="e" style="color: green;">E</span>');
 	document.getElementById('majorityvote').innerHTML = mvotestring;
 	document.getElementById('majrow').style.display = "table-row";
+	
+	
 	
 	var statusproduct = 1
 	for (var key of Object.keys(a[0])){
@@ -250,83 +441,7 @@ Right click on the image to save or copy to your document</p>
 			}
 		}
 	}
-	
-	if (statusproduct != 0){
-		document.getElementById("togglerefresh").checked = false
-		window.stop();
-	}
-	
-	$('#updatecolor').on('click', function() {
-		var clist = document.getElementsByClassName('c');
-		for (var i = 0; i < clist.length; i++){
-			clist[i].style.color =  document.getElementById("ccolor").value;
-		}
-		
-		var elist = document.getElementsByClassName('e');
-		for (var i = 0; i < elist.length; i++){
-			elist[i].style.color =  document.getElementById("ecolor").value;
-		}
-		
-		var hlist = document.getElementsByClassName('h');
-		for (var i = 0; i < hlist.length; i++){
-			hlist[i].style.color =  document.getElementById("hcolor").value;
-		}
-	});
-	
-	function toggleRefesh(){
-		console.log("Toggled Refresh");
-		var checkBox = document.getElementById("togglerefresh");
-		if(checkBox.checked == true){
-			location.reload();
-		}
-		else{
-			window.stop();
-			
-		}
-	}
-	
-	function toggleMajority(){
-		var checkBox = document.getElementById("togglemajority");
-		if(checkBox.checked == true){
-			document.getElementById('majrow').style.display = "table-row";
-		}
-		else{
-			document.getElementById('majrow').style.display = "none";
-		}
-	}
-	
-	function drawCounter(mySeq){
-		var j=0;
-		var p = 1;
-		var counterstr = '';
-		while (j < mySeq.length){
-			if (j%10 != 0){
-				counterstr += '&nbsp;';
-				j = j+1;
-			}
-			else{
-				for (k=0; k < p.toString().length; k++){
-					counterstr += p.toString()[k].toString();
-					j=j+1;
-				}
-				p = p+10;
-			}
-		}
-		console.log(counterstr);
-		return counterstr;
-	}
-	
-	
-	
-	$('#genimage').on('click', function() {
-		html2canvas(document.getElementById('mytable'),{scale:1}).then(function(canvas) {
-		const myNode = document.getElementById("imgoutput");
-		while (myNode.firstChild) {
-			myNode.removeChild(myNode.firstChild);
-		 }
-		document.getElementById('imgoutput').append(canvas);
-		});
-	});
+	*/
 	</script>
 </body>
 </html>
