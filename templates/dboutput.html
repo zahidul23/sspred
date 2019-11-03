@@ -321,12 +321,9 @@ Right click on the image to save or copy to your document</p>
 	}
 	
 	$('#updaterows').on('click', function() 
-	{	//may need a better check for >=60 and decimals
+	{
 		var rownum = document.getElementById('rowfield');
-		if(rownum.value >= 60)
-		{
-			generateRows(rownum.value);
-		}
+		generateRows(rownum.value);
 	});
 	
 	$('#updatecolor').on('click', function() {
