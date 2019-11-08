@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import TextAreaField, SubmitField, StringField, BooleanField, validators, ValidationError
 from wtforms.widgets import TextArea
-from wtforms_components import ColorField, Email
 
 import re
 	
@@ -12,7 +11,7 @@ class SubmissionForm(FlaskForm):
 		validators.Length(min=30,max=4000, message="Sequence must be between 40 and 4000 characters"),
 		validators.Regexp(regex='^[ARNDCEQGHILKMFPSTWYV\s]*$', flags = re.IGNORECASE, message="Invalid Characters")], 
 		widget=TextArea(), default= "")
-	email = StringField('Email (Optional):', [Email(), validators.Optional()])
+	email = StringField('Email (Optional):', [validators.Email(), validators.Optional()])
 	
 	JPred = BooleanField('JPred', [validators.Optional()],default="checked")
 	PSI = BooleanField('PSIPred', [validators.Optional()], default="checked")
@@ -21,10 +20,6 @@ class SubmissionForm(FlaskForm):
 	Sable = BooleanField('SABLE', [validators.Optional()], default="checked")
 	Yaspin = BooleanField('YASPIN', [validators.Optional()], default="checked")
 	SSPro = BooleanField('SSPRO', [validators.Optional()], default="checked")
-	
-	helixcolor = ColorField(default="#0000FF")
-	coilcolor = ColorField(default="#FF0000")
-	betacolor = ColorField(default="#008000")
 	
 	submitbtn = SubmitField('Submit')
 

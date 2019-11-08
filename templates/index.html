@@ -7,10 +7,6 @@
 </head>
 <body style="font-family:monospace;">	
 <b> Support for FASTA formats will be added in the future.</b>
-<!--
-<b> Please enter a single sequence only, spaces will be automatically removed <br />
-Error will occur if input contains non amino-acid letters <br/>
-Support for FASTA formats will be added in the future</b>-->
 <br/><br/><br/>
 <div>
 	{% block content %}
@@ -101,24 +97,6 @@ Support for FASTA formats will be added in the future</b>-->
 					</td>
 				</tr>
 			</table>
-			<table style="text-align: center; padding-left:20px; padding-bottom: 10px">
-				Color Coding Options:
-				<tr>
-					<td>Helix</td>
-					<td>Coil</td>
-					<td>Beta</td>
-				</tr>
-				<tr>
-					<td>{{ form.helixcolor }}</td>
-					<td>{{ form.coilcolor }}</td>
-					<td>{{ form.betacolor }}</td>
-				</tr>
-			</table>
-			<div id = "colorCodeIE" style="display:none">
-			Internet Explorer does not support color picking. To choose colors, either get a color code from 
-				<a href="https://www.w3schools.com/colors/colors_picker.asp">here</a>
-			or switch to a compatible browser such as Google Chrome or Mozilla Firefox.
-			</div>
 			<input type="reset">
 			{{ form.submitbtn() }}
 		</form>

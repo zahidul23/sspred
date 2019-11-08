@@ -88,10 +88,6 @@ def hello(name=None):
 			'Sable':   form.Sable.data,
 			'Yaspin':   form.Yaspin.data,
 			'SSPro':   form.SSPro.data,
-			'rowlength': form.rowlength.data,
-			'helixcolor': str(form.helixcolor.data),
-			'coilcolor': str(form.coilcolor.data),
-			'betacolor': str(form.betacolor.data),
 			'submitbtn': 'Submit'
 			}
 
@@ -103,13 +99,13 @@ def hello(name=None):
 		
 
 		if post_data['email'] != "": #send email to let users know input was received
-			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/dboutput/" + startTime +"</div>")
+			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results with customization options will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/dboutput/" + startTime +"</div>")
 
 		#Stores currently completed predictions
 		ssObject = []
 		#Prepare files for saving results
 		fileoutput.createFolder(startTime)
-		fileoutput.createHTML(startTime, ssObject, seq, rowlength = post_data['rowlength'])
+		fileoutput.createHTML(startTime, ssObject, seq)
 		
 		dbinsert(startTime, seq)
 		
@@ -165,7 +161,7 @@ def run(predService, seq, email, name, ssObject,
 			ssObject.append(tempSS)
 			majority = majorityVote(seq, ssObject)
 			dbupdate(startTime, 'majorityvote', majority)
-			post_data.update({'output' : fileoutput.createHTML(startTime, ssObject, seq, majority, post_data['helixcolor'], post_data['betacolor'], post_data['coilcolor'], post_data['rowlength'])}) #create HTML and store it in post_data
+			post_data.update({'output' : fileoutput.createHTML(startTime, ssObject, seq, majority)}) #create HTML and store it in post_data
 		
 		post_data['completed'] += 1
 		if post_data['completed'] == post_data['total_sites']:
