@@ -2,12 +2,15 @@
 <head>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+ <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/tooltip.css')}}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body style="font-family:monospace;">	
+<b> Support for FASTA formats will be added in the future.</b>
+<!--
 <b> Please enter a single sequence only, spaces will be automatically removed <br />
 Error will occur if input contains non amino-acid letters <br/>
-Support for FASTA formats will be added in the future</b>
+Support for FASTA formats will be added in the future</b>-->
 <br/><br/><br/>
 <div>
 	{% block content %}
@@ -23,6 +26,21 @@ Support for FASTA formats will be added in the future</b>
     				</ul>
 			{% endif %}
 			{{ form.seqtext.label }}
+			<span class="tooltip">
+				?
+				<ul class="tooltiptext">
+					Enter a protein sequence for prediction.
+					<li>Only a single sequence is accepted.</li>
+					<li>Sequence must be between 40 and 4000 characters.</li>
+					<li>
+						Only the following characters are allowed:
+						<ul>
+							<li>A,R,N,D,C,E,Q,G,H,I,L,K,M,F,P,S,T,W,Y,V	</li>
+						</ul>
+					</li>
+					<li>Spaces will automatically be removed.</li>
+				</ul>
+			</span>
 			<br>
 			{{ form.seqtext(cols="50", rows="4") }}
 			<br>
@@ -31,9 +49,24 @@ Support for FASTA formats will be added in the future</b>
 			<br>
 			{{ form.email.label }}
 			{{ form.email }}
+			<span class="tooltip">
+				?
+				<ul class="tooltiptext">
+					Results can be sent to a given email address.
+					<li>A confirmation email will be sent upon submission.</li>
+					<li>An email will be sent when all predictions are complete.</li>
+				</ul>
+			</span>
 			<br>	
 			<table onclick = "checkCount()">
 				Send sequence to:
+				<span class="tooltip">
+					?
+					<ul class="tooltiptext">
+						Select which sites the sequence should be sent to for prediction.
+						<li>At least one site should be selected.</li>
+					</ul>
+				</span>
 				<tr>
 					<td>
 						{{ form.JPred }}
