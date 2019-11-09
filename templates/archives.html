@@ -10,6 +10,9 @@
 </head>
 <body style="font-family:Consolas;">
 	<div>CTRL+F to find your sequence</div>
+	<div><a id='prevPage' style='display:initial' href=''>Previous</a>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<a id='nextPage' href=''>Next</a></div>
 	<table border="1" id="myTable">
 		<tbody>
 			<tr>
@@ -26,7 +29,22 @@
 	   //var names = {{namedata | safe}};
 	   //var seq = {{seqdata | safe}};
 
-		var data = {{data | safe}}
+		var data = {{data | safe}};
+		var page = {{ pagenum }};
+		console.log(document.location.origin)
+
+		var prevNum = page - 1;
+		var nextNum = page + 1;
+		
+
+		var prevURL = document.location.origin + '/archive/' + prevNum;
+		var nextURL = document.location.origin + '/archive/' + nextNum;
+		document.getElementById("nextPage").setAttribute('href', nextURL);
+		document.getElementById("prevPage").setAttribute('href', prevURL);
+
+		if (prevNum < 1){
+			document.getElementById("prevPage").style.display = "none";
+		}
 
 	   //$.each(times, function(index,value){
 
@@ -49,7 +67,6 @@
 
 	   for (var i=0; i < data.length; i++) {
 	       var time = new Date(decodeBase62(data[i]['id']));
-		   console.log(decodeBase62(data[i]['id']));
 	       var readabletime  = time.toLocaleString('en-US', {year : "2-digit", month : "2-digit", day : "2-digit", hour : "2-digit", minute : "2-digit", second: "2-digit"});
 	       var str = [""
 	                 ,"<tr>"

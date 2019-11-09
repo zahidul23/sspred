@@ -97,6 +97,24 @@
 					</td>
 				</tr>
 			</table>
+			<br>
+			<div>
+				<input type="checkbox" id="knownSeq" onclick="knownToggle()">
+				Known Sequence 
+				<span class="tooltip">
+					?
+					<ul class="tooltiptext">
+						If the entered sequence is a known structure, <br>parts of it will be colored in the results.
+						<li>Both the structure id and chain id have to be entered.</li>
+					</ul>
+				</span>
+				<br>
+				{{ form.structureId.label }}
+				{{ form.structureId }}
+				{{ form.chainId.label }}
+				{{ form.chainId }}
+			</div>
+			<br>
 			<input type="reset">
 			{{ form.submitbtn() }}
 		</form>
@@ -130,8 +148,6 @@ Instances Running:
 <br />RaptorX: 5-7 minutes	
 <br />&nbsp;&nbsp;SSPro: 8 minutes
 <br />
-<br />
-<br />An email containing the final results will be sent to the address provided above
 <br />
 <br /><a href="/archive" target="_blank">All previously submitted results can be found by clicking here</a>
 <br />
@@ -167,6 +183,7 @@ Instances Running:
    		 return result;
 	}
 	
+	//Disable submission if no site is selected
 	function checkCount()
 	{
 		checks = $('input[type="checkbox"]:checked').length;
@@ -178,6 +195,26 @@ Instances Running:
 			submit.disabled = false;
 	}
 	
+	//Disable known sequence entry if not known
+	function knownToggle()
+	{
+		toggle = document.getElementById('knownSeq');
+		structId = document.getElementById('structureId');
+		chainId = document.getElementById('chainId');
+		
+		if(toggle.checked)
+		{
+			structId.disabled = false;
+			chainId.disabled = false;
+		}
+		else
+		{
+			structId.disabled = true;
+			chainId.disabled = true;
+			structId.value = "";
+			chainId.value = "";
+		}
+	}
 	
 	// Display a message about color coding if user is using IE
 	var ua = window.navigator.userAgent;
@@ -188,6 +225,9 @@ Instances Running:
 		ieDiv = document.getElementById("colorCodeIE");
 		ieDiv.style.display = 'block';
 	}
+	
+	knownToggle();
+	
 </script>
 </body>
 </html>
