@@ -115,19 +115,35 @@ def hello(name=None):
 	return render_template('index.html', form = form, counter = runningCounter) #default submission page
 
 
-@app.route('/archive')
-def showall():
-	namelist = []
-	timelist= []
-	seqlist= []
-	
-	cursor = conn.cursor(cursor_factory=RealDictCursor)
-	cursor.execute("SELECT id, seq FROM seqtable")
-	jsonresults = json.dumps(cursor.fetchall(), indent=2)
-	
-	cursor.close()		
+@app.route('/archive/<page>')
+def showall(page):
+	if page[0] == '0':
+		return("Page not found")
+	if page.isdigit():
+		if int(page) >= 1:
+			#'''
+			namelist = []
+			timelist= []
+			seqlist= []
+			
+			cursor = conn.cursor(cursor_factory=RealDictCursor)
+			limit = 20
+			offset = limit * int(page)
+			cursor.execute("SELECT id, seq FROM seqtable LIMIT %s OFFSET %s", (limit, offset))
+			jsonresults = json.dumps(cursor.fetchall(), indent=2)
+			
+			cursor.close()		
 
-	return render_template('archives.html', data = jsonresults)
+			return render_template('archives.html', data = jsonresults, pagenum = page)
+			'''
+			return(page)
+			'''
+	else:
+		return("Page not found")
+
+@app.route('/archive')
+def redarchive():
+	return redirect(url_for('showall', page = 1))
 
 
 @app.route('/output/<var>')
