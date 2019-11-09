@@ -128,8 +128,13 @@ def showall(page):
 			
 			cursor = conn.cursor(cursor_factory=RealDictCursor)
 			limit = 20
-			offset = limit * int(page)
-			cursor.execute("SELECT id, seq FROM seqtable LIMIT %s OFFSET %s", (limit, offset))
+			offset = int(page) -1
+			offset = offset * limit
+			cursor.execute('''
+					SELECT id, seq ,ROW_NUMBER() OVER(ORDER BY A.id) AS rownum
+					FROM seqtable A
+					ORDER BY rownum DESC LIMIT %s OFFSET %s
+			''',(limit, offset))
 			jsonresults = json.dumps(cursor.fetchall(), indent=2)
 			
 			cursor.close()		
