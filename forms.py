@@ -21,8 +21,14 @@ class SubmissionForm(FlaskForm):
 	Yaspin = BooleanField('YASPIN', [validators.Optional()], default="checked")
 	SSPro = BooleanField('SSPRO', [validators.Optional()], default="checked")
 	
-	structureId = StringField('Structure Id:', render_kw={'style':'width:80px'})
-	chainId = StringField('Chain Id:', render_kw={'style':'width:50px'})
+	structureId = StringField('Structure Id:',[ 
+		validators.Length(min=4,max=4, message="StructureID must be 4 characters"),
+		validators.Regexp(regex='^[A-Z0-9]*$', flags = re.IGNORECASE, message="Invalid Characters")],
+		render_kw={'style':'width:80px'})
+	chainId = StringField('Chain Id:',[ 
+		validators.Length(min=1,max=1, message="Chain ID must be single letter"),
+		validators.Regexp(regex='^[A-Z]*$', flags = re.IGNORECASE, message="Invalid Characters")],
+		 render_kw={'style':'width:50px'})
 	
 	submitbtn = SubmitField('Submit')
 	

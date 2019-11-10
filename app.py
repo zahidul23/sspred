@@ -78,6 +78,7 @@ if siteurl is None :
 def hello(name=None):
 	form = SubmissionForm() 
 	if form.validate_on_submit():
+
 		post_data = {
 			'seqtext': ''.join(form.seqtext.data.split()),
 			'email': form.email.data,
@@ -103,8 +104,15 @@ def hello(name=None):
 
 		#Stores currently completed predictions
 		ssObject = []
-		
+
 		dbinsert(startTime, seq)
+
+		if form.structureId.data is not None:
+			pdbdata = batchtools.pdbget(form.structureId.data, form.chainId.data)
+			if pdbdata is not None:
+				dbupdate(startTime, 'pdb', pdbdata['secondary'])
+				dbupdate(startTime, 'seq', pdbdata['primary'])
+				seq = pdbdata['primary']
 		
 		sendData(seq, startTime, ssObject, post_data)
 		return redirect(url_for('showdboutput', var = startTime))

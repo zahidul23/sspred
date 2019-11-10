@@ -184,6 +184,8 @@ input:checked + .slider:before {
 <script type="text/javascript">
 	var a = {{ data | safe}};
 
+
+
 	var statusproduct = 1;
 	//Generates the rows of results. Takes a length which is the number of amino acids per row
 	function generateRows(length)
@@ -262,8 +264,34 @@ input:checked + .slider:before {
 			output += "<br >";
 		}
 
+		
 		var table = document.getElementById('mytable');
 		table.innerHTML = output;
+
+		if (a[0]['pdb'] != null){
+			var seqlines = document.getElementsByClassName('seq');
+			var i = 0;
+			while (i<a[0]['pdb'].length){
+				for (var j = 0; j < seqlines.length; j++){
+					var seqString = '';
+					for(var k = 0; k < seqlines[j].innerHTML.length; k++){
+						if(a[0]['pdb'][i] == 'E'){
+							seqString += '<span class="e" style="color: green;">' + seqlines[j].innerHTML[k] + '</span>'
+						}
+						else if(a[0]['pdb'][i] == 'H'){
+							seqString += '<span class="h" style="color: blue;">' + seqlines[j].innerHTML[k] + '</span>'
+						}
+						else {
+							seqString += '<span class="c" style="color: red;">' + seqlines[j].innerHTML[k] + '</span>'
+						}
+
+						i++;
+					}
+					seqlines[j].innerHTML = seqString;
+				}
+			}
+		}
+
 	}
 	
 	generateRows(60);
@@ -335,7 +363,7 @@ input:checked + .slider:before {
 				j = j+1;
 			}
 			else{
-				for (k=0; k < p.toString().length; k++){
+				for (var k=0; k < p.toString().length; k++){
 					counterstr += p.toString()[k].toString();
 					j=j+1;
 				}
