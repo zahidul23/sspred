@@ -4,8 +4,7 @@ import time
 import io
 import re
 
-from services import ss, emailtools
-
+from services import ss, emailtools, batchtools
 
 def get(seq, email_address, email_service): #may need to check if all slots in queue are taken
 	
@@ -19,7 +18,7 @@ def get(seq, email_address, email_service): #may need to check if all slots in q
 		print("SSPro failed: Sequence longer than 400")
 		return SS #return SS so it will be readable as an ssObject
 	
-	randName = emailtools.randBase62()
+	randName = batchtools.randBase62()
 	
 	payload = {'amino_acids': seq,
 	'query_name': randName, 

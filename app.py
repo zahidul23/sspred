@@ -2,7 +2,7 @@ import json
 import time
 import os
 from lxml import html
-from services import ss, psi, jpred, raptorx, pss, sable, sspro, yaspin, emailtools, htmlmaker
+from services import ss, psi, jpred, raptorx, pss, sable, sspro, yaspin, emailtools, htmlmaker, batchtools
 from datetime import datetime
 
 from forms import SubmissionForm
@@ -96,7 +96,7 @@ def hello(name=None):
 		print(post_data)
 		seq = post_data['seqtext']
 
-		startTime = randBase62()		
+		startTime = batchtools.randBase62()		
 
 		if post_data['email'] != "": #send email to let users know input was received
 			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results with customization options will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/dboutput/" + startTime +"</div>")
@@ -177,7 +177,7 @@ def run(predService, seq, email, name, ssObject,
 	if tempSS.status >= 1:
 		if tempSS.status == 1 or tempSS.status == 3:
 			ssObject.append(tempSS)
-			majority = majorityVote(seq, ssObject)
+			majority = batchtools.majorityVote(seq, ssObject)
 			dbupdate(startTime, 'majorityvote', majority)
 			post_data.update({'output' : htmlmaker.createHTML(startTime, ssObject, seq, majority)}) #create HTML and store it in post_data
 		
@@ -198,49 +198,6 @@ def sendData(seq, startTime, ssObject, post_data):
 				pool.apply_async(run, (siteDict[key], seq, email, key, ssObject, startTime, post_data, email_service))
 				print("Sending sequence to " + key)
 				runningCounter[key] += 1
-
-#Takes current completed outputs and conducts a majority vote then returns it. If a majority vote results in an equal value, currently defaults to 'X'
-def majorityVote(seq, ssObject):
-	output = ''
-	if len(ssObject) >= 2: #vote only if more than 2 ssObjects exist (at least 2 predictions)
-		#create a counter for each character appearance
-		seqLength = len(seq)
-		cCount = [0] * seqLength
-		hCount = [0] * seqLength
-		eCount = [0] * seqLength
-		
-		for i in ssObject:
-			if i.status == 1 or i.status == 3:
-				for j in range(0, seqLength):
-					if i.pred[j] == 'C':
-						cCount[j] += 1
-					elif i.pred[j] == 'E':
-						eCount[j] += 1
-					elif i.pred[j] == 'H':
-						hCount[j] += 1
-
-		for i in range(0, seqLength):
-			if eCount[i] > hCount[i] and eCount[i] > cCount[i]:
-				output += 'E'
-			elif hCount[i] > cCount[i] and hCount[i] > eCount[i]:
-				output += 'H'
-			elif cCount[i] > hCount[i] and cCount[i] > eCount[i]:
-				output += 'C'
-			else:
-				output += 'X' #use X if unsure - typically shows when not all predictions are completed
-	else:
-		return None
-	return output
-
-#Creates a random string to use for a prediction name. Based off current time.
-def randBase62():
-	integer = round(time.time() * 100000)
-	chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-	result = ''
-	while integer > 0:
-		integer, remainder = divmod(integer, 62)
-		result = chars[remainder]+result
-	return result
 
 #Takes a form from post and returns the number of sites it. Backup measure in case elements are editted, and for checking if all predictions are finished
 def validate_sites(form):

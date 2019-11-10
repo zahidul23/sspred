@@ -4,7 +4,7 @@ import time
 import io
 import re
 
-from services import ss, emailtools
+from services import ss, emailtools, batchtools
 
 def get(seq, email_address, email_service):
 	
@@ -17,7 +17,7 @@ def get(seq, email_address, email_service):
 		
 	SS.status = 0
 	
-	randName = emailtools.randBase62()
+	randName = batchtools.randBase62()
 
 	payload = {'txtSeq': seq, 
 	'seqName': randName,
