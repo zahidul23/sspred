@@ -183,7 +183,7 @@ input:checked + .slider:before {
 
 <script type="text/javascript">
 	var a = {{ data | safe}};
-	
+
 	var statusproduct = 1;
 	//Generates the rows of results. Takes a length which is the number of amino acids per row
 	function generateRows(length)
@@ -347,7 +347,8 @@ input:checked + .slider:before {
 	}
 	
 	$('#genimage').on('click', function() {
-		html2canvas(document.getElementById('mytable'),{scale:1}).then(function(canvas) {
+		table = document.getElementById('mytable')
+		html2canvas(table,{scale:1, scrollY: (window.pageYOffset * -1)}).then(function(canvas) {
 		const myNode = document.getElementById("imgoutput");
 		while (myNode.firstChild) {
 			myNode.removeChild(myNode.firstChild);
@@ -355,6 +356,7 @@ input:checked + .slider:before {
 		document.getElementById('imgoutput').append(canvas);
 		});
 	});
+	
 	</script>
 </body>
 </html>
