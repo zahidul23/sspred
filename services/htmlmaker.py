@@ -1,16 +1,4 @@
 import time
-import os
-import webbrowser
-
-#Creates folder in running directory using "pred month.day.year hr.min.sec" as the name (based off startTime)
-def createFolder(startTime):
-	nameFormat = startTime
-	try:
-		os.mkdir(os.getcwd() + "/output/" + nameFormat);
-	except OSError:
-		print ("Folder " + nameFormat + " failed to be created.")
-	else:
-		print("Created folder " + nameFormat + " at " + os.getcwd() + "\output\ to save output to.")
 
 #Displays character position 
 def drawCounter(mySeq):
@@ -30,20 +18,15 @@ def drawCounter(mySeq):
 	
 	return counterstr
 
-#Saves the output to an HTML file. 
+#Writes the output to an HTML format string. 
 #Takes a startTime for naming and ssObject,seq, and optional majority vote for the outputs
 #"pred month.day.year hr.min.sec" for file name
 #Splits outputs into lines of length depending on the rowlength parameter + 15
 #Returns the outputted HTML as a string so that it can be emailed
 def createHTML(startTime, ssobj, seq, majority = None, hColor = "blue", eColor = "green", cColor = "red", rowlength = 60):
 	nameFormat = startTime
-	filePath = os.getcwd() + "/output/" + nameFormat + "/" + nameFormat + ".html"
-	print(filePath)
-	if os.path.exists(filePath):
-		os.remove(filePath)
-	file = open(filePath, "w+")
 
-	output = "<!DOCTYPE html><head><meta http-equiv='refresh' content='30'></head><html><body style='font-family:Consolas;'>" #use consolas as font to have equal spacing between all characters
+	output = "<!DOCTYPE html><head><meta http-equiv='refresh' content='30'></head><html><body style='font-family:Consolas;'>" 
 	
 	counter = drawCounter(seq)
 	
@@ -65,8 +48,7 @@ def createHTML(startTime, ssobj, seq, majority = None, hColor = "blue", eColor =
 			output += "</div>"
 		output += "<br>"
 	output += "</body></html>"
-	
-	file.write(output)
+
 	return output
 
 #Takes a character and 3 optional colors. Returns the color it should be represented as
@@ -80,8 +62,3 @@ def getColor(character, hColor = "blue", eColor = "green", cColor = "red"):
 		return cColor
 	
 	return "black"
-	
-#Takes a start time and returns a format for file naming
-def getNameFormat(startTime):
-	return time.strftime("%m.%d.%Y %H.%M.%S",time.localtime(startTime))
-	

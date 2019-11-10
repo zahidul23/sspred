@@ -2,7 +2,7 @@ import json
 import time
 import os
 from lxml import html
-from services import ss, psi, jpred, raptorx, pss, sable, sspro, yaspin, emailtools, fileoutput
+from services import ss, psi, jpred, raptorx, pss, sable, sspro, yaspin, emailtools, htmlmaker
 from datetime import datetime
 
 from forms import SubmissionForm
@@ -95,17 +95,14 @@ def hello(name=None):
 		post_data.update({'total_sites' : total_sites, 'completed': 0}) # add total into to post_data dictionary and a completed prediction counter
 		print(post_data)
 		seq = post_data['seqtext']
-		startTime = emailtools.randBase62()
-		
+
+		startTime = randBase62()		
 
 		if post_data['email'] != "": #send email to let users know input was received
 			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results with customization options will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/dboutput/" + startTime +"</div>")
 
 		#Stores currently completed predictions
 		ssObject = []
-		#Prepare files for saving results
-		fileoutput.createFolder(startTime)
-		fileoutput.createHTML(startTime, ssObject, seq)
 		
 		dbinsert(startTime, seq)
 		
@@ -182,7 +179,7 @@ def run(predService, seq, email, name, ssObject,
 			ssObject.append(tempSS)
 			majority = majorityVote(seq, ssObject)
 			dbupdate(startTime, 'majorityvote', majority)
-			post_data.update({'output' : fileoutput.createHTML(startTime, ssObject, seq, majority)}) #create HTML and store it in post_data
+			post_data.update({'output' : htmlmaker.createHTML(startTime, ssObject, seq, majority)}) #create HTML and store it in post_data
 		
 		post_data['completed'] += 1
 		if post_data['completed'] == post_data['total_sites']:
@@ -235,11 +232,15 @@ def majorityVote(seq, ssObject):
 		return None
 	return output
 
-#Takes a form from post and checks if seq is empty or not. Backup measure in case elements are editted
-def validate_seq(seq):
-	if seq == "":
-		return False
-	return True
+#Creates a random string to use for a prediction name. Based off current time.
+def randBase62():
+	integer = round(time.time() * 100000)
+	chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+	result = ''
+	while integer > 0:
+		integer, remainder = divmod(integer, 62)
+		result = chars[remainder]+result
+	return result
 
 #Takes a form from post and returns the number of sites it. Backup measure in case elements are editted, and for checking if all predictions are finished
 def validate_sites(form):

@@ -67,111 +67,42 @@ input:checked + .slider:before {
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js">
 	</script>
 	<script src="{{url_for('static', filename='scripts/html2canvas.js')}}"></script>
-	<title></title>
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/tooltip.css')}}">
+	<title>Prediction Results</title>
 	<meta name='viewport' content='width=device-width, initial-scale=1.0'><meta name="autorefresh" http-equiv='refresh' content='30'>
 </head>
 <body style="font-family:monospace;">
 
 <table id="mytable" border="0">
-<!--
-	<tr id="counterRow" style="display:none;">
-		<td align="right"></td>
-		<td id='charCounter'></td>
-	</tr>
-	
-	<tr id="seqRow">
-		<td align="right" id='seqLabel'>Sequence:</td>
-		<td id='seq'></td>
-	</tr>
-	
-	<tr id="psiprow" style="display:none;">
-		<td align="right">PSI Pred:</td>
-		<td id='psipred' class="pred"></td>
-	</tr>
-	<tr id="psicrow" style="display:none;">
-		<td align="right">PSI Conf:</td>
-		<td id='psiconf'></td>
-	</tr>
-	
-
-	<tr id="jpredprow" style="display:none;">
-		<td align="right">JPred Pred:</td>
-		<td id='jpredpred' class="pred"></td>
-	</tr>
-	<tr id="jpredcrow" style="display:none;">
-		<td align="right">JPred Conf:</td>
-		<td id='jpredconf'></td>
-	</tr>
-	
-	
-	
-	<tr id="raptorxprow" style="display:none;">
-		<td align="right">RaptorX Pred:</td>
-		<td id='raptorxpred' class="pred"></td>
-	</tr>
-	<tr id="raptorxcrow" style="display:none;">
-		<td align="right">RaptorX Conf:</td>
-		<td id='raptorxconf'></td>
-	</tr>
-	
-	
-	
-	<tr id="pssprow" style="display:none;">
-		<td align="right">PSS Pred:</td>
-		<td id='psspred' class="pred"></td>
-	</tr>
-	<tr id="psscrow" style="display:none;">
-		<td align="right">PSS Conf:</td>
-		<td id='pssconf'></td>
-	</tr>
-	
-	
-	
-	<tr id="yaspinprow" style="display:none;">
-		<td align="right">Yaspin Pred:</td>
-		<td id='yaspinpred' class="pred"></td>
-	</tr>
-	<tr id="yaspincrow" style="display:none;">
-		<td align="right">Yaspin Conf:</td>
-		<td id='yaspinconf'></td>
-	</tr>
-	
-	
-	
-	<tr id="sableprow" style="display:none;">
-		<td align="right">Sable Pred:</td>
-		<td id='sablepred' class="pred"></td>
-	</tr>
-	<tr id="sablecrow" style="display:none;">
-		<td align="right">Sable Conf:</td>
-		<td id='sableconf'></td>
-	</tr>
-	
-	
-	
-	<tr id="ssproprow" style="display:none;">
-		<td align="right">SSPro Pred:</td>
-		<td id='sspropred' class="pred"></td>
-	</tr>
-	<tr id="ssprocrow" style="display:none;">
-		<td align="right">SSPro Conf:</td>
-		<td id='ssproconf'></td>
-	</tr>
-	
-	<tr id="majrow" style="display:none;">
-		<td align="right">Majority Vote:</td>
-		<td id='majorityvote'></td>
-	</tr>
--->
 </table>
 <br/><br/><br/>
 <table style="text-align: center; padding-bottom: 10px; border-spacing: 15px 0rem;">
 <tr>
 	<td>
-		<p>Enable AutoRefresh</p>
+		<div>
+			Enable AutoRefresh
+			<span class="tooltip">
+				?
+				<ul class="tooltiptext">
+					When enabled, the page will automatically refresh every 30 seconds. <br>
+					Disable this option so that color coding and images do not disappear on their own.
+					<li>Refreshing will reset color coding.</li>
+					<li>Refreshing will cause generated images to disappear.</li>
+				</ul>
+			</span>
+		</div>
 	</td>
 	<td>
-		<p>Show Majority Vote</p>
+		<div>
+			Show Majority Vote
+			<span class="tooltip">
+				?
+				<div class="tooltiptext">
+					When enabled, the majority vote line will be displayed along with the results. <br>
+					Disable this option if you do not want to include it with the generated image.
+				</div>
+			</span>
+		</div>
 	</td>
 </tr>
 <tr>
@@ -191,7 +122,15 @@ input:checked + .slider:before {
 </tr>
 </table>
 <div>
-	Amino Acids Per Row:
+	Amino Acids Per Row: 
+	<span class="tooltip">
+		?
+		<ul class="tooltiptext">
+			The number of amino acids each row will have in the results.
+			<li>This option affects image generation.</li>
+			<li>If an image has previously been generated, re-generate it to show any changes.</li>
+		</ul>
+	</span>
 	<select id="rowfield">
 	  <option value="60">60</option>
 	  <option value="70">70</option>
@@ -211,16 +150,30 @@ input:checked + .slider:before {
 		<td><input id="hcolor" type="color" value="#0000FF"></td>
 		<td><input id="ccolor" type="color" value="#FF0000"></td>
 		<td><input id="ecolor" type="color" value="#008000"></td>
-		<td><button id="updatecolor">Update Colors</button></td>
+		<td>
+			<button id="updatecolor">Update Colors</button>
+			<span class="tooltip">
+				?
+				<ul class="tooltiptext">
+					The colors that will be used to highlight predicted elements.
+					<li>Refreshing will cause the colors to reset.</li>
+					<li>This option affects image generation.</li>
+					<li>If an image has previously been generated, re-generate it to show any changes.</li>
+				</ul>
+			</span>
+		</td>
 	</tr>
 </table>
 
-
-<p>Disable the auto-refresh before generating an image so it does not reload and disappear <br/>
-Disable majority vote before generating image if you do not wish to include it<br/>
-The image will display below after clicking the generate image button <br/>
-Right click on the image to save or copy to your document</p>
-<button id="genimage">Generate Image</button>
+<button id="genimage">Generate Image</button> 
+<span class="tooltip">
+	?
+	<ul class="tooltiptext">
+		Generate an image version of the above results.
+		<li>Save the generated image by right-clicking and selecting "Save image as...".</li>
+		<li>Re-generate the image to reflect any customization changes.</li>
+	</ul>
+</span>
 
 <table id='imgoutput' border="0">
 	<tr>
@@ -363,12 +316,10 @@ Right click on the image to save or copy to your document</p>
 			if(checkBox.checked == true)
 			{
 				rows[i].style.display = "table-row";
-				//document.getElementById('majrow').style.display = "table-row";
 			}
 			else
 			{
 				rows[i].style.display = "none";
-				//document.getElementById('majrow').style.display = "none";
 			}
 		}
 	}
@@ -404,41 +355,6 @@ Right click on the image to save or copy to your document</p>
 		document.getElementById('imgoutput').append(canvas);
 		});
 	});
-	
-	/*
-	document.getElementById('seq').innerHTML = a[0]['seq'];
-	document.getElementById('counterRow').style.display = "table-row";
-	document.getElementById('charCounter').innerHTML = drawCounter(a[0]['seq']);
-	mvotestring = a[0]['majorityvote'];
-	mvotestring = mvotestring.replace(/C/g,'<span class="c" style="color: red;">C</span>');
-	mvotestring = mvotestring.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
-	mvotestring = mvotestring.replace(/E/g,'<span class="e" style="color: green;">E</span>');
-	document.getElementById('majorityvote').innerHTML = mvotestring;
-	document.getElementById('majrow').style.display = "table-row";
-	
-	
-	
-	var statusproduct = 1
-	for (var key of Object.keys(a[0])){
-		if (key.slice(key.length -4) == "stat") {
-			statusproduct *= a[0][key];
-			if (a[0][key] == 1 || a[0][key] == 3){
-				var name = key.slice(0,-4);
-				var predstring  = a[0][name+'pred']
-				predstring = predstring.replace(/C/g,'<span class="c" style="color: red;">C</span>');
-				predstring = predstring.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
-				predstring = predstring.replace(/E/g,'<span class="e" style="color: green;">E</span>');
-				document.getElementById(name+'pred').innerHTML = predstring;
-				document.getElementById(name+'prow').style.display = "table-row";
-			}
-			if (a[0][key] == 1){
-				var name = key.slice(0,-4);
-				document.getElementById(name+'conf').innerHTML = a[0][name+'conf']
-				document.getElementById(name+'crow').style.display = "table-row";
-			}
-		}
-	}
-	*/
 	</script>
 </body>
 </html>

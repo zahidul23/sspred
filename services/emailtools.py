@@ -61,16 +61,6 @@ def decodeEmail(service, emailId):
 	msg_str = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
 	mime_msg = email.message_from_bytes(msg_str).as_string()
 	return mime_msg
-
-#Creates a random string to use for a prediction name
-def randBase62():
-	integer = round(time.time() * 100000)
-	chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-	result = ''
-	while integer > 0:
-		integer, remainder = divmod(integer, 62)
-		result = chars[remainder]+result
-	return result
 	
 #Create token.pickle. Needed to change emails or update scopes
 def createPickle():
