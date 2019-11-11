@@ -3,6 +3,7 @@ import requests
 import time
 import io
 import re
+from bs4 import BeautifulSoup
 
 from services import ss, emailtools, batchtools
 
@@ -26,6 +27,22 @@ def get(seq, email_address, email_service): #may need to check if all slots in q
 	'ss':'on'}
 	
 	r = requests.post('http://scratch.proteomics.ics.uci.edu/cgi-bin/new_server/sql_predict.cgi', data = payload)
+
+	soup = BeautifulSoup(r.text, 'html.parser')
+	msg = soup.find('p')
+	if msg == None:
+		SS.pred += "Failed to Submit"
+		SS.conf += "Failed to Submit"
+		SS.status = 2 #error status
+		print("SSPro Failed to Submit")
+		return SS
+
+	if msg.text.split()[0] == 'ERROR:':
+		SS.pred += "Queue Full"
+		SS.conf += "Queue Full"
+		SS.status = 2 #error status
+		print("SSPro Queue Full")
+		return SS
 	
 	query = 'from:(baldig@ics.uci.edu) subject:(Protein Structure Predictions for ' + randName + ')'
 	email_id = emailtools.searchEmailId(email_service, query)

@@ -280,21 +280,36 @@ input:checked + .slider:before {
 		var table = document.getElementById('mytable');
 		table.innerHTML = output;
 
+
+		for (var x = 0; x < document.getElementById("mytable").rows.length; x ++){
+			document.getElementById("mytable").rows[x].cells[1].innerHTML = document.getElementById("mytable").rows[x].cells[1].textContent.replace(/(.{10})/g,"$1&nbsp;&nbsp;");
+			if (document.getElementById("mytable").rows[x].cells[1].getAttribute("class") != 'seq'){
+				document.getElementById("mytable").rows[x].cells[1].innerHTML = document.getElementById("mytable").rows[x].cells[1].innerHTML.replace(/E/g,'<span class="e" style="color: green;">E</span>');
+				document.getElementById("mytable").rows[x].cells[1].innerHTML = document.getElementById("mytable").rows[x].cells[1].innerHTML.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
+				document.getElementById("mytable").rows[x].cells[1].innerHTML = document.getElementById("mytable").rows[x].cells[1].innerHTML.replace(/C/g,'<span class="c" style="color: red;">C</span>');
+			}
+			else {
+			}
+		}
+		///*
 		if (a[0]['pdb'] != null){
 			var seqlines = document.getElementsByClassName('seq');
 			var i = 0;
+			a[0]['pdb']['secondary'] = a[0]['pdb']['secondary'].replace(/(.{10})/g,"$1  ");
+			console.log(a[0]['pdb']['secondary'])
 			while (i<a[0]['pdb']['secondary'].length){
 				for (var j = 0; j < seqlines.length; j++){
 					var seqString = '';
-					for(var k = 0; k < seqlines[j].innerHTML.length; k++){
+					for(var k = 0; k < seqlines[j].textContent.length; k++){
 						if(a[0]['pdb']['secondary'][i] == 'E'){
-							seqString += '<span class="e" style="color: green;">' + seqlines[j].innerHTML[k] + '</span>'
+							seqString += '<span class="e" style="color: green;">' + seqlines[j].textContent[k] + '</span>'
 						}
 						else if(a[0]['pdb']['secondary'][i] == 'H'){
-							seqString += '<span class="h" style="color: blue;">' + seqlines[j].innerHTML[k] + '</span>'
+							seqString += '<span class="h" style="color: blue;">' + seqlines[j].textContent[k] + '</span>'
 						}
 						else {
-							seqString += '<span class="other" style="color: black;">' + seqlines[j].innerHTML[k] + '</span>'
+							seqString += '<span class="other" style="color: black;">' + seqlines[j].textContent[k] + '</span>'
+							console.log(seqlines[j].innerHTML[k])
 						}
 
 						i++;
@@ -303,11 +318,16 @@ input:checked + .slider:before {
 				}
 			}
 		}
+		//*/
 
 	}
 	
 	generateRows(60);
+
+	//*
 	
+
+	//*/
 	if (statusproduct != 0){
 		document.getElementById("togglerefresh").checked = false
 		window.stop();
