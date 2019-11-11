@@ -7,7 +7,7 @@ from datetime import datetime
 
 from forms import SubmissionForm
 from flask import Flask, render_template, request, current_app,send_file, redirect, url_for
-from multiprocessing.pool import ThreadPool
+import threading
 import secrets
 
 import psycopg2
@@ -50,15 +50,7 @@ siteDict = {
 	"SSPro": sspro
 }
 
-runningCounter = {
-	"JPred": 0,
-	"PSI": 0,
-	"PSS": 0,
-	"RaptorX": 0,
-	"Sable": 0,
-	"Yaspin": 0,
-	"SSPro": 0
-}
+
 
 
 app = Flask(__name__)
@@ -117,7 +109,19 @@ def hello(name=None):
 		
 		sendData(seq, startTime, ssObject, post_data, pdbdata)
 		return redirect(url_for('showdboutput', var = startTime))
-
+	print(threading.activeCount())
+	runningCounter = {
+		"JPred": 0,
+		"PSI": 0,
+		"PSS": 0,
+		"RaptorX": 0,
+		"Sable": 0,
+		"Yaspin": 0,
+		"SSPro": 0
+	}
+	for t in threading.enumerate():
+		if t.getName() in runningCounter.keys():
+			runningCounter[t.getName()] += 1
 	return render_template('index.html', form = form, counter = runningCounter) #default submission page
 
 
@@ -179,8 +183,8 @@ def showdboutput(var):
 def run(predService, seq, email, name, ssObject,
  startTime, post_data, pdbdata, email_service = None):
 	tempSS = predService.get(seq, email, email_service)
-	global runningCounter
-	runningCounter[tempSS.name] -= 1
+	#global runningCounter
+	#runningCounter[tempSS.name] -= 1
 	
 	dbupdate(startTime, tempSS.name + "pred", tempSS.pred)
 	dbupdate(startTime, tempSS.name + "conf", tempSS.conf)
@@ -203,14 +207,16 @@ def run(predService, seq, email, name, ssObject,
 
 #Sends sequence based off whatever was selected before submission
 def sendData(seq, startTime, ssObject, post_data, pdbdata):
-	pool = ThreadPool(processes=post_data['total_sites'])
 	for key in post_data.keys():
 		if key in siteDict:
 			if post_data[key]:
-				pool.apply_async(run, (siteDict[key], seq, email, key, ssObject, startTime, post_data, pdbdata, email_service))
+				#pool.apply_async(run, (siteDict[key], seq, email, key, ssObject, startTime, post_data, pdbdata, email_service))
+				mythread = threading.Thread(target = run, args = (siteDict[key], seq, email, key, ssObject, startTime, post_data, pdbdata, email_service))
+				mythread.setName(key)
+				mythread.start()
 				print("Sending sequence to " + key)
-				global runningCounter
-				runningCounter[key] += 1
+				#global runningCounter
+				#runningCounter[key] += 1
 
 #Takes a form from post and returns the number of sites selected.
 def validate_sites(form):
