@@ -19,35 +19,57 @@ def drawCounter(mySeq):
 	return counterstr
 
 #Writes the output to an HTML format string. 
-#Takes a startTime for naming and ssObject,seq, and optional majority vote for the outputs
+#Takes a ssObject,seq, and optional pdbdata and majority vote for the outputs
 #"pred month.day.year hr.min.sec" for file name
 #Splits outputs into lines of length depending on the rowlength parameter + 15
 #Returns the outputted HTML as a string so that it can be emailed
-def createHTML(startTime, ssobj, seq, majority = None, hColor = "blue", eColor = "green", cColor = "red", rowlength = 60):
-	nameFormat = startTime
+def createHTML(ssobj, seq, pdbdata, majority = None, hColor = "blue", eColor = "green", cColor = "red", rowlength = 60):
 
-	output = "<!DOCTYPE html><head><meta http-equiv='refresh' content='30'></head><html><body style='font-family:Consolas;'>" 
+	output = "<!DOCTYPE html><head><meta http-equiv='refresh' content='30'></head><html><body style='font-family:Consolas;'><table>" 
 	
 	counter = drawCounter(seq)
 	
 	for count in range(0, int(len(seq)/rowlength) + 1):
-		output += "<div>" + (15*'&nbsp;') + (counter[rowlength * count : rowlength * (count + 1)]).replace(" ", '&nbsp;') + "</div>"
-		output += "<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sequence:&nbsp;" + seq[rowlength * count : rowlength * (count + 1)] + "</div>"
+		
+		#Counter row
+		output += "<tr style='display: table-row;'><td align=''right'></td>"
+		output += "<td>" + (15*'&nbsp;') + (counter[rowlength * count : rowlength * (count + 1)]).replace(" ", '&nbsp;') + "</td></tr>";
+		
+		#Sequence row
+		output += "<tr><td align='right'>Sequence:</td>"
+		output += "<td>" + seq[rowlength * count : rowlength * (count + 1)] + "</td></tr>"
+		
+		#PDB Row
+		if pdbdata is not None:
+			output += "<tr><td align='right''> PDB_" + pdbdata['pdbid'] + '_'+ pdbdata['chain'] +":</td>";
+			pdbstring = pdbdata['secondary'][rowlength * count : rowlength * (count + 1)]
+			pdbstring = pdbstring.replace('C','<span style="color:' + cColor + ';">C</span>');
+			pdbstring = pdbstring.replace('H','<span style="color:' + hColor +';">H</span>');
+			pdbstring = pdbstring.replace('E','<span style="color:' + eColor +';">E</span>');
+			output += "<td>" + pdbstring + "</td></tr>";
+		
+		#Site Rows
 		for obj in ssobj:
-			output+='<div>' + obj.plabel.replace(" ","&nbsp;") + "&nbsp;" #prediction source
+			output+='<tr style="display: table-row;"><td align="right">' + obj.plabel.replace(" ","&nbsp;") + "&nbsp;</td><td>" #prediction source
+			
+			#Pred
 			preds = obj.pred #prediction results to be colored
 			for c in preds[rowlength * count : rowlength * (count + 1)]:
 				output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"
-			output += "</div>"
+			output += "</td></tr>"
+			
+			#Conf
 			if obj.status != 3: #Only display conf if status is not 3
-				output += "<div>" + obj.clabel.replace(" ","&nbsp;") + "&nbsp;" + obj.conf[rowlength * count : rowlength * (count + 1)] +"</div>"
+				output += "<tr><td align='right'>" + obj.clabel.replace(" ","&nbsp;") + "&nbsp;</td><td>" + obj.conf[rowlength * count : rowlength * (count + 1)] +"</td></tr>"
+				
+		#Majority Row
 		if majority:
-			output += "<div>Majority Vote: "
+			output += "<tr style='display: table-row;'><td align='right'>Majority Vote:</td><td>"
 			for c in majority[rowlength * count : rowlength * (count + 1)]:
 				output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"	
-			output += "</div>"
+			output += "</td></tr>"
 		output += "<br>"
-	output += "</body></html>"
+	output += "</table></body></html>"
 
 	return output
 

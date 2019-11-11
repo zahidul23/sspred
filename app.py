@@ -107,6 +107,7 @@ def hello(name=None):
 
 		dbinsert(startTime, seq)
 
+		pdbdata = None
 		if form.structureId.data is not None:
 			pdbdata = batchtools.pdbget(form.structureId.data, form.chainId.data)
 			if pdbdata is not None:
@@ -114,7 +115,7 @@ def hello(name=None):
 				dbupdate(startTime, 'seq', pdbdata['primary'])
 				seq = pdbdata['primary']
 		
-		sendData(seq, startTime, ssObject, post_data)
+		sendData(seq, startTime, ssObject, post_data, pdbdata)
 		return redirect(url_for('showdboutput', var = startTime))
 
 	return render_template('index.html', form = form, counter = runningCounter) #default submission page
@@ -176,7 +177,7 @@ def showdboutput(var):
 		return "not found"
 
 def run(predService, seq, email, name, ssObject,
- startTime, post_data, email_service = None):
+ startTime, post_data, pdbdata, email_service = None):
 	tempSS = predService.get(seq, email, email_service)
 	global runningCounter
 	runningCounter[tempSS.name] -= 1
@@ -190,7 +191,7 @@ def run(predService, seq, email, name, ssObject,
 			ssObject.append(tempSS)
 			majority = batchtools.majorityVote(seq, ssObject)
 			dbupdate(startTime, 'majorityvote', majority)
-			post_data.update({'output' : htmlmaker.createHTML(startTime, ssObject, seq, majority)}) #create HTML and store it in post_data
+			post_data.update({'output' : htmlmaker.createHTML(ssObject, seq, pdbdata, majority)}) #create HTML and store it in post_data
 		
 		post_data['completed'] += 1
 		if post_data['completed'] == post_data['total_sites']:
@@ -201,17 +202,17 @@ def run(predService, seq, email, name, ssObject,
 
 
 #Sends sequence based off whatever was selected before submission
-def sendData(seq, startTime, ssObject, post_data):
+def sendData(seq, startTime, ssObject, post_data, pdbdata):
 	pool = ThreadPool(processes=post_data['total_sites'])
 	for key in post_data.keys():
 		if key in siteDict:
 			if post_data[key]:
-				pool.apply_async(run, (siteDict[key], seq, email, key, ssObject, startTime, post_data, email_service))
+				pool.apply_async(run, (siteDict[key], seq, email, key, ssObject, startTime, post_data, pdbdata, email_service))
 				print("Sending sequence to " + key)
 				global runningCounter
 				runningCounter[key] += 1
 
-#Takes a form from post and returns the number of sites it. Backup measure in case elements are editted, and for checking if all predictions are finished
+#Takes a form from post and returns the number of sites selected.
 def validate_sites(form):
 	count = 0
 	for key in siteDict.keys():
