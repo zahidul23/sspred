@@ -110,7 +110,7 @@ def hello(name=None):
 		if form.structureId.data is not None:
 			pdbdata = batchtools.pdbget(form.structureId.data, form.chainId.data)
 			if pdbdata is not None:
-				dbupdate(startTime, 'pdb', pdbdata['secondary'])
+				dbupdate(startTime, 'pdb', json.dumps(pdbdata))
 				dbupdate(startTime, 'seq', pdbdata['primary'])
 				seq = pdbdata['primary']
 		
@@ -168,6 +168,8 @@ def showoutput(var):
 @app.route('/dboutput/<var>')
 def showdboutput(var):
 	outputjson = dbselect(var)
+	if outputjson == "[]":
+		return "not found"
 	try:
 		return render_template('dboutput.html', data = outputjson)
 	except Exception as e:
@@ -176,6 +178,7 @@ def showdboutput(var):
 def run(predService, seq, email, name, ssObject,
  startTime, post_data, email_service = None):
 	tempSS = predService.get(seq, email, email_service)
+	global runningCounter
 	runningCounter[tempSS.name] -= 1
 	
 	dbupdate(startTime, tempSS.name + "pred", tempSS.pred)
@@ -205,6 +208,7 @@ def sendData(seq, startTime, ssObject, post_data):
 			if post_data[key]:
 				pool.apply_async(run, (siteDict[key], seq, email, key, ssObject, startTime, post_data, email_service))
 				print("Sending sequence to " + key)
+				global runningCounter
 				runningCounter[key] += 1
 
 #Takes a form from post and returns the number of sites it. Backup measure in case elements are editted, and for checking if all predictions are finished

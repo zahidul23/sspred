@@ -91,7 +91,8 @@ def pdbget(pdbid, chain):
 		secondary += i
 
 	result = {
-		'title': pdbid + chain,
+		'pdbid': pdbid, 
+		'chain': chain,
 		'primary': sequence,
 		'color': color,
 		'secondary': secondary

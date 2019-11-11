@@ -184,8 +184,9 @@ input:checked + .slider:before {
 <script type="text/javascript">
 	var a = {{ data | safe}};
 
-
-
+	if (a[0]['pdb'] != null){
+			a[0]['pdb'] = JSON.parse(a[0]['pdb']);
+	}
 	var statusproduct = 1;
 	//Generates the rows of results. Takes a length which is the number of amino acids per row
 	function generateRows(length)
@@ -226,7 +227,18 @@ input:checked + .slider:before {
 			//sequence row
 			output += "<tr class='seqRow'> <td align='right' class='seqLabel'>Sequence:</td>";
 			output += "<td class='seq'>" + a[0]['seq'].substring(length * i, length * (i + 1)) + "</td></tr>";
-		
+
+			if (a[0]['pdb'] != null){
+				output += "<tr class='pdbRow'> <td align='right' class='pdbLabel'> PDB_"
+					+ a[0]['pdb']['pdbid'] 
+					+ '_'
+					+ a[0]['pdb']['chain'] +":</td>";
+				var pdbstring = a[0]['pdb']['secondary'].substring(length * i, length * (i + 1))
+				pdbstring = pdbstring.replace(/C/g,'<span class="c" style="color: red;">C</span>');
+				pdbstring = pdbstring.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
+				pdbstring = pdbstring.replace(/E/g,'<span class="e" style="color: green;">E</span>');
+				output += "<td class='pdb'>" + pdbstring + "</td></tr>";
+			}
 			//site rows
 			for(var j = 0; j < sites.length; j++)
 			{	
@@ -271,18 +283,18 @@ input:checked + .slider:before {
 		if (a[0]['pdb'] != null){
 			var seqlines = document.getElementsByClassName('seq');
 			var i = 0;
-			while (i<a[0]['pdb'].length){
+			while (i<a[0]['pdb']['secondary'].length){
 				for (var j = 0; j < seqlines.length; j++){
 					var seqString = '';
 					for(var k = 0; k < seqlines[j].innerHTML.length; k++){
-						if(a[0]['pdb'][i] == 'E'){
+						if(a[0]['pdb']['secondary'][i] == 'E'){
 							seqString += '<span class="e" style="color: green;">' + seqlines[j].innerHTML[k] + '</span>'
 						}
-						else if(a[0]['pdb'][i] == 'H'){
+						else if(a[0]['pdb']['secondary'][i] == 'H'){
 							seqString += '<span class="h" style="color: blue;">' + seqlines[j].innerHTML[k] + '</span>'
 						}
 						else {
-							seqString += '<span class="c" style="color: red;">' + seqlines[j].innerHTML[k] + '</span>'
+							seqString += '<span class="other" style="color: black;">' + seqlines[j].innerHTML[k] + '</span>'
 						}
 
 						i++;
