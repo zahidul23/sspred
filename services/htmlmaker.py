@@ -65,7 +65,7 @@ def createHTML(ssobj, seq, pdbdata, majority = None, hColor = "blue", eColor = "
 				
 		#Majority Row
 		if majority:
-			output += "<tr><td align='right' style='font-family:Consolas;'>Majority Vote:</td><td style='font-family:Consolas;>"
+			output += "<tr><td align='right' style='font-family:Consolas;'>Majority Vote:</td><td style='font-family:Consolas;'>"
 			for c in majority[rowlength * count : rowlength * (count + 1)]:
 				output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"	
 			output += "</td></tr>"
