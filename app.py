@@ -50,7 +50,15 @@ siteDict = {
 	"SSPro": sspro
 }
 
-
+siteLimit = {
+	"JPred": 20,
+	"PSI": 20,
+	"PSS": 3,
+	"RaptorX": 20,
+	"Sable": 20,
+	"Yaspin": 3,
+	"SSPro": 5
+}
 
 
 app = Flask(__name__)
@@ -69,8 +77,25 @@ if siteurl is None :
 @app.route('/', methods = ['GET', 'POST'])
 def hello(name=None):
 	form = SubmissionForm() 
+
+	print(threading.activeCount())
+	runningCounter = {
+		"JPred": 0,
+		"PSI": 0,
+		"PSS": 0,
+		"RaptorX": 0,
+		"Sable": 0,
+		"Yaspin": 0,
+		"SSPro": 0
+	}
+	for t in threading.enumerate():
+		if t.getName() in runningCounter.keys():
+			runningCounter[t.getName()] += 1
+
 	if form.validate_on_submit():
 
+		if threading.activeCount() > 100:
+			return redirect(url_for('errorpage'))
 		post_data = {
 			'seqtext': ''.join(form.seqtext.data.split()),
 			'email': form.email.data,
@@ -109,20 +134,11 @@ def hello(name=None):
 		
 		sendData(seq, startTime, ssObject, post_data, pdbdata)
 		return redirect(url_for('showdboutput', var = startTime))
-	print(threading.activeCount())
-	runningCounter = {
-		"JPred": 0,
-		"PSI": 0,
-		"PSS": 0,
-		"RaptorX": 0,
-		"Sable": 0,
-		"Yaspin": 0,
-		"SSPro": 0
-	}
-	for t in threading.enumerate():
-		if t.getName() in runningCounter.keys():
-			runningCounter[t.getName()] += 1
 	return render_template('index.html', form = form, counter = runningCounter) #default submission page
+
+@app.route('/error/')
+def errorpage():
+	return('There are too many jobs running, please try again later')
 
 
 @app.route('/archive/<page>')
@@ -182,7 +198,18 @@ def showdboutput(var):
 
 def run(predService, seq, email, name, ssObject,
  startTime, post_data, pdbdata, email_service = None):
-	tempSS = predService.get(seq, email, email_service)
+	tcount = 0
+	for t in threading.enumerate():
+		if t.getName() == name:
+			tcount += 1
+
+	if tcount >= siteLimit[name]:
+		tempSS = ss.SS(name)
+		tempSS.pred = "Queue Full"
+		tempSS.conf = "Queue Full"
+		tempSS.status = -1
+	else:		
+		tempSS = predService.get(seq, email, email_service)
 	#global runningCounter
 	#runningCounter[tempSS.name] -= 1
 	

@@ -9,6 +9,7 @@
 	<title>Archives</title>
 </head>
 <body style="font-family:Consolas;">
+	<div><a id='home' href=''>Home</a></div>
 	<div>CTRL+F to find your sequence</div>
 	<div><a id='prevPage' style='display:initial' href=''>Previous</a>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -39,6 +40,7 @@
 
 		var prevURL = document.location.origin + '/archive/' + prevNum;
 		var nextURL = document.location.origin + '/archive/' + nextNum;
+		document.getElementById("home").setAttribute('href', document.location.origin);
 		document.getElementById("nextPage").setAttribute('href', nextURL);
 		document.getElementById("prevPage").setAttribute('href', prevURL);
 

@@ -73,6 +73,7 @@ input:checked + .slider:before {
 </head>
 <body style="font-family:monospace;">
 
+<div><a id='home' href=''>Home</a></div>
 <table id="mytable" border="0">
 </table>
 <br/><br/><br/>
@@ -182,6 +183,8 @@ input:checked + .slider:before {
 </table>
 
 <script type="text/javascript">
+
+	document.getElementById("home").setAttribute('href', document.location.origin);
 	var a = {{ data | safe}};
 
 	if (a[0]['pdb'] != null){
