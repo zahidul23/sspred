@@ -43,7 +43,7 @@
 		document.getElementById("prevPage").setAttribute('href', prevURL);
 
 		if (prevNum < 1){
-			document.getElementById("prevPage").style.display = "none";
+			document.getElementById("prevPage").removeAttribute("href");
 		}
 
 	   //$.each(times, function(index,value){

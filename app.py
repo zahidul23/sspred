@@ -141,9 +141,9 @@ def showall(page):
 			offset = int(page) -1
 			offset = offset * limit
 			cursor.execute('''
-					SELECT id, seq ,ROW_NUMBER() OVER(ORDER BY A.id) AS rownum
-					FROM seqtable A
-					ORDER BY rownum DESC LIMIT %s OFFSET %s
+					SELECT id, seq
+					FROM seqtable 
+					ORDER BY convert_to(ID, 'SQL_ASCII') DESC LIMIT %s OFFSET %s
 			''',(limit, offset))
 			jsonresults = json.dumps(cursor.fetchall(), indent=2)
 			
