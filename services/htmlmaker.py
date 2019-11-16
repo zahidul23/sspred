@@ -24,12 +24,14 @@ def drawCounter(mySeq):
 #Splits outputs into lines of length depending on the rowlength parameter + 15
 #Returns the outputted HTML as a string so that it can be emailed
 def createHTML(ssobj, seq, pdbdata, majority = None, hColor = "blue", eColor = "green", cColor = "red", rowlength = 60):
-
+	
+	failList = []
+	
 	output = "<!DOCTYPE html><head><meta http-equiv='refresh' content='30'></head><html><body><table>" 
 	
 	counter = drawCounter(seq)
 	
-	for count in range(0, int(len(seq)/rowlength) + 1):
+	for count in range(int(len(seq)/rowlength) + 1):
 		
 		#Counter row
 		output += "<tr><td align='right'></td>"
@@ -50,18 +52,21 @@ def createHTML(ssobj, seq, pdbdata, majority = None, hColor = "blue", eColor = "
 		
 		#Site Rows
 		for obj in ssobj:
-			#Pred
-			output+="<tr><td align='right' style='font-family:Consolas;'>" + obj.plabel.replace(" ","&nbsp;") + "</td>" #prediction source
+			if obj.status == 1 or obj.status == 3:
+				#Pred
+				output+="<tr><td align='right' style='font-family:Consolas;'>" + obj.plabel.replace(" ","&nbsp;") + "</td>" #prediction source
+					
+				output += "<td style='font-family:Consolas;'>"
+				preds = obj.pred #prediction results to be colored
+				for c in preds[rowlength * count : rowlength * (count + 1)]:
+					output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"
+				output += "</td></tr>"
 				
-			output += "<td style='font-family:Consolas;'>"
-			preds = obj.pred #prediction results to be colored
-			for c in preds[rowlength * count : rowlength * (count + 1)]:
-				output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"
-			output += "</td></tr>"
-			
-			#Conf
-			if obj.status != 3: #Only display conf if status is not 3
-				output += "<tr><td align='right' style='font-family:Consolas;'>" + obj.clabel.replace(" ","&nbsp;") + "</td><td style='font-family:Consolas;'>" + obj.conf[rowlength * count : rowlength * (count + 1)] +"</td></tr>"
+				#Conf
+				if obj.status != 3: #Only display conf if status is not 3
+					output += "<tr><td align='right' style='font-family:Consolas;'>" + obj.clabel.replace(" ","&nbsp;") + "</td><td style='font-family:Consolas;'>" + obj.conf[rowlength * count : rowlength * (count + 1)] +"</td></tr>"
+			else:
+				failList.append(obj)
 				
 		#Majority Row
 		if majority:
@@ -70,8 +75,15 @@ def createHTML(ssobj, seq, pdbdata, majority = None, hColor = "blue", eColor = "
 				output += "<span style='color:" + getColor(c, hColor, eColor, cColor) + "';>" + c + "</span>"	
 			output += "</td></tr>"
 		output += "<br>"
-	output += "</table></body></html>"
-
+	output += "</table>"
+	
+	if len(failList) >= 1:
+		output += "<ul>Sites that failed to return a prediction:"
+		for obj in failList:
+			output += "<li>" + obj.name + "</li>"
+		output += "</ul>"
+	
+	output += "</body></html>"
 	return output
 
 #Takes a character and 3 optional colors. Returns the color it should be represented as

@@ -58,7 +58,7 @@ siteLimit = {
 	"Sable": 20,
 	"Yaspin": 3,
 	"SSPro": 5
-}
+} #currently stops at limit -1
 
 
 app = Flask(__name__)
@@ -211,8 +211,6 @@ def run(predService, seq, email, name, ssObject,
 		tempSS.status = -1
 	else:		
 		tempSS = predService.get(seq, email)
-	#global runningCounter
-	#runningCounter[tempSS.name] -= 1
 	
 	dbupdate(startTime, tempSS.name + "pred", tempSS.pred)
 	dbupdate(startTime, tempSS.name + "conf", tempSS.conf)
@@ -220,11 +218,11 @@ def run(predService, seq, email, name, ssObject,
 
 	if tempSS.status >= 1:
 		if tempSS.status == 1 or tempSS.status == 3:
-			ssObject.append(tempSS)
 			majority = batchtools.majorityVote(seq, ssObject)
 			dbupdate(startTime, 'majorityvote', majority)
 			post_data.update({'output' : htmlmaker.createHTML(ssObject, seq, pdbdata, majority)}) #create HTML and store it in post_data
-		
+
+		ssObject.append(tempSS)
 		post_data['completed'] += 1
 		if post_data['completed'] == post_data['total_sites']:
 			print("All predictions completed.")
@@ -238,13 +236,10 @@ def sendData(seq, startTime, ssObject, post_data, pdbdata):
 	for key in post_data.keys():
 		if key in siteDict:
 			if post_data[key]:
-				#pool.apply_async(run, (siteDict[key], seq, email, key, ssObject, startTime, post_data, pdbdata, email_service))
 				mythread = threading.Thread(target = run, args = (siteDict[key], seq, email, key, ssObject, startTime, post_data, pdbdata))
 				mythread.setName(key)
 				mythread.start()
 				print("Sending sequence to " + key)
-				#global runningCounter
-				#runningCounter[key] += 1
 
 #Takes a form from post and returns the number of sites selected.
 def validate_sites(form):
