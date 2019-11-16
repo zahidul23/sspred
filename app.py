@@ -58,7 +58,7 @@ siteLimit = {
 	"Sable": 20,
 	"Yaspin": 3,
 	"SSPro": 5
-} #currently stops at limit -1
+}
 
 
 app = Flask(__name__)
@@ -204,7 +204,7 @@ def run(predService, seq, email, name, ssObject,
 		if t.getName() == name:
 			tcount += 1
 
-	if tcount >= siteLimit[name]:
+	if tcount > siteLimit[name]:
 		tempSS = ss.SS(name)
 		tempSS.pred = "Queue Full"
 		tempSS.conf = "Queue Full"
