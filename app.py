@@ -66,6 +66,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET')
 if app.config['SECRET_KEY'] is None:
 	app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 
+#Login to email account to be able to send emails
 email_service = emailtools.login()
 email = emailtools.getEmailAddress(email_service)
 
@@ -76,8 +77,7 @@ if siteurl is None :
 
 @app.route('/', methods = ['GET', 'POST'])
 def hello(name=None):
-	form = SubmissionForm() 
-
+	form = SubmissionForm()
 	print(threading.activeCount())
 	runningCounter = {
 		"JPred": 0,
@@ -134,6 +134,7 @@ def hello(name=None):
 		
 		sendData(seq, startTime, ssObject, post_data, pdbdata)
 		return redirect(url_for('showdboutput', var = startTime))
+		
 	return render_template('index.html', form = form, counter = runningCounter) #default submission page
 
 @app.route('/error/')
@@ -197,7 +198,7 @@ def showdboutput(var):
 		return "not found"
 
 def run(predService, seq, email, name, ssObject,
- startTime, post_data, pdbdata, email_service = None):
+ startTime, post_data, pdbdata):
 	tcount = 0
 	for t in threading.enumerate():
 		if t.getName() == name:
@@ -209,7 +210,7 @@ def run(predService, seq, email, name, ssObject,
 		tempSS.conf = "Queue Full"
 		tempSS.status = -1
 	else:		
-		tempSS = predService.get(seq, email, email_service)
+		tempSS = predService.get(seq, email)
 	#global runningCounter
 	#runningCounter[tempSS.name] -= 1
 	
@@ -238,7 +239,7 @@ def sendData(seq, startTime, ssObject, post_data, pdbdata):
 		if key in siteDict:
 			if post_data[key]:
 				#pool.apply_async(run, (siteDict[key], seq, email, key, ssObject, startTime, post_data, pdbdata, email_service))
-				mythread = threading.Thread(target = run, args = (siteDict[key], seq, email, key, ssObject, startTime, post_data, pdbdata, email_service))
+				mythread = threading.Thread(target = run, args = (siteDict[key], seq, email, key, ssObject, startTime, post_data, pdbdata))
 				mythread.setName(key)
 				mythread.start()
 				print("Sending sequence to " + key)

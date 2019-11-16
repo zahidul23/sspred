@@ -14,7 +14,7 @@ def login():
 	creds = None
 	if os.path.exists('services/token.pickle'):
 		with open('services/token.pickle', 'rb') as token:
-			print("opened")
+			#print("opened pickle")
 			creds = pickle.load(token)
 		
 	#Refresh if needed

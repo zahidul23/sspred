@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 from services import ss, emailtools, batchtools
 
-def get(seq, email_address, email_service): #may need to check if all slots in queue are taken
+def get(seq, email_address): #may need to check if all slots in queue are taken
 	
 	SS = ss.SS("SSPro")
 	SS.status = 0
@@ -45,6 +45,7 @@ def get(seq, email_address, email_service): #may need to check if all slots in q
 		return SS
 	
 	query = 'from:(baldig@ics.uci.edu) subject:(Protein Structure Predictions for ' + randName + ')'
+	email_service = emailtools.login()
 	email_id = emailtools.searchEmailId(email_service, query)
 	
 	while(email_id == -1):

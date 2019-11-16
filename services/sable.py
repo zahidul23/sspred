@@ -6,7 +6,7 @@ import re
 
 from services import ss, emailtools, batchtools
 
-def get(seq, email_address, email_service):
+def get(seq, email_address):
 	
 	SS = ss.SS("Sable")
 	if len(seq) <= 12:
@@ -32,7 +32,7 @@ def get(seq, email_address, email_service):
 	
 	#sable uses multiple emails to send results
 	query = 'from:(sable) subject:(sable result) query: ' + randName
-	
+	email_service = emailtools.login()
 	email_id = emailtools.searchEmailId(email_service, query)
 	
 	while(email_id == -1):

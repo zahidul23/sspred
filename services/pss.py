@@ -4,7 +4,7 @@ import time
 
 from services import ss
 
-def get(seq, email_address, email_service):
+def get(seq, email_address):
 
 	SS = ss.SS("PSS")
 	SS.status = 0

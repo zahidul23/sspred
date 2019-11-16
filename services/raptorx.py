@@ -12,7 +12,7 @@ from services import ss
 
 
 
-def get(seq, email_address, email_service):
+def get(seq, email_address):
 
 	SS = ss.SS("RaptorX")
 	SS.status = 0
