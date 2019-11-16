@@ -216,19 +216,22 @@ def run(predService, seq, email, name, ssObject,
 	dbupdate(startTime, tempSS.name + "conf", tempSS.conf)
 	dbupdate(startTime, tempSS.name + "stat", tempSS.status)
 
-	if tempSS.status >= 1:
-		if tempSS.status == 1 or tempSS.status == 3:
-			majority = batchtools.majorityVote(seq, ssObject)
-			dbupdate(startTime, 'majorityvote', majority)
-			post_data.update({'output' : htmlmaker.createHTML(ssObject, seq, pdbdata, majority)}) #create HTML and store it in post_data
+	ssObject.append(tempSS)
+	majority = None
+	
+	#Do majority vote if successful, then update in db
+	if tempSS.status == 1 or tempSS.status == 3:
+		majority = batchtools.majorityVote(seq, ssObject)
+		dbupdate(startTime, 'majorityvote', majority)
 
-		ssObject.append(tempSS)
-		post_data['completed'] += 1
-		if post_data['completed'] == post_data['total_sites']:
-			print("All predictions completed.")
-			if post_data['email'] != "": #if all completed and user email is not empty, send email
-				print ("Sending results to " + post_data['email'])
-				emailtools.sendEmail(email_service, post_data['email'],"Prediction Results", post_data['output'])
+	post_data['completed'] += 1
+	if post_data['completed'] == post_data['total_sites']:
+		print("All predictions completed.")
+		if post_data['email'] != "": #if all completed and user email is not empty, send email
+			print ("Sending results to " + post_data['email'])
+			#create HTML and store it in post_data
+			post_data.update({'output' : htmlmaker.createHTML(ssObject, seq, pdbdata, majority)})
+			emailtools.sendEmail(email_service, post_data['email'],"Prediction Results", post_data['output'])
 
 
 #Sends sequence based off whatever was selected before submission
