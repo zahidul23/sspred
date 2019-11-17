@@ -24,15 +24,11 @@ def drawCounter(mySeq):
 #Splits outputs into lines of length depending on the rowlength parameter + 15
 #Returns the outputted HTML as a string so that it can be emailed
 def createHTML(ssobj, seq, pdbdata, majority = None, hColor = "blue", eColor = "green", cColor = "red", rowlength = 60):
-	
-	failList = []
-	
 	output = "<!DOCTYPE html><head><meta http-equiv='refresh' content='30'></head><html><body><table>" 
 	
 	counter = drawCounter(seq)
 	
-	for count in range(int(len(seq)/rowlength) + 1):
-		
+	for count in range(int(len(seq)/rowlength) + 1):	
 		#Counter row
 		output += "<tr><td align='right'></td>"
 		output += "<td style='font-family:Consolas;'>" + (counter[rowlength * count : rowlength * (count + 1)]).replace(" ", '&nbsp;') + "</td></tr>";
@@ -65,8 +61,6 @@ def createHTML(ssobj, seq, pdbdata, majority = None, hColor = "blue", eColor = "
 				#Conf
 				if obj.status != 3: #Only display conf if status is not 3
 					output += "<tr><td align='right' style='font-family:Consolas;'>" + obj.clabel.replace(" ","&nbsp;") + "</td><td style='font-family:Consolas;'>" + obj.conf[rowlength * count : rowlength * (count + 1)] +"</td></tr>"
-			else:
-				failList.append(obj)
 				
 		#Majority Row
 		if majority:
@@ -76,6 +70,11 @@ def createHTML(ssobj, seq, pdbdata, majority = None, hColor = "blue", eColor = "
 			output += "</td></tr>"
 		output += "<br>"
 	output += "</table>"
+	
+	failList = []
+	for obj in ssobj:
+		if obj.status != 1 and obj.status != 3:
+			failList.append(obj)
 	
 	if len(failList) >= 1:
 		output += "<ul>Sites that failed to return a prediction:"

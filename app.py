@@ -209,8 +209,8 @@ def run(predService, seq, email, name, ssObject,
 		tempSS.pred = "Queue Full"
 		tempSS.conf = "Queue Full"
 		tempSS.status = -1
-	else:		
-		tempSS = predService.get(seq, email)
+	else:
+		tempSS = predService.get(seq, email, tcount)
 	
 	dbupdate(startTime, tempSS.name + "pred", tempSS.pred)
 	dbupdate(startTime, tempSS.name + "conf", tempSS.conf)

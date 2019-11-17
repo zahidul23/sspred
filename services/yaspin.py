@@ -1,9 +1,9 @@
 import requests
 import time
 
-from services import ss
+from services import ss, batchtools
 
-def get(seq, email_address):
+def get(seq, email_address, runCount = 0):
 
 	SS = ss.SS("Yaspin")
 	SS.status = 0
@@ -33,20 +33,32 @@ def get(seq, email_address):
 		return SS
 	
 	result_url = r.url + 'results.out'
+	
+	requesturl = batchtools.requestWait(result_url, 'Yaspin Not Ready')
+	
+	'''
 	while not requests.get(result_url).ok:
 		print('Yaspin Not Ready')
 		time.sleep(20)
 		
 	raw = requests.get(result_url).text.splitlines()
-	
-	for i in range(len(raw)):		
-		if raw[i].startswith(" Pred:"):
-			SS.pred += raw[i][6:].strip()
-		if raw[i].startswith(" Conf:"):
-			SS.conf += raw[i][6:].strip()
-	
-	SS.pred = SS.pred.replace('-','C')
+	'''
+	if requesturl:
+		raw = requesturl.text.splitlines()
+		
+		for i in range(len(raw)):		
+			if raw[i].startswith(" Pred:"):
+				SS.pred += raw[i][6:].strip()
+			if raw[i].startswith(" Conf:"):
+				SS.conf += raw[i][6:].strip()
+		
+		SS.pred = SS.pred.replace('-','C')
 
-	SS.status = 1
-	print("Yaspin Complete")
+		SS.status = 1
+		print("Yaspin Complete")
+	else:
+		SS.pred += "Yaspin failed to respond in time"
+		SS.conf += "Yaspin failed to respond in time"
+		SS.status = 2 #error status
+		print("YASPIN failed: No response")
 	return SS
