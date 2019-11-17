@@ -62,39 +62,47 @@
 					<ul class="tooltiptext">
 						Select which sites the sequence should be sent to for prediction.
 						<li>At least one site should be selected.</li>
+						<li>Hover over the site names to check their accepted sequence lengths.</li>
 					</ul>
 				</span>
 				<tr>
-					<td>
+					<td class="sitetooltip">
 						{{ form.JPred }}
 						{{ form.JPred.label }}
+						<div class="tooltiptext">Maximum Sequence Length: 800</div>
 					</td>
-					<td>
+					<td class="sitetooltip">
 						{{ form.PSI }}
 						{{ form.PSI.label }}
+						<div class="tooltiptext">Maximum Sequence Length: 1500</div>
 					</td>
-					<td>
+					<td class="sitetooltip">
 						{{ form.PSS }}
 						{{ form.PSS.label }}
+						<div class="tooltiptext">Maximum Sequence Length: 4000</div>
 					</td>
 				</tr>
 				<tr>
-					<td>
+					<td class="sitetooltip">
 						{{ form.RaptorX }}
 						{{ form.RaptorX.label }}
-					<td>
+						<div class="tooltiptext">Maximum Sequence Length: 4000</div>
+					<td class="sitetooltip">
 						{{ form.Sable }}
 						{{ form.Sable.label }}
+						<div class="tooltiptext">Maximum Sequence Length: 4000</div>
 					</td>
-					<td>
+					<td class="sitetooltip">
 						{{ form.Yaspin }}
 						{{ form.Yaspin.label }}
+						<div class="tooltiptext">Maximum Sequence Length: 4000</div>
 					</td>
 				</tr>
 				<tr>
-					<td>
+					<td class="sitetooltip">
 						{{ form.SSPro }}
 						{{ form.SSPro.label }}
+						<div class="tooltiptext">Maximum Sequence Length: 400</div>
 					</td>
 				</tr>
 			</table>
