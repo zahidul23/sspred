@@ -1,77 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
-</style>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js" type="text/javascript">
 	</script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js">
 	</script>
 	<script src="{{url_for('static', filename='scripts/html2canvas.js')}}"></script>
-	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/tooltip.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 	<title>Prediction Results</title>
 	<meta name='viewport' content='width=device-width, initial-scale=1.0'><meta name="autorefresh" http-equiv='refresh' content='30'>
 </head>
-<body style="font-family:monospace;">
+<body>
 
 <div><a id='home' href=''>Home</a></div>
 <table id="mytable" border="0">
@@ -224,7 +163,7 @@ input:checked + .slider:before {
 		{
 			//counter row
 			output += "<tr class='counterRow'><td align='right'></td>";
-			output += "<td class='charCounter'>" + counter.substring(length * i, length * (i + 1)).replace(/ /g, "&nbsp;") + "</td></tr>"; //replace afterwards so that &nbsp will not be substringinged out
+			output += "<td class='charCounter'>" + counter.substring(length * i, length * (i + 1)).replace(/ /g, "&nbsp;") + "</td></tr>"; //replace afterwards so that &nbsp will not be substringed out
 			
 			//sequence row
 			output += "<tr class='seqRow'> <td align='right' class='seqLabel'>Sequence:</td>";
@@ -236,9 +175,6 @@ input:checked + .slider:before {
 					+ '_'
 					+ a[0]['pdb']['chain'] +":</td>";
 				var pdbstring = a[0]['pdb']['secondary'].substring(length * i, length * (i + 1))
-				pdbstring = pdbstring.replace(/C/g,'<span class="c" style="color: red;">C</span>');
-				pdbstring = pdbstring.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
-				pdbstring = pdbstring.replace(/E/g,'<span class="e" style="color: green;">E</span>');
 				output += "<td class='pdb'>" + pdbstring + "</td></tr>";
 			}
 			//site rows
@@ -249,9 +185,6 @@ input:checked + .slider:before {
 				output += "<td align='right'>" + sites[j].toUpperCase() + " Pred:</td>";
 				output += "<td class='" + sites[j] + "pred' class='pred'>";
 				var predstring = a[0][sites[j]+'pred'].substring(length * i, length * (i + 1));
-				predstring = predstring.replace(/C/g,'<span class="c" style="color: red;">C</span>');
-				predstring = predstring.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
-				predstring = predstring.replace(/E/g,'<span class="e" style="color: green;">E</span>');
 				output += predstring + "</td></tr>";
 				
 				//conf
@@ -269,9 +202,6 @@ input:checked + .slider:before {
 				output += "<tr class='majrow'><td align='right'>Majority Vote:</td>";
 				output += "<td class='majorityvote'>"
 				var mvotestring = a[0]['majorityvote'].substring(length * i, length * (i + 1));
-				mvotestring = mvotestring.replace(/C/g,'<span class="c" style="color: red;">C</span>');
-				mvotestring = mvotestring.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
-				mvotestring = mvotestring.replace(/E/g,'<span class="e" style="color: green;">E</span>');
 				output += mvotestring + "</td></tr>";
 			}
 		}
@@ -280,7 +210,7 @@ input:checked + .slider:before {
 		var table = document.getElementById('mytable');
 		table.innerHTML = output;
 
-
+		//Color code and add spacing
 		for (var x = 0; x < document.getElementById("mytable").rows.length; x ++){
 			document.getElementById("mytable").rows[x].cells[1].innerHTML = document.getElementById("mytable").rows[x].cells[1].textContent.replace(/(.{10})/g,"$1&nbsp;&nbsp;");
 			if (document.getElementById("mytable").rows[x].cells[1].getAttribute("class") != 'seq'){
@@ -291,7 +221,7 @@ input:checked + .slider:before {
 			else {
 			}
 		}
-		///*
+		/*
 		if (a[0]['pdb'] != null){
 			var seqlines = document.getElementsByClassName('seq');
 			var i = 0;
@@ -318,7 +248,7 @@ input:checked + .slider:before {
 				}
 			}
 		}
-		//*/
+		*/
 
 	}
 	

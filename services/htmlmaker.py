@@ -20,7 +20,6 @@ def drawCounter(mySeq):
 
 #Writes the output to an HTML format string. 
 #Takes a ssObject,seq, and optional pdbdata and majority vote for the outputs
-#"pred month.day.year hr.min.sec" for file name
 #Splits outputs into lines of length depending on the rowlength parameter + 15
 #Returns the outputted HTML as a string so that it can be emailed
 def createHTML(ssobj, seq, pdbdata, majority = None, hColor = "blue", eColor = "green", cColor = "red", rowlength = 60):
