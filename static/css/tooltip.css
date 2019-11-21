@@ -1,0 +1,49 @@
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  background-color: rgba(255, 255, 153, 0.95);
+  border-radius: 2px;
+  border: 1px solid gray;
+  padding: 5px 10px 5px 20px;
+  text-align:left;
+  white-space: nowrap;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  top: -5px;
+  left: 105%;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.sitetooltip {
+  position: relative;
+}
+
+.sitetooltip .tooltiptext {
+  visibility: hidden;
+  background-color: rgba(255, 255, 153, 0.95);
+  border-radius: 2px;
+  padding: 5px;
+  border: 1px solid gray;
+  text-align:left;
+  white-space: nowrap;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  top: 0px;
+  left: 105%;
+}
+
+.sitetooltip:hover .tooltiptext {
+  visibility: visible;
+}
