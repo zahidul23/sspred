@@ -13,8 +13,19 @@
 <body>
 
 <div><a id='home' href=''>Home</a></div>
-<table id="mytable" border="0">
-</table>
+<div id='resultdisplay'>
+	<table id="mytable" border="0">
+	</table>
+	<br/><br/>
+	<div id='legend'>
+		<b>Legend</b>
+		<p>S: bend</p>
+		<p>T: turn</p>
+		<p>E: beta strand</p>
+		<p>G: 3/10-helix</p>
+		<p>H: alpha helix</p>
+	</div>
+</div>
 <br/><br/><br/>
 <table style="text-align: center; padding-bottom: 10px; border-spacing: 15px 0rem;">
 <tr>
@@ -44,6 +55,30 @@
 			</span>
 		</div>
 	</td>
+	<td class='enableWithPDB'>
+		<div class='enableWithPDB'>
+			Show Known Structure
+			<span class="tooltip">
+				?
+				<div class="tooltiptext">
+					When enabled, the known secondary structure will be displayed along with the results. <br>
+					Disable this option if you do not want to include it with the generated image.
+				</div>
+			</span>
+		</div>
+	</td>
+	<td class='enableWithPDB'>
+		<div class='enableWithPDB'>
+			Colorize Primary Sequence
+			<span class="tooltip">
+				?
+				<div class="tooltiptext">
+					When enabled, helices and strands will be colored in the primary sequence. <br>
+					Disable this option if you do not want to include it with the generated image.
+				</div>
+			</span>
+		</div>
+	</td>
 </tr>
 <tr>
 	<td>
@@ -55,10 +90,26 @@
 	
 	<td>
 	<label class="switch"> 
-	  <input type="checkbox" id="togglemajority" onclick="toggleMajority()" checked>
+	  <input type="checkbox" id="togglemajority" onclick="toggleRows('togglemajority', 'majrow')" checked>
 	  <span class="slider round"></span>
 	</label>
 	</td>
+
+	<td class='enableWithPDB'>
+	<label class="switch"> 
+	  <input type="checkbox" id="togglepdb" onclick="toggleRows('togglepdb','pdbrow')" checked>
+	  <span class="slider round"></span>
+	</label>
+	</td>
+
+	<td class='enableWithPDB'>
+	<label class="switch"> 
+	  <input type="checkbox" id="toggleseqcolor" onclick="colorizeSequence()" unchecked>
+	  <span class="slider round"></span>
+	</label>
+	</td>
+	</div>
+	
 </tr>
 </table>
 <div>
@@ -127,7 +178,13 @@
 	var a = {{ data | safe}};
 
 	if (a[0]['pdb'] != null){
-			a[0]['pdb'] = JSON.parse(a[0]['pdb']);
+		a[0]['pdb'] = JSON.parse(a[0]['pdb']);
+	}
+	else{
+		var nodes = document.getElementsByClassName("enableWithPDB");
+		for(i=0; i < nodes.length; i++){
+			nodes[i].style.display = 'none';
+		}
 	}
 	var statusproduct = 1;
 	//Generates the rows of results. Takes a length which is the number of amino acids per row
@@ -170,7 +227,7 @@
 			output += "<td class='seq'>" + a[0]['seq'].substring(length * i, length * (i + 1)) + "</td></tr>";
 
 			if (a[0]['pdb'] != null){
-				output += "<tr class='pdbRow'> <td align='right' class='pdbLabel'> PDB_"
+				output += "<tr class='pdbrow'> <td align='right' class='pdbLabel'> PDB_"
 					+ a[0]['pdb']['pdbid'] 
 					+ '_'
 					+ a[0]['pdb']['chain'] +":</td>";
@@ -222,38 +279,12 @@
 			}
 		}
 		/*
-		if (a[0]['pdb'] != null){
-			var seqlines = document.getElementsByClassName('seq');
-			var i = 0;
-			a[0]['pdb']['secondary'] = a[0]['pdb']['secondary'].replace(/(.{10})/g,"$1  ");
-			console.log(a[0]['pdb']['secondary'])
-			while (i<a[0]['pdb']['secondary'].length){
-				for (var j = 0; j < seqlines.length; j++){
-					var seqString = '';
-					for(var k = 0; k < seqlines[j].textContent.length; k++){
-						if(a[0]['pdb']['secondary'][i] == 'E'){
-							seqString += '<span class="e" style="color: green;">' + seqlines[j].textContent[k] + '</span>'
-						}
-						else if(a[0]['pdb']['secondary'][i] == 'H'){
-							seqString += '<span class="h" style="color: blue;">' + seqlines[j].textContent[k] + '</span>'
-						}
-						else {
-							seqString += '<span class="other" style="color: black;">' + seqlines[j].textContent[k] + '</span>'
-							console.log(seqlines[j].innerHTML[k])
-						}
-
-						i++;
-					}
-					seqlines[j].innerHTML = seqString;
-				}
-			}
-		}
+		
 		*/
 
 	}
 	
 	generateRows(60);
-
 	//*
 	
 
@@ -297,9 +328,9 @@
 		}
 	}
 	
-	function toggleMajority(){
-		var checkBox = document.getElementById("togglemajority");
-		var rows = document.getElementsByClassName("majrow");
+	function toggleRows(checkboxid, rowid){
+		var checkBox = document.getElementById(checkboxid);
+		var rows = document.getElementsByClassName(rowid);
 		
 		for(var i = 0; i < rows.length; i++)
 		{
@@ -313,6 +344,44 @@
 			}
 		}
 	}
+
+	function colorizeSequence(){
+		var checkBox = document.getElementById('toggleseqcolor');
+		
+		if (a[0]['pdb'] != null){
+			var seqlines = document.getElementsByClassName('seq');
+			var i = 0;
+			var formatedSS = a[0]['pdb']['secondary'].replace(/(.{10})/g,"$1  ");
+			//console.log(a[0]['pdb']['secondary']);
+			while (i<formatedSS.length){
+				for (var j = 0; j < seqlines.length; j++){
+					var seqString = '';
+					for(var k = 0; k < seqlines[j].textContent.length; k++){
+						if(formatedSS[i] == 'E'){
+							seqString += '<span class="e" style="color: green;">' + seqlines[j].textContent[k] + '</span>';
+						}
+						else if(formatedSS[i] == 'H'){
+							seqString += '<span class="h" style="color: blue;">' + seqlines[j].textContent[k] + '</span>';
+						}
+						else {
+							seqString += '<span class="other" style="color: black;">' + seqlines[j].textContent[k] + '</span>';
+							//console.log(seqlines[j].innerHTML[k])
+						}
+
+						i++;
+					}
+					if (checkBox.checked == true){
+						seqlines[j].innerHTML = seqString;
+					}
+					else{
+						seqlines[j].innerHTML = seqlines[j].textContent;
+					}
+					
+				}
+			}
+		}
+	}
+
 	
 	function drawCounter(mySeq){
 		var j=0;
@@ -337,7 +406,7 @@
 	}
 	
 	$('#genimage').on('click', function() {
-		table = document.getElementById('mytable')
+		table = document.getElementById('resultdisplay')
 		html2canvas(table,{scale:1, scrollY: (window.pageYOffset * -1)}).then(function(canvas) {
 		const myNode = document.getElementById("imgoutput");
 		while (myNode.firstChild) {
