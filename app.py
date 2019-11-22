@@ -217,12 +217,8 @@ def run(predService, seq, email, name, ssObject,
 	dbupdate(startTime, tempSS.name + "stat", tempSS.status)
 
 	ssObject.append(tempSS)
-	majority = None
-	
-	#Do majority vote if successful, then update in db
-	if tempSS.status == 1 or tempSS.status == 3:
-		majority = batchtools.majorityVote(seq, ssObject)
-		dbupdate(startTime, 'majorityvote', majority)
+	majority = batchtools.majorityVote(seq, ssObject)
+	dbupdate(startTime, 'majorityvote', majority)
 
 	post_data['completed'] += 1
 	if post_data['completed'] == post_data['total_sites']:
