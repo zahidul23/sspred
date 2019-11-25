@@ -197,7 +197,7 @@ def showdboutput(var):
 	except Exception as e:
 		return "not found"
 
-def run(predService, seq, email, name, ssObject,
+def run(predService, seq, name, ssObject,
  startTime, post_data, pdbdata):
 	tcount = 0
 	for t in threading.enumerate():
@@ -210,7 +210,8 @@ def run(predService, seq, email, name, ssObject,
 		tempSS.conf = "Queue Full"
 		tempSS.status = -1
 	else:
-		tempSS = predService.get(seq, email, tcount)
+		#tempSS = predService.get(seq, tcount)
+		tempSS = predService.get(seq)
 	
 	dbupdate(startTime, tempSS.name + "pred", tempSS.pred)
 	dbupdate(startTime, tempSS.name + "conf", tempSS.conf)
@@ -235,7 +236,7 @@ def sendData(seq, startTime, ssObject, post_data, pdbdata):
 	for key in post_data.keys():
 		if key in siteDict:
 			if post_data[key]:
-				mythread = threading.Thread(target = run, args = (siteDict[key], seq, email, key, ssObject, startTime, post_data, pdbdata))
+				mythread = threading.Thread(target = run, args = (siteDict[key], seq, key, ssObject, startTime, post_data, pdbdata))
 				mythread.setName(key)
 				mythread.start()
 				print("Sending sequence to " + key)

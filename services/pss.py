@@ -1,10 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 import time
+from guerrillamail import GuerrillaMailSession
 
 from services import ss, batchtools
 
-def get(seq, email_address, runCount = 0):
+def get(seq):
 
 	SS = ss.SS("PSS")
 	SS.status = 0
@@ -22,11 +23,12 @@ def get(seq, email_address, runCount = 0):
 		print("PSSPred failed: Sequence longer than 4000")
 		return SS #return SS so it will be readable as an ssObject
 		
+	session = GuerrillaMailSession()	#Creates GuerrillaMail session
+	email_address = session.get_session_state()['email_address'] #retrieves temp email address
+		
 	payload = {'REPLY-E-MAIL': email_address, 
 		'TARGET-NAME': 'testprot', 
 		'SEQUENCE': seq}
-	
-	#Around 15 min for 4000
 	r= requests.post('https://zhanglab.ccmb.med.umich.edu/cgi-bin/PSSpred.pl', data=payload)
 
 	soup = BeautifulSoup(r.text, 'html.parser')
@@ -42,14 +44,7 @@ def get(seq, email_address, runCount = 0):
 
 	ssurl = ssurl + '/seq.SS'
 	
-	'''
-	while not requests.get(ssurl).ok:
-		print('PSSpred Not Ready')
-		time.sleep(20)
-
-	raw = requests.get(ssurl).text.splitlines()
-	'''
-	
+	#Around 15 min for 4000
 	requesturl = batchtools.requestWait(ssurl, "PSSpred Not Ready")
 
 	if requesturl:

@@ -7,11 +7,12 @@ from urllib import request
 import re
 import os
 import io
+from guerrillamail import GuerrillaMailSession
 
 from services import ss, batchtools
 
 
-def get(seq, email_address, runCount = 0):
+def get(seq):
 
 	SS = ss.SS("RaptorX")
 	SS.status = 0
@@ -22,6 +23,9 @@ def get(seq, email_address, runCount = 0):
 		SS.status = 2 #error status
 		print("RaptorX failed: Sequence is shorter than 27 or longer than 4000")
 		return SS #return SS so it will be readable as an ssObject
+	
+	session = GuerrillaMailSession()	#Creates GuerrillaMail session
+	email_address = session.get_session_state()['email_address'] #retrieves temp email address
 
 	payload = {'jobname': 'myprot', 
 		'useProfile': 'true', 
@@ -45,7 +49,9 @@ def get(seq, email_address, runCount = 0):
 	tree = html.fromstring(raw)
 
 	treelist = tree.xpath('//*[@id="content"]/center[1]/text()')
+
 	'''
+	#No cancel
 	while treelist != []:
 		print('RaptorX Not Ready')
 		time.sleep(20)
@@ -53,18 +59,15 @@ def get(seq, email_address, runCount = 0):
 		tree = html.fromstring(raw)
 		treelist = tree.xpath('//*[@id="content"]/center[1]/text()')
 	'''
-	totalSleepTime = 0
-	quitWait = False
-	while treelist != [] and not quitWait:
-		if totalSleepTime >= 1200 + (300 * runCount): #add 5 extra minutes for each running raptorx
-			quitWait = True
-		else:
-			print('RaptorX Not Ready')
-			time.sleep(20)
-			totalSleepTime += 20
-			raw = requests.get(url).text
-			tree = html.fromstring(raw)
-			treelist = tree.xpath('//*[@id="content"]/center[1]/text()')
+	
+	#Cancel after 20 min
+	stime = time.time()
+	while treelist != [] or time.time() > stime + 1200:
+		print('RaptorX Not Ready')
+		time.sleep(20)
+		raw = requests.get(url).text
+		tree = html.fromstring(raw)
+		treelist = tree.xpath('//*[@id="content"]/center[1]/text()')
 
 	if treelist == []:
 		treelist = tree.xpath('//*[@id="infoval"]/script/text()')
