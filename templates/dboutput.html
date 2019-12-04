@@ -209,11 +209,7 @@
 		var counter = drawCounter(a[0]['seq']);
 		
 		var rows = 0;
-		if(a[0]['seq'].length%length != 0) //if the sequence length = row length, there only needs to be 1 row
-		{
-			rows = Math.floor(a[0]['seq'].length/length)
-		}
-		rows++;
+		rows = Math.ceil(a[0]['seq'].length/length)
 
 		var output = "";
 		for(var i = 0; i < rows; i++)
