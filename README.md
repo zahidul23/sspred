@@ -3,11 +3,11 @@ An application that sends a protein sequence to various websites to generate pre
 
 Setting Up
 -----------
-This application requires a token.pickle and credentials.json in the services folder. 
+This application requires a token.pickle and credentials.json in the [services](services) folder. 
 
 **credentials.json** can be made by creating a project on the [Google Cloud Platform](https://console.cloud.google.com/). This application only uses the Gmail API.
 
-**token.pickle** can be created by running the createPickle function found in services/emailtools.py and logging into a Google account.
+**token.pickle** can be created by running the createPickle function found in [services/emailtools.py](emailtools.py#L64) and logging into a Google account.
 
 A database is required to run this application. The url can be set in [app.py](app.py#L17) with the `DATABASE_URL` variable.
 
