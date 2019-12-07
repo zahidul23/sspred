@@ -107,13 +107,17 @@
 			<br>
 			<div>
 				<input type="checkbox" id="knownSeq" onclick="knownToggle()">
-				Known Sequence 
+				Known Structure
 				<span class="tooltip">
 					?
 					<ul class="tooltiptext">
-						If the entered sequence is a known structure, <br>parts of it will be colored in the results.
+						If the entered structure id and chain id are from a valid known structure, 
+						<br>then the known elements will be displayed in the output.
 						<li>Both the structure id and chain id must be entered.</li>
-						<li>Chain id's are case sensitive.</li>
+						<li>Chain id's are case sensitive (a is not the same as A).</li>
+						<li>If a valid structure is given, it will be used as the input sequence instead,
+						<br>even if the inputted sequence does  not match it.
+						</li>
 					</ul>
 				</span>
 				<br>
