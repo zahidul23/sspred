@@ -9,7 +9,7 @@ This application requires a token.pickle and credentials.json in the services fo
 
 **token.pickle** can be created by running the createPickle function found in services/emailtools.py and logging into a Google account.
 
-A database is required to run this application. The url can be set in app.py with the `DATABASE_URL` variable.
+A database is required to run this application. The url can be set in [app.py](app.py#L17) with the `DATABASE_URL` variable.
 
 If hosting this application on Heroku, run the command `heroku config:set WEB_CONCURRENCY=1` to make the Running Counter accurate.
 
