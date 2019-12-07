@@ -24,8 +24,24 @@ def dbselect(rowid):
 	jsonresults = json.dumps(cursor.fetchall(), indent=2)
 	cursor.close()
 	return jsonresults
+	
+def dbdelete():
+	cursor = conn.cursor()
+	cursor.execute("SELECT COUNT(*) FROM seqtable")
+	numrowsdb = cursor.fetchall()
+	numrowsdb = numrowsdb[0][0]
+
+	if numrowsdb > 8000:
+		cursor.execute(
+				'''
+				DELETE FROM seqtable 
+				WHERE ID = any (array(SELECT ID FROM seqtable ORDER BY convert_to(ID, 'SQL_ASCII') ASC LIMIT 1000))
+				''')
+		conn.commit()
+	cursor.close()
 
 def dbinsert(rowid, rowseq):
+	dbdelete() #Deletes 1000 oldest rows if table is larger than 8000 rows
 	cursor = conn.cursor()
 	cursor.execute("INSERT INTO seqtable (ID, SEQ) VALUES (%s, %s)", (rowid, rowseq))
 	conn.commit()
