@@ -1,4 +1,5 @@
 import time
+from services import ss
 
 #Displays character position 
 def drawCounter(mySeq):
@@ -78,7 +79,7 @@ def createHTML(ssobj, seq, pdbdata, majority = None, hColor = "blue", eColor = "
 	if len(failList) >= 1:
 		output += "<ul>Sites that failed to return a prediction:"
 		for obj in failList:
-			output += "<li>" + obj.name + "</li>"
+			output += "<li>" + obj.name + ": " + obj.pred + "</li>"
 		output += "</ul>"
 	
 	output += "</body></html>"

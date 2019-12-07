@@ -9,12 +9,6 @@ def get(seq):
 
 	SS = ss.SS("PSS")
 	SS.status = 0
-	
-	if time.time() < 1571702400.00:
-		SS.pred = "PSS down until Oct 22"
-		SS.conf = "PSS down until Oct 22"
-		SS.status = 2
-		return SS
 
 	if (len(seq) > 4000):
 		SS.pred += "Sequence longer than 4000"
@@ -58,8 +52,8 @@ def get(seq):
 		SS.status = 1
 		print("PSSPred Complete")
 	else:
-		SS.pred += "PSSPred failed to respond in time"
-		SS.conf += "PSSPred failed to respond in time"
+		SS.pred += "failed to respond in time"
+		SS.conf += "failed to respond in time"
 		SS.status = 2 #error status
 		print("PSSPred failed: No response")
 	return SS

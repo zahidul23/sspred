@@ -18,7 +18,7 @@ class SS:
 		self.hconf = []
 		self.econf = []
 		self.status = 0
-	
+		
 	'''
 		Statuses:
 			0 = not finished

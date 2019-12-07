@@ -14,8 +14,8 @@ def get(seq):
 	SS.status = 0
 	
 	if (len(seq) > 400):
-		SS.pred += "Sequence longer than 400"
-		SS.conf += "Sequence longer than 400"
+		SS.pred += "Sequence is longer than 400"
+		SS.conf += "Sequence is longer than 400"
 		SS.status = 2 #error status
 		print("SSPro failed: Sequence longer than 400")
 		return SS #return SS so it will be readable as an ssObject
@@ -77,8 +77,8 @@ def get(seq):
 		SS.status = 3
 		print("SSpro Complete")
 	else:
-		SS.pred += "SSPro failed to respond in time"
-		SS.conf += "SSPro failed to respond in time"
+		SS.pred += "failed to respond in time"
+		SS.conf += "failed to respond in time"
 		SS.status = 2 #error status
 		print("SSPro failed: No response")
 	return SS

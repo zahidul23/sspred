@@ -54,8 +54,8 @@ def get(seq):
 		SS.status = 1
 		print("Yaspin Complete")
 	else:
-		SS.pred += "Yaspin failed to respond in time"
-		SS.conf += "Yaspin failed to respond in time"
+		SS.pred += "failed to respond in time"
+		SS.conf += "failed to respond in time"
 		SS.status = 2 #error status
 		print("YASPIN failed: No response")
 	return SS

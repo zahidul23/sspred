@@ -9,12 +9,18 @@ def get(seq):
 	
 	SS = ss.SS("PSI")
 
-	if (len(seq) < 30 or len(seq) > 1500):
+	if (len(seq) < 30 or len(seq) > 1500): #<30 shouldnt happen with input validation
+		SS.pred += "Sequence is longer than 1500"
+		SS.conf += "Sequence is longer than 1500"
+		SS.status = 2 #error status
+		print("PsiPred failed: Sequence is longer than 1500")
+		'''
 		SS.pred += "Sequence is shorter than 30 or longer than 1500"
 		SS.conf += "Sequence is shorter than 30 or longer than 1500"
 		SS.status = 2 #error status
 		print("PsiPred failed: Sequence is shorter than 30 or longer than 1500")
-		return SS #return SS so it will be readable as an ssObject
+		'''
+		return SS 
 		
 	session = GuerrillaMailSession()	#Creates GuerrillaMail session
 	email_address = session.get_session_state()['email_address'] #retrieves temp email address
@@ -54,14 +60,14 @@ def get(seq):
 			SS.status = 1
 			print("PsiPred Complete")
 		else:
-			SS.pred += "PsiPred failed to respond in time"
-			SS.conf += "PsiPred failed to respond in time"
+			SS.pred += "failed to respond in time"
+			SS.conf += "failed to respond in time"
 			SS.status = 2 #error status
 			print("PsiPred failed: No response")
 
 	except:
-		SS.pred += "PsiPred failed: sequence not accepted"
-		SS.conf += "PsiPred failed: sequence not accepted"
+		SS.pred += "sequence not accepted"
+		SS.conf += "sequence not accepted"
 		SS.status = 4
 		print("PsiPred failed: sequence not accepted")
 			

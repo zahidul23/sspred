@@ -17,11 +17,17 @@ def get(seq):
 	SS = ss.SS("RaptorX")
 	SS.status = 0
 	
-	if (len(seq) < 27 or len(seq) > 4000):
+	if (len(seq) < 27 or len(seq) > 4000): #<27 shouldnt happen with input validation
+		SS.pred += "Sequence is longer than 4000"
+		SS.conf += "Sequence is longer than 4000"
+		SS.status = 2 #error status
+		print("RaptorX failed: Sequence is shorter than 27 or longer than 4000")
+		'''
 		SS.pred += "Sequence is shorter than 27 or longer than 4000"
 		SS.conf += "Sequence is shorter than 27 or longer than 4000"
 		SS.status = 2 #error status
 		print("RaptorX failed: Sequence is shorter than 27 or longer than 4000")
+		'''
 		return SS #return SS so it will be readable as an ssObject
 	
 	session = GuerrillaMailSession()	#Creates GuerrillaMail session
@@ -128,13 +134,13 @@ def get(seq):
 			SS.status = 1
 			print("RaptorX Complete")
 		else:
-			SS.pred += "RaptorX failed to respond in time"
-			SS.conf += "RaptorX failed to respond in time"
+			SS.pred += "failed to respond in time"
+			SS.conf += "failed to respond in time"
 			SS.status = 2 #error status
 			print("RaptorX failed: No response")
 	except:
-		SS.pred += "RaptorX failed: sequence not accepted"
-		SS.conf += "RaptorX failed: sequence not accepted"
+		SS.pred += "sequence not accepted"
+		SS.conf += "sequence not accepted"
 		SS.status = 4
 		print("RaptorX failed: sequence not accepted")
 		

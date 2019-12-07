@@ -11,7 +11,7 @@ from services import ss, batchtools
 def get(seq):
 	
 	SS = ss.SS("Sable")
-	if len(seq) <= 12:
+	if len(seq) <= 12: #<=12 shouldnt happen with input validation
 		SS.status = 2
 		SS.pred += "Sequence is shorter than or equal to 12"
 		SS.conf += "Sequence is shorter than or equal to 12"
@@ -85,8 +85,8 @@ def get(seq):
 		print(SS.conf)
 		print("Sable Complete")
 	else:
-		SS.pred += "Sable failed to respond in time"
-		SS.conf += "Sable failed to respond in time"
+		SS.pred += "failed to respond in time"
+		SS.conf += "failed to respond in time"
 		SS.status = 2 #error status
 		print("Sable failed: No response")
 	return SS
