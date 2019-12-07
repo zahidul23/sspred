@@ -25,5 +25,6 @@ class SS:
 			1 = finished
 			2 = ended with error
 			3 = finished with no conf
+			4 = sequence not accepted
 	'''
 	
