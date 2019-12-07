@@ -13,10 +13,13 @@
 <body>
 
 <div><a id='home' href=''>Home</a></div>
-<div id='resultdisplay'>
-	<table id="mytable" border="0">
+<table id='fullresults'>
+	<tr><td>
+	<table id="mytable">
 	</table>
 	<br/><br/>
+	</td></tr>
+	<tr><td>
 	<div id='legend'>
 		<b>Legend</b>
 		<p>S: bend</p>
@@ -25,7 +28,8 @@
 		<p>G: 3/10-helix</p>
 		<p>H: alpha helix</p>
 	</div>
-</div>
+	</td></tr>
+</table>
 <br/><br/><br/>
 <table style="text-align: center; padding-bottom: 10px; border-spacing: 15px 0rem;">
 <tr>
@@ -113,11 +117,11 @@
 </tr>
 </table>
 <div>
-	Amino Acids Per Row: 
+	Elements Per Row: 
 	<span class="tooltip">
 		?
 		<ul class="tooltiptext">
-			The number of amino acids each row will have in the results.
+			The number of elements each row will have in the results.
 			<li>This option affects image generation.</li>
 			<li>If an image has previously been generated, re-generate it to show any changes.</li>
 		</ul>
@@ -130,6 +134,12 @@
 	  <option value="100">100</option>
 	</select>
 	<button id="updaterows">Update Rows</button>
+</div>
+<div id = "ieNotice" style="display:none;font-weight:bold">
+	<br>
+	The features below are either incompatible or more difficult to use with Internet Explorer.<br>
+	Switch to a compatible browser such as Google Chrome or Mozilla Firefox in order to properly use them.
+	<br>
 </div>
 <table style="text-align: center; padding-bottom: 10px">
 	<tr>
@@ -156,16 +166,39 @@
 	</tr>
 </table>
 
-<button id="genimage">Generate Image</button> 
-<span class="tooltip">
+<button id='genimage'>Generate Image</button> 
+<span class='tooltip'>
 	?
-	<ul class="tooltiptext">
-		Generate an image version of the above results.
-		<li>Save the generated image by right-clicking and selecting "Save image as...".</li>
+	<ul class='tooltiptext'>
+		Generate an image version of the above table of results without the legend.
+		<li>Save the generated image by right-clicking and selecting 'Save image as...'
+			<br>
+			or with the Save Image button that shows after generating an image.
+		</li>
 		<li>Re-generate the image to reflect any customization changes.</li>
 	</ul>
 </span>
-
+<button id='genimagewlegend'>Generate Image with Legend</button> 
+<span class='tooltip'>
+	?
+	<ul class='tooltiptext'>
+		Generate an image version of the above results including the legend.
+		<li>Save the generated image by right-clicking and selecting 'Save image as...'.
+			<br>
+			or with the Save Image button that shows after generating an image.
+		</li>
+		<li>Re-generate the image to reflect any customization changes.</li>
+	</ul>
+</span>
+<div id='saveimagediv' style="display: none;">
+	<button id='saveimage'>Save Image</button>
+	<span class='tooltip'>
+	?
+	<ul class='tooltiptext'>
+		Saves the generated image onto your device.
+	</ul>
+	</span>
+</div>
 <table id='imgoutput' border="0">
 	<tr>
 		<td id="myimage"></td>
@@ -265,7 +298,7 @@
 
 		//Color code and add spacing
 		for (var x = 0; x < document.getElementById("mytable").rows.length; x ++){
-			document.getElementById("mytable").rows[x].cells[1].innerHTML = document.getElementById("mytable").rows[x].cells[1].textContent.replace(/(.{10})/g,"$1&nbsp;&nbsp;");
+			//document.getElementById("mytable").rows[x].cells[1].innerHTML = document.getElementById("mytable").rows[x].cells[1].textContent.replace(/(.{10})/g,"$1&nbsp;&nbsp;");
 			if (document.getElementById("mytable").rows[x].cells[1].getAttribute("class") != 'seq'){
 				document.getElementById("mytable").rows[x].cells[1].innerHTML = document.getElementById("mytable").rows[x].cells[1].innerHTML.replace(/E/g,'<span class="e" style="color: green;">E</span>');
 				document.getElementById("mytable").rows[x].cells[1].innerHTML = document.getElementById("mytable").rows[x].cells[1].innerHTML.replace(/H/g,'<span class="h" style="color: blue;">H</span>');
@@ -412,6 +445,50 @@
 		});
 	});
 	
+	$('#genimage').on('click', function() {
+		table = document.getElementById('mytable')
+		html2canvas(table,{scale:1, scrollY: (window.pageYOffset * -1)}).then(function(canvas) {
+		const myNode = document.getElementById("imgoutput");
+		while (myNode.firstChild) {
+			myNode.removeChild(myNode.firstChild);
+		 }
+		document.getElementById('imgoutput').append(canvas);
+		});
+		document.getElementById('saveimagediv').style.display = "inline";
+	});	
+
+	$('#genimagewlegend').on('click', function() {
+		table = document.getElementById('fullresults')
+		html2canvas(table,{scale:1, scrollY: (window.pageYOffset * -1)}).then(function(canvas) {
+		const myNode = document.getElementById("imgoutput");
+		while (myNode.firstChild) {
+			myNode.removeChild(myNode.firstChild);
+		 }
+		document.getElementById('imgoutput').append(canvas);
+		});
+		document.getElementById('saveimagediv').style.display = "inline";
+	});
+
+	$('#saveimage').on('click', function() {
+		var canvas = document.getElementsByTagName("canvas")[0];
+		imglink = canvas.toDataURL("image/png", 1.0);
+
+		var saveEle = document.createElement('a');
+		saveEle.href = imglink;
+		saveEle.download = "output.png";
+		saveEle.click();
+	});	
+
+	// Display a message if user is using IE
+	var ua = window.navigator.userAgent;
+	var isIE = /MSIE|Trident/.test(ua);
+
+	if(isIE)
+	{
+		ieDiv = document.getElementById("ieNotice");
+		ieDiv.style.display = 'block';
+		console.log("WAT");
+	}
 	</script>
 </body>
 </html>
