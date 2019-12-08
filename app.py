@@ -215,9 +215,7 @@ def showdboutput(var):
 
 def run(predService, seq, name, ssObject,
  startTime, post_data, pdbdata):
- 
-	maketable.tryTable() #Create table if doesnt exist
- 
+
 	tcount = 0
 	for t in threading.enumerate():
 		if t.getName() == name:
