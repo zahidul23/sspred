@@ -10,7 +10,7 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 cursor = conn.cursor()
 
-create_table_query = '''CREATE TABLE seqtable
+create_table_query = '''CREATE TABLE IF NOT EXISTS seqtable
           (ID TEXT PRIMARY KEY     NOT NULL,
           SEQ TEXT NOT NULL,
           PSIPRED TEXT,
