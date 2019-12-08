@@ -16,5 +16,5 @@ If hosting this application on Heroku, run the command `heroku config:set WEB_CO
 Dependencies
 -----------
 ```
-beautifulsoup4 lxml urllib3 Flask gevent-websocket wtforms Flask-WTF psycopg2-binary --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib python-guerrillamail
+beautifulsoup4 lxml urllib3 Flask wtforms Flask-WTF psycopg2-binary --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib python-guerrillamail
 ```
