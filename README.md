@@ -9,13 +9,13 @@ This application requires a token.pickle and credentials.json in the [services](
 
 **token.pickle** can be created by running the createPickle function found in [services/emailtools.py](emailtools.py#L64) and logging into a Google account.
 
-A database is required to run this application. The url can be set in [app.py](app.py#L17) with the `DATABASE_URL` variable. Details about the table can be seen in [maketable.py](maketable.py).
+A database is required to run this application. The url can be set in [app.py](app.py#L17) with the `DATABASE_URL` variable. Details about the table can be seen in [maketable.py](services/maketable.py).
 
 Hosting on Heroku
 -----------
 To deploy on Heroku, a database must be created by going to the **Deploy** tab and entering **Heroku Postgres** into the **Add-ons** bar. Select a plan (default is Hobby Dev) and then proceed by clicking **Provision**. This will automatically generate a `DATABASE_URL`.
 
-Create the table by running [maketable.py](maketable.py) on the server. This can be done by changing [Procfile](Procfile) to `web: gunicorn maketable` and pushing it to Heroku. Make sure to change it back to `web: gunicorn app:app` afterwards.
+Create the table by pushing the application onto Heroku.
 
 In the Settings tab, select **Reveal Config Vars**. 
 

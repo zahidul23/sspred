@@ -2,7 +2,7 @@ import json
 import time
 import os
 from lxml import html
-from services import ss, psi, jpred, raptorx, pss, sable, sspro, yaspin, emailtools, htmlmaker, batchtools
+from services import ss, psi, jpred, raptorx, pss, sable, sspro, yaspin, emailtools, htmlmaker, batchtools, maketable
 from datetime import datetime
 
 from forms import SubmissionForm
@@ -215,6 +215,9 @@ def showdboutput(var):
 
 def run(predService, seq, name, ssObject,
  startTime, post_data, pdbdata):
+ 
+	maketable.tryTable() #Create table if doesnt exist
+ 
 	tcount = 0
 	for t in threading.enumerate():
 		if t.getName() == name:
