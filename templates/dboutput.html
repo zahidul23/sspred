@@ -380,7 +380,7 @@
 		if (a[0]['pdb'] != null){
 			var seqlines = document.getElementsByClassName('seq');
 			var i = 0;
-			var formatedSS = a[0]['pdb']['secondary'].replace(/(.{10})/g,"$1  ");
+			var formatedSS = a[0]['pdb']['secondary'];
 			//console.log(a[0]['pdb']['secondary']);
 			while (i<formatedSS.length){
 				for (var j = 0; j < seqlines.length; j++){
