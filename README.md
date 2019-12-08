@@ -9,9 +9,24 @@ This application requires a token.pickle and credentials.json in the [services](
 
 **token.pickle** can be created by running the createPickle function found in [services/emailtools.py](emailtools.py#L64) and logging into a Google account.
 
-A database is required to run this application. The url can be set in [app.py](app.py#L17) with the `DATABASE_URL` variable.
+A database is required to run this application. The url can be set in [app.py](app.py#L17) with the `DATABASE_URL` variable. Details about the table can be seen in [maketable.py](maketable.py).
 
-If hosting this application on Heroku, run the command `heroku config:set WEB_CONCURRENCY=1` to make the Running Counter accurate.
+Hosting on Heroku
+-----------
+To deploy on Heroku, a database must be created by going to the **Deploy** tab and entering **Heroku Postgres** into the **Add-ons** bar. Select a plan (default is Hobby Dev) and then proceed by clicking **Provision**. This will automatically generate a `DATABASE_URL`.
+
+Create the table by running [maketable.py](maketable.py) on the server. This can be done by changing [Procfile](Procfile) to `web: gunicorn maketable` and pushing it to Heroku. Make sure to change it back to `web: gunicorn app:app` afterwards.
+
+In the Settings tab, select **Reveal Config Vars**. 
+
+Create a key named `SECRET` and give it any value.
+
+Create a key named `WEB_CONCURRENCY` and give it the value `1`.
+
+Create a key named `SITE_URL` and give it the value of the Heroku website's URL.
+![Sample Config](img/configvars.png)
+
+Finally, ensure that **credentials.json** and **token.pickle** are in the services folder. Delete [.gitignore](.gitignore) or remove all text so that the files will be able to be pushed onto Heroku.
 
 Dependencies
 -----------
