@@ -28,6 +28,7 @@ def majorityVote(seq, ssObject):
 		if index.status == 1 or index.status == 3:
 			count += 1
 	
+	
 	if count >= 2: #vote only if at least 2 ssObjects are completed
 		#create a counter for each character appearance
 		seqLength = len(seq)
@@ -147,7 +148,7 @@ def emailRequestWait(session, query, findLine, randName, printmsg = '', sleepTim
 #Takes url to check, optional message for printing, and optional sleep time and cancel time in seconds. Defaults to 20 sec sleep time, 15 min wait to cancel
 #Returns the url when successful
 #Returns the url when successful
-def requestWait(requesturl, message = None, sleepTime = 20 , cancelAfter = 900):
+def requestWait(requesturl, message = None, sleepTime = 20 , cancelAfter = 1500):
 	stime  = time.time()
 	
 	while not requests.get(requesturl).ok and time.time() < stime + cancelAfter: #loops until requesturl is found or cancelAfter min elapse
@@ -157,7 +158,7 @@ def requestWait(requesturl, message = None, sleepTime = 20 , cancelAfter = 900):
 	
 #Takes a guerillamail session, search query, identifier line (Name: or Query:), and input name. Optional print message, time to wait between checks, and how long to wait until cancelling (both in seconds)
 #Returns the bool email id and message when successful
-def emailRequestWait(session, query, findLine, randName, printmsg = '', sleepTime = 60, cancelAfter = 900):
+def emailRequestWait(session, query, findLine, randName, printmsg = '', sleepTime = 15, cancelAfter = 1500):
 	message  = ''
 	stime = time.time()
 	email_id = False
@@ -165,12 +166,16 @@ def emailRequestWait(session, query, findLine, randName, printmsg = '', sleepTim
 	while message == '' and time.time() < stime + cancelAfter: #loops until desired email is found or cancelAfter min elapse
 		print(printmsg)
 		time.sleep(sleepTime)
-		for e in session.get_email_list():			#For each email in inbox
-			data = session.get_email(e.guid).body	#gets body of email
-			if data is not None:					#Checks if email body is empty
-				for dline in data.splitlines():		#Splits body into lines
-					if findLine in dline:			#Checks if Query: line exists
-						if dline[len(findLine):].strip() == randName:	#Checks if query is same as inputed seq name
-							message = html.unescape(data)	#Sets message variable to email contents
-							email_id = True
+		try:
+			print(session.get_email_list())
+			for e in session.get_email_list():			#For each email in inbox
+				data = session.get_email(e.guid).body	#gets body of email
+				if data is not None:					#Checks if email body is empty
+					for dline in data.splitlines():		#Splits body into lines
+						if findLine in dline:			#Checks if Query: line exists
+							if dline[len(findLine):].strip() == randName:	#Checks if query is same as inputed seq name
+								message = html.unescape(data)	#Sets message variable to email contents
+								email_id = True
+		except:
+			None
 	return email_id, message

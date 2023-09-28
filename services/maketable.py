@@ -7,7 +7,7 @@ from psycopg2 import sql
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
 create_table_query = '''CREATE TABLE IF NOT EXISTS seqtable

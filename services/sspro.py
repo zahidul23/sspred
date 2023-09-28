@@ -57,7 +57,7 @@ def get(seq):
 	'''
 	
 	#Cancels after 15 min. Length 400 sequences take 10-15 min in a batch
-	email_id, message = batchtools.emailRequestWait(session, query, "Name:", randName, "SSPro Not Ready", 60, 900)
+	email_id, message = batchtools.emailRequestWait(session, query, "Name:", randName, "SSPro Not Ready", 60, 1500)
 
 	if email_id:
 		message_parts = message.splitlines()

@@ -16,7 +16,7 @@ from psycopg2 import sql
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+conn = psycopg2.connect(DATABASE_URL)
 
 def dbselect(rowid):
 	cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -83,8 +83,8 @@ if app.config['SECRET_KEY'] is None:
 	app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 
 #Login to email account to be able to send emails
-email_service = emailtools.login()
-email = emailtools.getEmailAddress(email_service)
+#email_service = emailtools.login()
+#email = emailtools.getEmailAddress(email_service)
 
 #Url of hosted site
 siteurl = os.environ.get('SITE_URL')
@@ -132,8 +132,8 @@ def hello(name=None):
 
 		startTime = batchtools.randBase62()		
 
-		if post_data['email'] != "": #send email to let users know input was received
-			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results with customization options will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/dboutput/" + startTime +"</div>")
+		#if post_data['email'] != "": #send email to let users know input was received
+		#	emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results with customization options will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/dboutput/" + startTime +"</div>")
 
 		#Stores currently completed predictions
 		ssObject = []
