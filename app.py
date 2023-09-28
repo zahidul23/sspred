@@ -16,9 +16,10 @@ from psycopg2 import sql
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-conn = psycopg2.connect(DATABASE_URL)
+
 
 def dbselect(rowid):
+	conn = psycopg2.connect(DATABASE_URL)
 	cursor = conn.cursor(cursor_factory=RealDictCursor)
 	cursor.execute("SELECT * FROM seqtable WHERE ID = (%s)",(rowid,))
 	jsonresults = json.dumps(cursor.fetchall(), indent=2)
@@ -26,6 +27,7 @@ def dbselect(rowid):
 	return jsonresults
 	
 def dbdelete():
+	conn = psycopg2.connect(DATABASE_URL)
 	cursor = conn.cursor()
 	cursor.execute("SELECT COUNT(*) FROM seqtable")
 	numrowsdb = cursor.fetchall()
@@ -41,6 +43,7 @@ def dbdelete():
 	cursor.close()
 
 def dbinsert(rowid, rowseq):
+	conn = psycopg2.connect(DATABASE_URL)
 	dbdelete() #Deletes 1000 oldest rows if table is larger than 8000 rows
 	cursor = conn.cursor()
 	cursor.execute("INSERT INTO seqtable (ID, SEQ) VALUES (%s, %s)", (rowid, rowseq))
@@ -48,6 +51,7 @@ def dbinsert(rowid, rowseq):
 	cursor.close()
 
 def dbupdate(rowid, rowcol, rowval):
+	conn = psycopg2.connect(DATABASE_URL)
 	cursor = conn.cursor()
 	cursor.execute(
 		sql.SQL("UPDATE seqtable SET {} = (%s) WHERE ID = (%s)")
@@ -168,7 +172,7 @@ def showall(page):
 			namelist = []
 			timelist= []
 			seqlist= []
-			
+			conn = psycopg2.connect(DATABASE_URL)
 			cursor = conn.cursor(cursor_factory=RealDictCursor)
 			limit = 20
 			offset = int(page) -1
@@ -268,4 +272,4 @@ def validate_sites(form):
 
 if __name__ == "__main__":
 	#app.run(debug=True) #Run on localhost 127.0.0.1:5000
-	app.run(host='0.0.0.0', debug=True) #Run online on public IP:5000
+	app.run(host='192.168.1.118') #Run online on public IP:5000
