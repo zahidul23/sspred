@@ -272,4 +272,4 @@ def validate_sites(form):
 
 if __name__ == "__main__":
 	#app.run(debug=True) #Run on localhost 127.0.0.1:5000
-	app.run(host='192.168.1.118') #Run online on public IP:5000
+	app.run(host='0.0.0.0', debug=true) #Run online on public IP:5000
