@@ -16,9 +16,10 @@ from psycopg2 import sql
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+
 
 def dbselect(rowid):
+	conn = psycopg2.connect(DATABASE_URL)
 	cursor = conn.cursor(cursor_factory=RealDictCursor)
 	cursor.execute("SELECT * FROM seqtable WHERE ID = (%s)",(rowid,))
 	jsonresults = json.dumps(cursor.fetchall(), indent=2)
@@ -26,6 +27,7 @@ def dbselect(rowid):
 	return jsonresults
 	
 def dbdelete():
+	conn = psycopg2.connect(DATABASE_URL)
 	cursor = conn.cursor()
 	cursor.execute("SELECT COUNT(*) FROM seqtable")
 	numrowsdb = cursor.fetchall()
@@ -41,6 +43,7 @@ def dbdelete():
 	cursor.close()
 
 def dbinsert(rowid, rowseq):
+	conn = psycopg2.connect(DATABASE_URL)
 	dbdelete() #Deletes 1000 oldest rows if table is larger than 8000 rows
 	cursor = conn.cursor()
 	cursor.execute("INSERT INTO seqtable (ID, SEQ) VALUES (%s, %s)", (rowid, rowseq))
@@ -48,6 +51,7 @@ def dbinsert(rowid, rowseq):
 	cursor.close()
 
 def dbupdate(rowid, rowcol, rowval):
+	conn = psycopg2.connect(DATABASE_URL)
 	cursor = conn.cursor()
 	cursor.execute(
 		sql.SQL("UPDATE seqtable SET {} = (%s) WHERE ID = (%s)")
@@ -83,13 +87,14 @@ if app.config['SECRET_KEY'] is None:
 	app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 
 #Login to email account to be able to send emails
-email_service = emailtools.login()
-email = emailtools.getEmailAddress(email_service)
+#email_service = emailtools.login()
+#email = emailtools.getEmailAddress(email_service)
 
 #Url of hosted site
 siteurl = os.environ.get('SITE_URL')
 if siteurl is None :
 	siteurl = ""
+
 
 @app.route('/', methods = ['GET', 'POST'])
 def hello(name=None):
@@ -132,8 +137,8 @@ def hello(name=None):
 
 		startTime = batchtools.randBase62()		
 
-		if post_data['email'] != "": #send email to let users know input was received
-			emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results with customization options will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/dboutput/" + startTime +"</div>")
+		#if post_data['email'] != "": #send email to let users know input was received
+		#	emailtools.sendEmail(email_service, post_data['email'],"Prediction Input Received", "<div>Input received for the following sequence:</div><div>" + seq + "</div><div>Results with customization options will be displayed at the following link as soon as they are available:</div><div>" + siteurl + "/dboutput/" + startTime +"</div>")
 
 		#Stores currently completed predictions
 		ssObject = []
@@ -168,7 +173,7 @@ def showall(page):
 			namelist = []
 			timelist= []
 			seqlist= []
-			
+			conn = psycopg2.connect(DATABASE_URL)
 			cursor = conn.cursor(cursor_factory=RealDictCursor)
 			limit = 20
 			offset = int(page) -1
@@ -176,7 +181,7 @@ def showall(page):
 			cursor.execute('''
 					SELECT id, seq
 					FROM seqtable 
-					ORDER BY convert_to(ID, 'SQL_ASCII') DESC LIMIT %s OFFSET %s
+					ORDER BY ID DESC LIMIT %s OFFSET %s
 			''',(limit, offset))
 			jsonresults = json.dumps(cursor.fetchall(), indent=2)
 			
