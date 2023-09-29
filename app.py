@@ -181,7 +181,7 @@ def showall(page):
 			cursor.execute('''
 					SELECT id, seq
 					FROM seqtable 
-					ORDER BY convert_to(ID, 'SQL_ASCII') DESC LIMIT %s OFFSET %s
+					ORDER BY ID DESC LIMIT %s OFFSET %s
 			''',(limit, offset))
 			jsonresults = json.dumps(cursor.fetchall(), indent=2)
 			
