@@ -9,6 +9,7 @@ from forms import SubmissionForm
 from flask import Flask, render_template, request, current_app,send_file, redirect, url_for
 import threading
 import secrets
+import waitress
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -273,4 +274,5 @@ def validate_sites(form):
 
 if __name__ == "__main__":
 	#app.run(debug=True) #Run on localhost 127.0.0.1:5000
-	app.run(host='0.0.0.0', debug=True) #Run online on public IP:5000
+	#app.run(host='0.0.0.0', debug=True) #Run online on public IP:5000
+	waitress.serve(app, listen='0.0.0.0:5000')
