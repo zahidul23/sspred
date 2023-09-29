@@ -95,6 +95,13 @@ siteurl = os.environ.get('SITE_URL')
 if siteurl is None :
 	siteurl = ""
 
+@app.before_request
+def before_request():
+    if not request.is_secure:
+        url = request.url.replace('http://', 'https://', 1)
+        code = 301
+        return redirect(url, code=code)
+
 @app.route('/', methods = ['GET', 'POST'])
 def hello(name=None):
 	form = SubmissionForm()
