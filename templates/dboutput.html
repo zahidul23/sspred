@@ -2,16 +2,14 @@
 <html>
 
 <head>
-
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
 		integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/tooltip.css')}}">
 
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"
-		type="text/javascript"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+	<script src="{{url_for('static', filename='scripts/html2canvas.js')}}"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
 
@@ -221,6 +219,9 @@
 
 
 		<script type="text/javascript">
+			function sleep(time) {
+				return new Promise((resolve) => setTimeout(resolve, time));
+			}
 
 			const statusDefinitions = {
 				0: "Waiting...",
@@ -234,50 +235,45 @@
 			function getStatusText(statusid) {
 				return statusDefinitions[statusid] ? statusDefinitions[statusid] : "Not Selected"
 			}
+			
 			document.getElementById("home").setAttribute('href', document.location.origin);
 
 
-			var a = {{ data | safe}};
-			console.log(a);
-
-			let jobid = a[0].id;
-
-			// var eventSource = new EventSource("/fetchJobResults/"+jobid);
-			// console.log(eventSource);
-
-			// eventSource.addEventListener("message", function(e){
-			// 	console.log(e.data)
-			// }, false)
-
-			// eventSource.addEventListener("online", function(e){
-			// 	console.log(e)
-			// 	data = JSON.parse(e.data)
-			// 	console.log("!!!!!");
-			// 	console.log(data);
-			// })
-
-
-
-			let jobStatusTable = document.getElementById("jobstatus");
-
-
-			if (a[0]['pdb'] != null && typeof (a[0]['pdb']) == 'string') {
-				a[0]['pdb'] = JSON.parse(a[0]['pdb']);
-			}
-			else {
-				var nodes = document.getElementsByClassName("enableWithPDB");
-				for (i = 0; i < nodes.length; i++) {
-					nodes[i].style.display = 'none';
-				}
-			}
 			var statusproduct = 1;
 			var statuses = [];
+			var a = {{ data | safe}};
+			checkPDB(a);
+			let jobid = a[0].id;
+			let jobStatusTable = document.getElementById("jobstatus");
+			generateRows(60);
 
-			function sleep(time) {
-				return new Promise((resolve) => setTimeout(resolve, time));
+
+			
+
+			function checkPDB(data){
+				if (data[0]['pdb'] != null && typeof (data[0]['pdb']) == 'string') {
+					data[0]['pdb'] = JSON.parse(data[0]['pdb']);
+				}
+				else {
+					var nodes = document.getElementsByClassName("enableWithPDB");
+					for (i = 0; i < nodes.length; i++) {
+						nodes[i].style.display = 'none';
+					}
+				}
 			}
 
-			function resubmitJob(sitename, data){
+			async function getData(){
+				let fetchRes = await fetch("/fetchResults/" + jobid);
+				let fetchedData = await fetchRes.json();
+				a = fetchedData;
+				checkPDB(fetchedData);
+				let rows  = Number(document.getElementById("rowfield").value);
+				generateRows(rows);
+			}
+
+
+			function resubmitJob(button, sitename, data){
+				button.style.visibility = "hidden";
 				let req = {sitename : sitename, "jobid" : data['id'], "seq" : data['seq']}
 				fetch('/resubmit', {
 					method: 'POST',
@@ -289,33 +285,21 @@
 					})
 					.then(response => response.json())
 					.then(response => {
-						console.log(response);
-						sleep(1500).then(() => {
-						statuses = []
+						a[0][sitename+"stat"] = 0;
 						generateRows(60)
-					})}
-					);
+					});
 			}
 
 			//Generates the rows of results. Takes a length which is the number of amino acids per row
 			function generateRows(length) {
-
-				let fetchRes = fetch("/fetchResults/" + jobid);
-				fetchRes.then(res => res.json())
-					.then(fetchedData => {
-						a = fetchedData;
-						if (a[0]['pdb'] != null && typeof (a[0]['pdb']) == 'string') {
-							a[0]['pdb'] = JSON.parse(a[0]['pdb']);
-						}
-					})
-
+				statuses = []
 				var sites = []; //array containing which sites are completed
 				jobStatusTable.innerHTML = "";
 				//fill sites
 				for (var key of Object.keys(a[0])) {
 					if (key.slice(key.length - 4) == "stat") {
 						statusproduct *= a[0][key];
-						var name = key.slice(0, -4);
+						let name = key.slice(0, -4);
 						if (a[0][key] == 1 || a[0][key] == 3) {
 							sites.push(name); //push sites with status 1 or 3 into array
 						}
@@ -336,8 +320,8 @@
 						const siteResubmitCell = document.createElement("td");
 						if (![0,1].includes(a[0][key])){
 							const resubmitButton = document.createElement("button");
-							resubmitButton.innerText = "Resubmit";
-							resubmitButton.onclick = () => {resubmitJob(siteNameCell.innerText, a[0])};
+							resubmitButton.innerText = "Retry";
+							resubmitButton.onclick = () => {resubmitJob(resubmitButton, name, a[0])};
 							siteResubmitCell.appendChild(resubmitButton);
 						}
 						siteStatusRow.appendChild(siteNameCell);
@@ -418,16 +402,13 @@
 				console.log(statuses);
 				if (statuses.includes(0)) {
 					sleep(15000).then(() => {
-						statuses = []
-						generateRows(60)
+						getData();
 					})
 				}
 
 			}
 
-			generateRows(60);
-
-
+			
 			//*
 			//*/
 			// if (statusproduct != 0) {
@@ -463,7 +444,6 @@
 			}
 
 			function toggleRefresh() {
-				console.log("Toggled Refresh");
 				var checkBox = document.getElementById("togglerefresh");
 				if (checkBox.checked == true) {
 					location.reload();

@@ -92,14 +92,14 @@ siteDict = {
 	"SSPro": sspro
 }
 
-upperSiteDict = {
-	"JPRED": jpred,
-	"PSI": psi,
-	"PSS": pss,
-	"RAPTORX": raptorx,
-	"SABLE": sable,
-	"YASPIN": yaspin,
-	"SSPRO": sspro
+lowerSiteDict = {
+	"jpred": jpred,
+	"psi": psi,
+	"pss": pss,
+	"raptorx": raptorx,
+	"sable": sable,
+	"yaspin": yaspin,
+	"sspro": sspro
 }
 
 siteLimit = {
@@ -212,7 +212,7 @@ def showall(page):
 			cursor.execute('''
 					SELECT id, seq
 					FROM seqtable 
-					ORDER BY ID DESC LIMIT %s OFFSET %s
+					ORDER BY timestamp_update DESC, id desc LIMIT %s OFFSET %s
 			''',(limit, offset))
 			jsonresults = json.dumps(cursor.fetchall(), indent=2, default=str)
 			
@@ -284,7 +284,7 @@ def resubmitjob():
 	return {} #redirect(url_for('showdboutput', var = jobid))
 
 def resubmit(jobid, sitename, seq):
-	predService = upperSiteDict.get(sitename)
+	predService = lowerSiteDict.get(sitename)
 	dbupdate(jobid, sitename + "stat", 0)
 	tempSS = predService.get(seq, jobid)
 	

@@ -44,3 +44,8 @@ table.toggles td{
 .customizeColors{
   padding: 2em 0em;
 }
+
+#jobstatus td{
+  height: 46px;
+  vertical-align: middle;
+}
