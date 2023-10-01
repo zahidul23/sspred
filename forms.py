@@ -8,7 +8,7 @@ class SubmissionForm(FlaskForm):
 	
 	seqtext = TextAreaField('Sequence', [
 		validators.Required("Sequence required."), 
-		validators.Length(min=30,max=4000, message="Sequence must be between 40 and 4000 characters"),
+		validators.Length(min=30,max=4000, message="Sequence must be between 30 and 4000 characters"),
 		validators.Regexp(regex='^[ARNDCEQGHILKMFPSTWYV\s]*$', flags = re.IGNORECASE, message="Invalid Characters")], 
 		widget=TextArea(), default= "")
 	email = StringField('Email (Optional):', [validators.Email(), validators.Optional()])

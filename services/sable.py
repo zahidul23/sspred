@@ -8,7 +8,7 @@ from guerrillamail import GuerrillaMailSession
 
 from services import ss, batchtools
 
-def get(seq):
+def get(seq, rowid):
 	
 	SS = ss.SS("Sable")
 	if len(seq) <= 12: #<=12 shouldnt happen with input validation
@@ -48,7 +48,7 @@ def get(seq):
 	'''
 	
 	#Cancel in 15 min
-	email_id, message = batchtools.emailRequestWait(session, query, "Query:", randName, "Sable Not Ready", 30, 900)
+	email_id, message = batchtools.emailRequestWait(rowid, "sable", session, query, "Query:", randName, "Sable Not Ready", 30, 900)
 	
 	if email_id:
 		#message = emailtools.decodeEmail(email_service, email_id)

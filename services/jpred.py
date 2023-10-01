@@ -5,7 +5,7 @@ from guerrillamail import GuerrillaMailSession
 from services import ss
 
 
-def get(seq):
+def get(seq, startTime):
 
 	SS = ss.SS("JPred")
 	

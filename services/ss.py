@@ -1,11 +1,12 @@
 class SS:
-	def __init__(self, name, pred, conf, cconf, hconf, econf):
+	def __init__(self, name, pred, conf, cconf, hconf, econf, msg):
 		self.name = name
 		self.pred = pred
 		self.conf = conf
 		self.cconf = cconf
 		self.hconf = hconf
 		self.econf = econf
+		self.msg = msg
 		self.status = 0
 		
 	def __init__(self, name):
@@ -17,6 +18,7 @@ class SS:
 		self.cconf = []
 		self.hconf = []
 		self.econf = []
+		self.msg = ""
 		self.status = 0
 		
 	'''

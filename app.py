@@ -6,7 +6,7 @@ from services import ss, psi, jpred, raptorx, pss, sable, sspro, yaspin, emailto
 from datetime import datetime
 
 from forms import SubmissionForm
-from flask import Flask, render_template, request, current_app,send_file, redirect, url_for
+from flask import Flask, render_template, request, current_app,send_file, redirect, url_for, Response, stream_with_context
 import threading
 import secrets
 
@@ -14,20 +14,25 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from psycopg2 import sql
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
+conn = batchtools.getConn()
 
+def getConn():
+	# if conn is None or conn.closed:
+	# 	conn = batchtools.getConn()
+	return batchtools.getConn()
 
 
 def dbselect(rowid):
-	conn = psycopg2.connect(DATABASE_URL)
+	conn = getConn()
 	cursor = conn.cursor(cursor_factory=RealDictCursor)
 	cursor.execute("SELECT * FROM seqtable WHERE ID = (%s)",(rowid,))
-	jsonresults = json.dumps(cursor.fetchall(), indent=2)
+	jsonresults = json.dumps(cursor.fetchall(), indent=2, default=str)
+	print(jsonresults)
 	cursor.close()
 	return jsonresults
 	
 def dbdelete():
-	conn = psycopg2.connect(DATABASE_URL)
+	conn = getConn()
 	cursor = conn.cursor()
 	cursor.execute("SELECT COUNT(*) FROM seqtable")
 	numrowsdb = cursor.fetchall()
@@ -42,19 +47,36 @@ def dbdelete():
 		conn.commit()
 	cursor.close()
 
-def dbinsert(rowid, rowseq):
-	conn = psycopg2.connect(DATABASE_URL)
+def getInitialStatus(data, keys):
+	initialStatuses = ()
+	for key in keys:
+			print(data[key])
+			if data[key] == True:
+				initialStatuses = initialStatuses + (0,)
+			else:
+				initialStatuses = initialStatuses + (None,)
+	return initialStatuses
+
+def dbinsert(rowid, rowseq, data):
+	conn = getConn()
 	dbdelete() #Deletes 1000 oldest rows if table is larger than 8000 rows
 	cursor = conn.cursor()
-	cursor.execute("INSERT INTO seqtable (ID, SEQ) VALUES (%s, %s)", (rowid, rowseq))
+	initialstatuses = getInitialStatus(data, ["JPred", "PSI", "PSS", "RaptorX", "Sable", "Yaspin", "SSPro"])
+	print("Statuses: ", initialstatuses)
+	cursor.execute('''INSERT INTO seqtable 
+				(ID, SEQ, jpredstat, psistat, pssstat, raptorxstat, sablestat, yaspinstat, ssprostat, timestamp_creation, timestamp_update) 
+				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, now(), now())''', 
+				(rowid, rowseq) + initialstatuses)
 	conn.commit()
 	cursor.close()
 
+
+
 def dbupdate(rowid, rowcol, rowval):
-	conn = psycopg2.connect(DATABASE_URL)
+	conn = getConn()
 	cursor = conn.cursor()
 	cursor.execute(
-		sql.SQL("UPDATE seqtable SET {} = (%s) WHERE ID = (%s)")
+		sql.SQL("UPDATE seqtable SET {} = (%s), timestamp_update = (now()) WHERE ID = (%s)")
 		.format(sql.Identifier(rowcol.lower())),(rowval, rowid))
 	conn.commit()
 	cursor.close()
@@ -68,6 +90,16 @@ siteDict = {
 	"Sable": sable,
 	"Yaspin": yaspin,
 	"SSPro": sspro
+}
+
+upperSiteDict = {
+	"JPRED": jpred,
+	"PSI": psi,
+	"PSS": pss,
+	"RAPTORX": raptorx,
+	"SABLE": sable,
+	"YASPIN": yaspin,
+	"SSPRO": sspro
 }
 
 siteLimit = {
@@ -97,7 +129,7 @@ if siteurl is None :
 
 
 @app.route('/', methods = ['GET', 'POST'])
-def hello(name=None):
+def home(name=None):
 	form = SubmissionForm()
 	print(threading.activeCount())
 	runningCounter = {
@@ -142,8 +174,7 @@ def hello(name=None):
 
 		#Stores currently completed predictions
 		ssObject = []
-
-		dbinsert(startTime, seq)
+		dbinsert(startTime, seq, post_data)
 
 		pdbdata = None
 		if form.structureId.data is not None:
@@ -173,7 +204,7 @@ def showall(page):
 			namelist = []
 			timelist= []
 			seqlist= []
-			conn = psycopg2.connect(DATABASE_URL)
+			conn = getConn()
 			cursor = conn.cursor(cursor_factory=RealDictCursor)
 			limit = 20
 			offset = int(page) -1
@@ -183,7 +214,7 @@ def showall(page):
 					FROM seqtable 
 					ORDER BY ID DESC LIMIT %s OFFSET %s
 			''',(limit, offset))
-			jsonresults = json.dumps(cursor.fetchall(), indent=2)
+			jsonresults = json.dumps(cursor.fetchall(), indent=2, default=str)
 			
 			cursor.close()		
 
@@ -217,6 +248,51 @@ def showdboutput(var):
 		return render_template('dboutput.html', data = outputjson)
 	except Exception as e:
 		return "not found"
+	
+@app.route('/fetchJobResults/<jobid>')
+def fetchJobResults(jobid):
+	def respond():
+		outputjson = dbselect(jobid)
+		if outputjson == "[]":
+			return "{}"
+		try:
+			print(outputjson)
+			yield f"id: 1\ndata: {outputjson}\nevent: online\n\n"
+		except Exception as e:
+			return "{not found}"
+	return Response(respond(), mimetype="text/event-stream")
+
+@app.route('/fetchResults/<jobid>')
+def fetchResults(jobid):
+	outputjson = dbselect(jobid)
+	if outputjson == "[]":
+		return "{}"
+	try:
+		print(outputjson)
+		return outputjson
+	except Exception as e:
+		return "{not found}"
+	
+@app.route('/resubmit', methods = ['POST'])
+def resubmitjob():
+	req = request.get_json()
+	jobid =  req.get("jobid")
+	sitename =  req.get("sitename")
+	seq =  req.get("seq")
+	mythread = threading.Thread(target = resubmit, args = (jobid, sitename, seq))
+	mythread.start()
+	return {} #redirect(url_for('showdboutput', var = jobid))
+
+def resubmit(jobid, sitename, seq):
+	predService = upperSiteDict.get(sitename)
+	dbupdate(jobid, sitename + "stat", 0)
+	tempSS = predService.get(seq, jobid)
+	
+	dbupdate(jobid, tempSS.name + "pred", tempSS.pred)
+	dbupdate(jobid, tempSS.name + "conf", tempSS.conf)
+	dbupdate(jobid, tempSS.name + "msg", tempSS.msg)
+	dbupdate(jobid, tempSS.name + "stat", tempSS.status)
+
 
 def run(predService, seq, name, ssObject,
  startTime, post_data, pdbdata):
@@ -230,13 +306,15 @@ def run(predService, seq, name, ssObject,
 		tempSS = ss.SS(name)
 		tempSS.pred = "Queue Full"
 		tempSS.conf = "Queue Full"
+		tempSS.msg = "Queue Full"
 		tempSS.status = -1
 	else:
 		#tempSS = predService.get(seq, tcount)
-		tempSS = predService.get(seq)
+		tempSS = predService.get(seq, startTime)
 	
 	dbupdate(startTime, tempSS.name + "pred", tempSS.pred)
 	dbupdate(startTime, tempSS.name + "conf", tempSS.conf)
+	dbupdate(startTime, tempSS.name + "msg", tempSS.msg)
 	dbupdate(startTime, tempSS.name + "stat", tempSS.status)
 
 	ssObject.append(tempSS)
@@ -250,7 +328,7 @@ def run(predService, seq, name, ssObject,
 			print ("Sending results to " + post_data['email'])
 			#create HTML and store it in post_data
 			post_data.update({'output' : htmlmaker.createHTML(ssObject, seq, pdbdata, majority)})
-			emailtools.sendEmail(email_service, post_data['email'],"Prediction Results", post_data['output'])
+			# emailtools.sendEmail(email_service, post_data['email'],"Prediction Results", post_data['output'])
 
 
 #Sends sequence based off whatever was selected before submission

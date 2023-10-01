@@ -1,9 +1,12 @@
+import os
 import time
 import math
 import requests
 from guerrillamail import GuerrillaMailSession
 import html
 from bs4 import BeautifulSoup
+import psycopg2
+from psycopg2 import sql
 #Contains functions related to output that are meant to be applied to multiple scripts
 
 #Creates a random string to use for a prediction name. Can take a time and create a string from that
@@ -148,23 +151,40 @@ def emailRequestWait(session, query, findLine, randName, printmsg = '', sleepTim
 #Takes url to check, optional message for printing, and optional sleep time and cancel time in seconds. Defaults to 20 sec sleep time, 15 min wait to cancel
 #Returns the url when successful
 #Returns the url when successful
-def requestWait(requesturl, message = None, sleepTime = 20 , cancelAfter = 1500):
+def requestWait(rowid, servicename, requesturl, message = None, sleepTime = 20 , cancelAfter = 1500):
 	stime  = time.time()
-	
+	conn = getConn()
 	while not requests.get(requesturl).ok and time.time() < stime + cancelAfter: #loops until requesturl is found or cancelAfter min elapse
+		updateStatus(rowid, servicename, message, conn)
 		print(message)
+		if ((time.time()-stime) > (60 * 5)):  # if 5 min elapsed, increase sleep to 1 min
+			sleepTime = 60
+		if ((time.time()-stime) > (60 * 10)): # if 10 min elapsed, increase sleep to 2 min 
+			sleepTime = 60 * 2
 		time.sleep(sleepTime)
+	conn.close()
 	return requests.get(requesturl)
+
+def updateStatus(rowid, servicename, message, conn):
+	cursor = conn.cursor()
+	cursor.execute(
+		sql.SQL("UPDATE seqtable SET {} = 0, {} = (%s), timestamp_update = (now()) WHERE ID = (%s)")
+		.format(sql.Identifier(servicename+"stat"), 
+				sql.Identifier(servicename+"msg"))
+				,(message, rowid))
+	conn.commit()
+	cursor.close()
 	
 #Takes a guerillamail session, search query, identifier line (Name: or Query:), and input name. Optional print message, time to wait between checks, and how long to wait until cancelling (both in seconds)
 #Returns the bool email id and message when successful
-def emailRequestWait(session, query, findLine, randName, printmsg = '', sleepTime = 15, cancelAfter = 1500):
+def emailRequestWait(rowid, servicename, session, query, findLine, randName, printmsg = '', sleepTime = 15, cancelAfter = 1500):
 	message  = ''
 	stime = time.time()
 	email_id = False
-	
+	conn = getConn()
 	while message == '' and time.time() < stime + cancelAfter: #loops until desired email is found or cancelAfter min elapse
 		print(printmsg)
+		updateStatus(rowid, servicename, "Waiting for email results", conn)
 		time.sleep(sleepTime)
 		try:
 			print(session.get_email_list())
@@ -178,4 +198,13 @@ def emailRequestWait(session, query, findLine, randName, printmsg = '', sleepTim
 								email_id = True
 		except:
 			None
-	return email_id, message
+	conn.close()
+	return email_id, message\
+
+def getConn():
+	DATABASE_URL = os.environ.get('DATABASE_URL')
+	conn = psycopg2.connect(DATABASE_URL)
+	return conn
+
+def updateDB(id, cols, vals):
+	conn = getConn()

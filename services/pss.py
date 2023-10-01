@@ -5,7 +5,7 @@ from guerrillamail import GuerrillaMailSession
 
 from services import ss, batchtools
 
-def get(seq):
+def get(seq, rowid):
 
 	SS = ss.SS("PSS")
 	SS.status = 0
@@ -39,7 +39,7 @@ def get(seq):
 	ssurl = ssurl + '/seq.SS'
 	
 	#Around 15 min for 4000
-	requesturl = batchtools.requestWait(ssurl, "PSSpred Not Ready")
+	requesturl = batchtools.requestWait(rowid, "pss", ssurl, "PSSpred Not Ready")
 
 	if requesturl:
 		raw = requesturl.text.splitlines()

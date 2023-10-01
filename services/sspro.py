@@ -8,7 +8,7 @@ from guerrillamail import GuerrillaMailSession
 
 from services import ss, batchtools
 
-def get(seq):
+def get(seq, rowid):
 	
 	SS = ss.SS("SSPro")
 	SS.status = 0
@@ -57,7 +57,7 @@ def get(seq):
 	'''
 	
 	#Cancels after 15 min. Length 400 sequences take 10-15 min in a batch
-	email_id, message = batchtools.emailRequestWait(session, query, "Name:", randName, "SSPro Not Ready", 60, 1500)
+	email_id, message = batchtools.emailRequestWait(rowid, "sspro", session, query, "Name:", randName, "SSPro Not Ready", 60, 1500)
 
 	if email_id:
 		message_parts = message.splitlines()

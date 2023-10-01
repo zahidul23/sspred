@@ -1,114 +1,46 @@
 body {
 	font-family:monospace;
+  font-size: medium;
+  margin: 8px;
 }
 
-/*Checkboxes*/
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
+
+#container {
+  display: flex;
+  justify-content: center;
 }
 
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
+@media (max-width:600px) {
+  #container { 
+    display: block;
+  }
 }
 
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
+.colorpicker{
+  border: 0;
 }
 
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+.btn{
+  margin: 0.25em;
 }
 
-input:checked + .slider {
-  background-color: #2196F3;
+.column{
+  float: left;
+  padding: 2rem;
 }
 
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+.rowtitle{
+  min-width: 16ch;
 }
 
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
+table.toggles{
+  padding-bottom: 10px; 
 }
 
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
+table.toggles td{
+  padding: 10px;
 }
 
-.slider.round:before {
-  border-radius: 50%;
-}
-/*Tooltips*/
-.tooltip {
-  position: relative;
-  display: inline-block;
-  border-bottom: 1px dotted black;
-}
-
-.tooltip .tooltiptext {
-  visibility: hidden;
-  background-color: rgba(255, 255, 153, 0.95);
-  border-radius: 2px;
-  border: 1px solid gray;
-  padding: 5px 10px 5px 20px;
-  text-align:left;
-  white-space: nowrap;
-
-  /* Position the tooltip */
-  position: absolute;
-  z-index: 1;
-  top: -5px;
-  left: 105%;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-}
-
-.sitetooltip {
-  position: relative;
-}
-
-.sitetooltip .tooltiptext {
-  visibility: hidden;
-  background-color: rgba(255, 255, 153, 0.95);
-  border-radius: 2px;
-  padding: 5px;
-  border: 1px solid gray;
-  text-align:left;
-  white-space: nowrap;
-
-  /* Position the tooltip */
-  position: absolute;
-  z-index: 1;
-  top: 0px;
-  left: 105%;
-}
-
-.sitetooltip:hover .tooltiptext {
-  visibility: visible;
+.customizeColors{
+  padding: 2em 0em;
 }

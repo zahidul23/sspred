@@ -1,13 +1,12 @@
 import os
 import json
+from services import batchtools
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from psycopg2 import sql
 
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
-
-conn = psycopg2.connect(DATABASE_URL)
+conn = batchtools.getConn()
 cursor = conn.cursor()
 
 create_table_query = '''CREATE TABLE IF NOT EXISTS seqtable
@@ -53,7 +52,14 @@ create_table_query = '''CREATE TABLE IF NOT EXISTS seqtable
       PDBID TEXT
 ); '''
 
+add_timestamp_column  = '''
+ALTER TABLE seqtable
+ADD COLUMN IF NOT EXISTS timestamp_creation timestamptz,
+ADD COLUMN IF NOT EXISTS timestamp_update timestamptz;
+'''
+
 cursor.execute(create_table_query)
+cursor.execute(add_timestamp_column)
 conn.commit()
 cursor.close()
 

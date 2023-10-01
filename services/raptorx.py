@@ -12,7 +12,7 @@ from guerrillamail import GuerrillaMailSession
 from services import ss, batchtools
 
 
-def get(seq):
+def get(seq, startTime):
 
 	SS = ss.SS("RaptorX")
 	SS.status = 0
