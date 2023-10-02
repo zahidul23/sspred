@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+	
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/tooltip.css')}}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -153,13 +155,13 @@ Instances Running:
 <br />The page will reload every 30 seconds displaying results as they are completed
 <br />
 <br />Typical Wait Times for Sequence of 150 Residues  
-<br />&nbsp;&nbsp;&nbsp;&nbsp;PSI: 1-7 minutes
-<br />&nbsp;Yaspin: 1-3 minutes (Often offline)
-<br />&nbsp;&nbsp;&nbsp;&nbsp;PSS: 1-3 minutes	(Currently broken)
-<br />&nbsp;&nbsp;JPred: 3-5 minutes
-<br />&nbsp;&nbsp;Sable: 5-7 minutes
-<br />RaptorX: 5-7 minutes	
-<br />&nbsp;&nbsp;SSPro: 8 minutes
+<br />&nbsp;&nbsp;&nbsp;&nbsp;PSI: {{waits.psi}} {{siteAvailability.psi}}
+<br />&nbsp;Yaspin: {{waits.yaspin}} {{siteAvailability.yaspin}}
+<br />&nbsp;&nbsp;&nbsp;&nbsp;PSS: {{waits.pss}} {{siteAvailability.pss}}
+<br />&nbsp;&nbsp;JPred: {{waits.jpred}} {{siteAvailability.jpred}}
+<br />&nbsp;&nbsp;Sable: {{waits.sable}} {{siteAvailability.sable}}
+<br />RaptorX: {{waits.raptorx}} {{siteAvailability.raptorx}}
+<br />&nbsp;&nbsp;SSPro: {{waits.sspro}} {{siteAvailability.sspro}}
 <br />
 <br />
 <br /><a href="/archive" target="_blank">All previously submitted results can be found by clicking here</a>

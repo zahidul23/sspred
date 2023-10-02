@@ -318,7 +318,7 @@
 						const siteStatusCell = document.createElement("td");
 						siteStatusCell.innerText = getStatusText(a[0][key]);
 						const siteResubmitCell = document.createElement("td");
-						if (![0,1].includes(a[0][key])){
+						if (![0,1,3].includes(a[0][key])){
 							const resubmitButton = document.createElement("button");
 							resubmitButton.innerText = "Retry";
 							resubmitButton.onclick = () => {resubmitJob(resubmitButton, name, a[0])};

@@ -1,6 +1,7 @@
 import json
 import time
 import os
+import requests
 from lxml import html
 from services import ss, psi, jpred, raptorx, pss, sable, sspro, yaspin, emailtools, htmlmaker, batchtools, maketable
 from datetime import datetime
@@ -67,6 +68,12 @@ def dbinsert(rowid, rowseq, data):
 				(ID, SEQ, jpredstat, psistat, pssstat, raptorxstat, sablestat, yaspinstat, ssprostat, timestamp_creation, timestamp_update) 
 				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, now(), now())''', 
 				(rowid, rowseq) + initialstatuses)
+	
+	for sitename in lowerSiteDict:
+		cursor.execute('''INSERT INTO waittimes 
+					(ID, SITE, STARTTIME, ENDTIME) 
+					VALUES (%s, %s, now(), null)''', 
+					(rowid, sitename.lower()))
 	conn.commit()
 	cursor.close()
 
@@ -110,6 +117,17 @@ siteLimit = {
 	"Sable": 20,
 	"Yaspin": 3,
 	"SSPro": 5
+}
+
+siteURLS = {
+	"psi":"http://bioinf.cs.ucl.ac.uk/psipred/",
+	"yaspin":"http://www.ibi.vu.nl/programs/yaspinwww/",
+	"pss":"https://zhanglab.ccmb.med.umich.edu/PSSpred/",
+	"jpred":"http://www.compbio.dundee.ac.uk/jpred/",
+	"sable":"https://sable.cchmc.org/",
+	"raptorx":"http://raptorx.uchicago.edu/StructurePropertyPred/predict/",
+	"sspro":"http://scratch.proteomics.ics.uci.edu/index.html",
+	"rscb":"https://www.rcsb.org/"
 }
 
 
@@ -187,7 +205,22 @@ def home(name=None):
 		sendData(seq, startTime, ssObject, post_data, pdbdata)
 		return redirect(url_for('showdboutput', var = startTime))
 		
-	return render_template('index.html', form = form, counter = runningCounter) #default submission page
+	return render_template('index.html', form = form, counter = runningCounter, waits = getAvgWaits(), siteAvailability = getSiteAvailability()) #default submission page
+
+
+def getAvgWaits():
+	conn = getConn()
+	cursor = conn.cursor()
+	cursor.execute('''SELECT site, AVG(endtime-starttime) FROM waittimes GROUP BY site''')
+	res = cursor.fetchall()
+	avgtimes = {}
+	for site in lowerSiteDict:
+		avgtimes[site] = "Unknown"
+	for r in res:
+		avgtimes[r[0]] = "Unknown" if r[1] is None else str(round(r[1].total_seconds()/60, 1)) + " minutes"
+	cursor.close()
+	conn.close()
+	return avgtimes
 
 @app.route('/error/')
 def errorpage():
@@ -287,12 +320,32 @@ def resubmit(jobid, sitename, seq):
 	predService = lowerSiteDict.get(sitename)
 	dbupdate(jobid, sitename + "stat", 0)
 	tempSS = predService.get(seq, jobid)
+	saveResults(jobid, tempSS, sitename)
 	
+	
+
+def saveResults(jobid, tempSS, name):
 	dbupdate(jobid, tempSS.name + "pred", tempSS.pred)
 	dbupdate(jobid, tempSS.name + "conf", tempSS.conf)
 	dbupdate(jobid, tempSS.name + "msg", tempSS.msg)
 	dbupdate(jobid, tempSS.name + "stat", tempSS.status)
+	if (tempSS.status in [1,3]):
+		saveDuration(jobid, name)
 
+
+def saveDuration(id, name):
+	conn = getConn()
+	cursor = conn.cursor()
+	cursor.execute("UPDATE waittimes SET ENDTIME = (now()) WHERE ID = (%s) AND SITE = (%s)", (id, name.lower()))
+	conn.commit()
+	cursor.close()
+
+def getSiteAvailability():
+	siteAvailability = {}
+	for site, url in siteURLS.items():
+		#r = requests.get(url)
+		siteAvailability[site] = "" #if r.status_code == 200 else "(Offline)"
+	return siteAvailability
 
 def run(predService, seq, name, ssObject,
  startTime, post_data, pdbdata):
@@ -312,10 +365,7 @@ def run(predService, seq, name, ssObject,
 		#tempSS = predService.get(seq, tcount)
 		tempSS = predService.get(seq, startTime)
 	
-	dbupdate(startTime, tempSS.name + "pred", tempSS.pred)
-	dbupdate(startTime, tempSS.name + "conf", tempSS.conf)
-	dbupdate(startTime, tempSS.name + "msg", tempSS.msg)
-	dbupdate(startTime, tempSS.name + "stat", tempSS.status)
+	saveResults(startTime, tempSS, name)
 
 	ssObject.append(tempSS)
 	majority = batchtools.majorityVote(seq, ssObject)

@@ -58,8 +58,17 @@ ADD COLUMN IF NOT EXISTS timestamp_creation timestamptz,
 ADD COLUMN IF NOT EXISTS timestamp_update timestamptz;
 '''
 
+create_table_runtimes = '''
+CREATE TABLE IF NOT EXISTS waittimes
+(ID TEXT NOT NULL,
+SITE TEXT NOT NULL,
+STARTTIME timestamptz NOT NULL,
+ENDTIME timestamptz 
+);'''
+
 cursor.execute(create_table_query)
 cursor.execute(add_timestamp_column)
+cursor.execute(create_table_runtimes)
 conn.commit()
 cursor.close()
 
