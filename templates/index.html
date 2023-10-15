@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	
-<link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/tooltip.css')}}">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Secondary Structure Prediction Display</title>
+
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/tooltip.css')}}">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Secondary Structure Prediction Display</title>
 </head>
-<body style="font-family:monospace;">	
-<div>
-	{% block content %}
-		<form method="POST" action=""> 
+
+<body style="font-family:monospace;">
+	<div>
+		{% block content %}
+		<form method="POST" action="">
 			{{ form.hidden_tag() }}
 			{% if form.errors %}
-    				<ul class="errors">
-        				{% for field_name, field_errors in form.errors|dictsort if field_errors %}
-            					{% for error in field_errors %}
-                					<li> {{ error }}</li>
-            					{% endfor %}
-        				{% endfor %}
-    				</ul>
+			<ul class="errors">
+				{% for field_name, field_errors in form.errors|dictsort if field_errors %}
+				{% for error in field_errors %}
+				<li> {{ error }}</li>
+				{% endfor %}
+				{% endfor %}
+			</ul>
 			{% endif %}
 			{{ form.seqtext.label }}
 			<span class="tooltip">
@@ -32,7 +35,7 @@
 					<li>
 						Only the following characters are allowed:
 						<ul>
-							<li>A,R,N,D,C,E,Q,G,H,I,L,K,M,F,P,S,T,W,Y,V	</li>
+							<li>A,R,N,D,C,E,Q,G,H,I,L,K,M,F,P,S,T,W,Y,V </li>
 						</ul>
 					</li>
 					<li>Spaces will automatically be removed.</li>
@@ -55,8 +58,8 @@
 				</ul>
 			</span>
 			-->
-			<br>	
-			<table onclick = "checkCount()">
+			<br>
+			<table onclick="checkCount()">
 				Send sequence to:
 				<span class="tooltip">
 					?
@@ -114,12 +117,12 @@
 				<span class="tooltip">
 					?
 					<ul class="tooltiptext">
-						If the entered structure id and chain id are from a valid known structure, 
+						If the entered structure id and chain id are from a valid known structure,
 						<br>then the known elements will be displayed in the output.
 						<li>Both the structure id and chain id must be entered.</li>
 						<li>Chain id's are case sensitive (a is not the same as A).</li>
 						<li>If a valid structure is given, it will be used as the input sequence instead,
-						<br>even if the inputted sequence does  not match it.
+							<br>even if the inputted sequence does not match it.
 						</li>
 					</ul>
 				</span>
@@ -133,117 +136,169 @@
 			<input type="reset">
 			{{ form.submitbtn() }}
 		</form>
-	{% endblock  %}
-</div>
+		{% endblock %}
+	</div>
 
-Instances Running:
-<br />&nbsp;&nbsp;&nbsp;&nbsp;PSI: {{counter.PSI}}
-<br />&nbsp;Yaspin: {{counter.Yaspin}}
-<br />&nbsp;&nbsp;&nbsp;&nbsp;PSS: {{counter.PSS}} (MAX 3)
-<br />&nbsp;&nbsp;JPred: {{counter.JPred}}
-<br />&nbsp;&nbsp;Sable: {{counter.Sable}}
-<br />RaptorX: {{counter.RaptorX}}
-<br />&nbsp;&nbsp;SSPro: {{counter.SSPro}} (MAX 5)
-<br />
-
-
-<div> 
------------------------------------------------------------------------------------
-<br />
-<br />
-<br />Upon submission, you will be redirected to a page showing your sequence 
-<br />The page will reload every 30 seconds displaying results as they are completed
-<br />
-<br />Typical Wait Times for Sequence of 150 Residues  
-<br />&nbsp;&nbsp;&nbsp;&nbsp;PSI: {{waits.psi}} {{siteAvailability.psi}}
-<br />&nbsp;Yaspin: {{waits.yaspin}} {{siteAvailability.yaspin}}
-<br />&nbsp;&nbsp;&nbsp;&nbsp;PSS: {{waits.pss}} {{siteAvailability.pss}}
-<br />&nbsp;&nbsp;JPred: {{waits.jpred}} {{siteAvailability.jpred}}
-<br />&nbsp;&nbsp;Sable: {{waits.sable}} {{siteAvailability.sable}}
-<br />RaptorX: {{waits.raptorx}} {{siteAvailability.raptorx}}
-<br />&nbsp;&nbsp;SSPro: {{waits.sspro}} {{siteAvailability.sspro}}
-<br />
-<br />
-<br /><a href="/archive" target="_blank">All previously submitted results can be found by clicking here</a>
-<br />
-<br />
-<br />Sites Used:
-<br />&nbsp;&nbsp;&nbsp;&nbsp;PSI: <a href="http://bioinf.cs.ucl.ac.uk/psipred/">http://bioinf.cs.ucl.ac.uk/psipred/</a>
-<br />&nbsp;Yaspin: <a href="http://www.ibi.vu.nl/programs/yaspinwww/">http://www.ibi.vu.nl/programs/yaspinwww/</a>
-<br />&nbsp;&nbsp;&nbsp;&nbsp;PSS: <a href="https://zhanglab.ccmb.med.umich.edu/PSSpred/">https://zhanglab.ccmb.med.umich.edu/PSSpred/</a>
-<br />&nbsp;&nbsp;JPred: <a href="http://www.compbio.dundee.ac.uk/jpred/">http://www.compbio.dundee.ac.uk/jpred/</a>
-<br />&nbsp;&nbsp;Sable: <a href="https://sable.cchmc.org/">https://sable.cchmc.org/</a>
-<br />RaptorX: <a href="http://raptorx.uchicago.edu/StructurePropertyPred/predict/">http://raptorx.uchicago.edu/StructurePropertyPred/predict/</a>	
-<br />&nbsp;&nbsp;SSPro: <a href="http://scratch.proteomics.ics.uci.edu/index.html">http://scratch.proteomics.ics.uci.edu/index.html</a>
-<br />&nbsp;&nbsp;&nbsp;RCSB: <a href="https://www.rcsb.org/">https://www.rcsb.org/</a>
-</div>
+	Instances Running:
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;PSI: {{counter.psi}}
+	<br />&nbsp;Yaspin: {{counter.yaspin}}
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;PSS: {{counter.pss}} (MAX 3)
+	<br />&nbsp;&nbsp;JPred: {{counter.jpred}}
+	<br />&nbsp;&nbsp;Sable: {{counter.sable}}
+	<br />RaptorX: {{counter.raptorx}}
+	<br />&nbsp;&nbsp;SSPro: {{counter.sspro}} (MAX 5)
+	<br />
 
 
-<script type="text/javascript" >
-	$('#clearbtn').on('click', function() {
-		$('#seqtext').val("");
-	});
+	<div>
+		-----------------------------------------------------------------------------------
+		<br />
+		<br />
+		<br />Upon submission, you will be redirected to a page showing your sequence
+		<br />The page will reload every 30 seconds displaying results as they are completed
+		<br />
+		<br /> Average wait times of past results:
 
-	$('#genbtn').on('click', function() {
-		$('#seqtext').val(randSeq());
-	});
 
-	function randSeq() {
-  		 var result           = '';
-   		 var characters       = 'ACDEFGHIKLMNPQRSTVWY';
-  		 var charactersLength = characters.length;
-		 var length = Math.floor(Math.random() * 140) + 60 
-   		 for ( var i = 0; i < length; i++ ) {
-    		 	result += characters.charAt(Math.floor(Math.random() * charactersLength));
-   		 }
-   		 return result;
-	}
-	
-	//Disable submission if no site is selected
-	function checkCount()
-	{
-		checks = $('input[type="checkbox"]:checked').length;
-		submit = document.getElementById('submitbtn');
-		
-		if(checks <= 0)
-			submit.disabled = true;
-		else
-			submit.disabled = false;
-	}
-	
-	//Disable known sequence entry if not known
-	function knownToggle()
-	{
-		toggle = document.getElementById('knownSeq');
-		structId = document.getElementById('structureId');
-		chainId = document.getElementById('chainId');
-		
-		if(toggle.checked)
-		{
-			structId.disabled = false;
-			chainId.disabled = false;
+		<table id="sitesData">
+			<tbody id="sitesDataBody">
+			</tbody>
+		</table>
+		<br />
+		<br />
+		<br /><a href="/archive" target="_blank">All previously submitted results can be found by clicking here</a>
+		<br />
+		<br />
+		<br />Sites Used:
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;PSI: <a
+			href="http://bioinf.cs.ucl.ac.uk/psipred/">http://bioinf.cs.ucl.ac.uk/psipred/</a>
+		<br />&nbsp;Yaspin: <a
+			href="http://www.ibi.vu.nl/programs/yaspinwww/">http://www.ibi.vu.nl/programs/yaspinwww/</a>
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;PSS: <a
+			href="https://zhanglab.ccmb.med.umich.edu/PSSpred/">https://zhanglab.ccmb.med.umich.edu/PSSpred/</a>
+		<br />&nbsp;&nbsp;JPred: <a
+			href="http://www.compbio.dundee.ac.uk/jpred/">http://www.compbio.dundee.ac.uk/jpred/</a>
+		<br />&nbsp;&nbsp;Sable: <a href="https://sable.cchmc.org/">https://sable.cchmc.org/</a>
+		<br />RaptorX: <a
+			href="http://raptorx.uchicago.edu/StructurePropertyPred/predict/">http://raptorx.uchicago.edu/StructurePropertyPred/predict/</a>
+		<br />&nbsp;&nbsp;SSPro: <a
+			href="http://scratch.proteomics.ics.uci.edu/index.html">http://scratch.proteomics.ics.uci.edu/index.html</a>
+		<br />&nbsp;&nbsp;&nbsp;RCSB: <a href="https://www.rcsb.org/">https://www.rcsb.org/</a>
+	</div>
+
+
+	<script type="text/javascript">
+		$('#clearbtn').on('click', function () {
+			$('#seqtext').val("");
+		});
+
+		$('#genbtn').on('click', function () {
+			$('#seqtext').val(randSeq());
+		});
+
+		const waits = {{ waits | safe}};
+
+		const siteURLS = {
+			"psi": "http://bioinf.cs.ucl.ac.uk/psipred/",
+			"yaspin": "http://www.ibi.vu.nl/programs/yaspinwww/",
+			"pss": "https://zhanglab.ccmb.med.umich.edu/PSSpred/",
+			"jpred": "http://www.compbio.dundee.ac.uk/jpred/",
+			"sable": "https://sable.cchmc.org/",
+			"raptorx": "http://raptorx.uchicago.edu/StructurePropertyPred/predict/",
+			"sspro": "http://scratch.proteomics.ics.uci.edu/index.html",
+			"rscb": "https://www.rcsb.org/"
 		}
-		else
-		{
-			structId.disabled = true;
-			chainId.disabled = true;
-			structId.value = "";
-			chainId.value = "";
+		const siteDict = {
+			"JPred": "jpred",
+			"PSI": "psi",
+			"PSS": "pss",
+			"RaptorX": "raptorx",
+			"Sable": "sable",
+			"Yaspin": "yaspin",
+			"SSPro": "sspro"
 		}
-	}
-	
-	// Display a message about color coding if user is using IE
-	var ua = window.navigator.userAgent;
-	var isIE = /MSIE|Trident/.test(ua);
-	
-	if(isIE)
-	{
-		ieDiv = document.getElementById("colorCodeIE");
-		ieDiv.style.display = 'block';
-	}
-	
-	knownToggle();
-	
-</script>
+
+		function intializeSiteData() {
+			tbody = document.getElementById("sitesDataBody");
+			for (const site of Object.keys(siteDict)) {
+				row = document.createElement("tr");
+				nameCell = document.createElement("td");
+				nameCell.innerText = site + ": ";
+				waitTimeCell = document.createElement("td");
+				waitTimeCell.innerText = waits[site.toLowerCase()];
+				statusCell = document.createElement("td");
+				statusCell.innerText = "";
+				statusCell.id = site + "_status"
+				row.appendChild(nameCell);
+				row.appendChild(waitTimeCell);
+				row.appendChild(statusCell);
+				tbody.appendChild(row);
+			}
+		}
+
+		function randSeq() {
+			var result = '';
+			var characters = 'ACDEFGHIKLMNPQRSTVWY';
+			var charactersLength = characters.length;
+			var length = Math.floor(Math.random() * 140) + 60
+			for (var i = 0; i < length; i++) {
+				result += characters.charAt(Math.floor(Math.random() * charactersLength));
+			}
+			return result;
+		}
+
+		//Disable submission if no site is selected
+		function checkCount() {
+			checks = $('input[type="checkbox"]:checked').length;
+			submit = document.getElementById('submitbtn');
+
+			if (checks <= 0)
+				submit.disabled = true;
+			else
+				submit.disabled = false;
+		}
+
+		//Disable known sequence entry if not known
+		function knownToggle() {
+			toggle = document.getElementById('knownSeq');
+			structId = document.getElementById('structureId');
+			chainId = document.getElementById('chainId');
+
+			if (toggle.checked) {
+				structId.disabled = false;
+				chainId.disabled = false;
+			}
+			else {
+				structId.disabled = true;
+				chainId.disabled = true;
+				structId.value = "";
+				chainId.value = "";
+			}
+		}
+
+		// Display a message about color coding if user is using IE
+		var ua = window.navigator.userAgent;
+		var isIE = /MSIE|Trident/.test(ua);
+
+		if (isIE) {
+			ieDiv = document.getElementById("colorCodeIE");
+			ieDiv.style.display = 'block';
+		}
+
+		knownToggle();
+		intializeSiteData();
+		checkSiteStatuses();
+
+		function checkSiteStatuses() {
+			for (const site of Object.keys(siteDict)) {
+				let statusCell = document.getElementById(site + "_status");
+				fetch("/fetchSiteAvailability/" + site.toLowerCase())
+					.then(r => r.json().then(data => ({ status: r.status, body: data })))
+					.then(obj => statusCell.innerText = obj.body.data == 200 ? "(Online)" : "(Offline)");
+			}
+		}
+
+	</script>
 </body>
+
 </html>

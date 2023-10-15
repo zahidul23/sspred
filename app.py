@@ -151,17 +151,18 @@ def home(name=None):
 	form = SubmissionForm()
 	print(threading.activeCount())
 	runningCounter = {
-		"JPred": 0,
-		"PSI": 0,
-		"PSS": 0,
-		"RaptorX": 0,
-		"Sable": 0,
-		"Yaspin": 0,
-		"SSPro": 0
+		"jpred": 0,
+		"psi": 0,
+		"pss": 0,
+		"raptorx": 0,
+		"sable": 0,
+		"yaspin": 0,
+		"sspro": 0
 	}
 	for t in threading.enumerate():
-		if t.getName() in runningCounter.keys():
-			runningCounter[t.getName()] += 1
+		siteName = getThreadSiteName(t)
+		if siteName in runningCounter.keys():
+			runningCounter[siteName] += 1
 
 	if form.validate_on_submit():
 
@@ -205,13 +206,19 @@ def home(name=None):
 		sendData(seq, startTime, ssObject, post_data, pdbdata)
 		return redirect(url_for('showdboutput', var = startTime))
 		
-	return render_template('index.html', form = form, counter = runningCounter, waits = getAvgWaits(), siteAvailability = getSiteAvailability()) #default submission page
+	return render_template('index.html', form = form, counter = runningCounter, waits = getAvgWaits()) #default submission page
 
+
+def getThreadSiteName(t : threading.Thread):
+	try:
+		return t.name.split('-')[1].lower()
+	except:
+		return ""
 
 def getAvgWaits():
 	conn = getConn()
 	cursor = conn.cursor()
-	cursor.execute('''SELECT site, AVG(endtime-starttime) FROM waittimes GROUP BY site''')
+	cursor.execute('''SELECT site, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY endtime-starttime) FROM waittimes GROUP BY site''')
 	res = cursor.fetchall()
 	avgtimes = {}
 	for site in lowerSiteDict:
@@ -245,7 +252,7 @@ def showall(page):
 			cursor.execute('''
 					SELECT id, seq
 					FROM seqtable 
-					ORDER BY timestamp_update DESC, id desc LIMIT %s OFFSET %s
+					ORDER BY id desc LIMIT %s OFFSET %s
 			''',(limit, offset))
 			jsonresults = json.dumps(cursor.fetchall(), indent=2, default=str)
 			
@@ -265,8 +272,6 @@ def redarchive():
 
 @app.route('/output/<var>')
 def showoutput(var):
-	#print("showing output")
-	print('output/'+var+'/'+var+'.html')
 	try:
 		return send_file('output/'+var+'/'+var+'.html')
 	except Exception as e:
@@ -278,7 +283,7 @@ def showdboutput(var):
 	if outputjson == "[]":
 		return "not found"
 	try:
-		return render_template('dboutput.html', data = outputjson)
+		return render_template('dboutput.html', data = outputjson, threads = getRunningThreads(var))
 	except Exception as e:
 		return "not found"
 	
@@ -289,7 +294,6 @@ def fetchJobResults(jobid):
 		if outputjson == "[]":
 			return "{}"
 		try:
-			print(outputjson)
 			yield f"id: 1\ndata: {outputjson}\nevent: online\n\n"
 		except Exception as e:
 			return "{not found}"
@@ -297,15 +301,28 @@ def fetchJobResults(jobid):
 
 @app.route('/fetchResults/<jobid>')
 def fetchResults(jobid):
-	outputjson = dbselect(jobid)
-	if outputjson == "[]":
-		return "{}"
 	try:
-		print(outputjson)
-		return outputjson
+		outputjson = dbselect(jobid)
+		if outputjson == "[]":
+			return "{}"
+		return {"data" : outputjson, "running" : getRunningThreads(jobid)}
 	except Exception as e:
-		return "{not found}"
+		return "{}"
 	
+@app.route('/fetchSiteAvailability/<siteName>')
+def fetchSiteAvailability(siteName):
+	return {"data" : getSiteAvailability(siteName)}
+	
+def getRunningThreads(jobid):
+	expectedThreads  = []
+	runningThreads  = []
+	for site in lowerSiteDict:
+		expectedThreads.append(jobid + "-" + site)
+	for t in threading.enumerate():
+		if t.name in expectedThreads:
+			runningThreads.append(t.name)
+	return runningThreads
+
 @app.route('/resubmit', methods = ['POST'])
 def resubmitjob():
 	req = request.get_json()
@@ -313,6 +330,7 @@ def resubmitjob():
 	sitename =  req.get("sitename")
 	seq =  req.get("seq")
 	mythread = threading.Thread(target = resubmit, args = (jobid, sitename, seq))
+	mythread.setName(jobid + "-" + sitename.lower())
 	mythread.start()
 	return {} #redirect(url_for('showdboutput', var = jobid))
 
@@ -340,12 +358,9 @@ def saveDuration(id, name):
 	conn.commit()
 	cursor.close()
 
-def getSiteAvailability():
-	siteAvailability = {}
-	for site, url in siteURLS.items():
-		#r = requests.get(url)
-		siteAvailability[site] = "" #if r.status_code == 200 else "(Offline)"
-	return siteAvailability
+def getSiteAvailability(siteName):
+	r = requests.get(siteURLS.get(siteName))
+	return r.status_code
 
 def run(predService, seq, name, ssObject,
  startTime, post_data, pdbdata):
@@ -387,7 +402,7 @@ def sendData(seq, startTime, ssObject, post_data, pdbdata):
 		if key in siteDict:
 			if post_data[key]:
 				mythread = threading.Thread(target = run, args = (siteDict[key], seq, key, ssObject, startTime, post_data, pdbdata))
-				mythread.setName(key)
+				mythread.setName(startTime + "-" + key.lower())
 				mythread.start()
 				print("Sending sequence to " + key)
 

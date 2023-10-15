@@ -10,8 +10,17 @@
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 	<script src="{{url_for('static', filename='scripts/html2canvas.js')}}"></script>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+		crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"
+		integrity="sha512-7tWCgq9tTYS/QkGVyKrtLpqAoMV9XIUxoou+sPUypsaZx56cYR/qio84fPK9EvJJtKvJEwt7vkn6je5UVzGevw=="
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"
+		integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ=="
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 
 	<title>Prediction Results</title>
 	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
@@ -19,7 +28,14 @@
 
 <body>
 
-	<div><a id='home' href=''>Home</a></div>
+	<ul class="nav justify-content-center ">
+		<li class="nav-item">
+			<a class="nav-link active" href="/">Home</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="/archive/1">Archives</a>
+		</li>
+	</ul>
 	<div id="container">
 		<div id="leftpanel" class="column">
 			<div id="results">
@@ -67,15 +83,13 @@
 								<input class="form-check-input" type="checkbox" role="switch" id="togglemajority"
 									onclick="toggleRows('togglemajority', 'majrow')" checked>
 								<label class="form-check-label" for="togglemajority">Show Majority Vote
-									<span class="tooltip">
+									<span class="tooltip" data-bs-toggle="tooltip" data-bs-html="true" title="
+										When enabled, the majority vote line will be displayed along with the
+										results.
+										<br>
+										Disable this option if you do not want to include it with the generated
+										image.">
 										?
-										<div class="tooltiptext">
-											When enabled, the majority vote line will be displayed along with the
-											results.
-											<br>
-											Disable this option if you do not want to include it with the generated
-											image.
-										</div>
 									</span>
 								</label>
 							</div>
@@ -87,14 +101,12 @@
 								<input class="form-check-input" type="checkbox" role="switch" id="togglepdb"
 									onclick="toggleRows('togglepdb','pdbrow')" checked>
 								<label class="form-check-label" for="togglepdb">Show Known Structure
-									<span class="tooltip">
+									<span class="tooltip" data-bs-toggle="tooltip" data-bs-html="true" title="
+										When enabled, the known secondary structure will be displayed along with the
+										results. <br>
+										Disable this option if you do not want to include it with the generated
+										image.">
 										?
-										<div class="tooltiptext">
-											When enabled, the known secondary structure will be displayed along with the
-											results. <br>
-											Disable this option if you do not want to include it with the generated
-											image.
-										</div>
 									</span>
 								</label>
 							</div>
@@ -106,14 +118,11 @@
 								<input class="form-check-input" type="checkbox" role="switch" id="toggleseqcolor"
 									onclick="colorizeSequence()" checked>
 								<label class="form-check-label" for="toggleseqcolor">Colorize Primary Sequence
-									<span class="tooltip">
+									<span class="tooltip" data-bs-toggle="tooltip" data-bs-html="true" title="When enabled, helices and strands will be colored in the primary sequence.
+									<br>
+									Disable this option if you do not want to include it with the generated
+									image.">
 										?
-										<div class="tooltiptext">
-											When enabled, helices and strands will be colored in the primary sequence.
-											<br>
-											Disable this option if you do not want to include it with the generated
-											image.
-										</div>
 									</span>
 								</label>
 							</div>
@@ -122,13 +131,12 @@
 				</table>
 				<div>
 					Elements Per Row:
-					<span class="tooltip">
+					<span class="tooltip" data-bs-toggle="tooltip" data-bs-html="true" title="<ul>
+						The number of elements each row will have in the results.
+						<li>This option affects image generation.</li>
+						<li>If an image has previously been generated, re-generate it to show any changes.</li>
+					</ul>">
 						?
-						<ul class="tooltiptext">
-							The number of elements each row will have in the results.
-							<li>This option affects image generation.</li>
-							<li>If an image has previously been generated, re-generate it to show any changes.</li>
-						</ul>
 					</span>
 					<select class="form-select" id="rowfield">
 						<option value="60">60</option>
@@ -149,16 +157,14 @@
 				</div>
 				<div class="customizeColors">
 					Customize Colors:
-					<span class="tooltip">
+					<span class="tooltip"  data-bs-toggle="tooltip" data-bs-html="true" title="<ul>
+						The colors that will be used to highlight predicted elements.
+						<li>Refreshing will cause the colors to reset.</li>
+						<li>This option affects image generation. </li>
+						<li>If an image has previously been generated, re-generate it to show any changes.</li>
+					</ul>">
 						?
-						<ul class="tooltiptext">
-							The colors that will be used to highlight predicted elements.
-							<li>Refreshing will cause the colors to reset.</li>
-							<li>This option affects image generation.</li>
-							<li>If an image has previously been generated, re-generate it to show any
-								changes.
-							</li>
-						</ul>
+						
 					</span>
 					<table style="text-align: center; padding-bottom: 10px">
 						<tr>
@@ -175,29 +181,19 @@
 
 				</div>
 
-				<button class="btn btn-primary btn-sm" id='genimage'>Generate Image</button>
-				<span class='tooltip'>
-					?
-					<ul class='tooltiptext'>
-						Generate an image version of the above table of results without the legend.
-						<li>Save the generated image by right-clicking and selecting 'Save image as...'
-							<br>
-							or with the Save Image button that shows after generating an image.
-						</li>
+				<button class="btn btn-primary btn-sm" id='genimage'>Export as Image</button>
+				<span class='tooltip' data-bs-toggle="tooltip" data-bs-html="true" title="<ul>
+						Generate an image version of the results without the legend and saves to your system.
 						<li>Re-generate the image to reflect any customization changes.</li>
-					</ul>
+						</ul>">
+					?
 				</span>
-				<button class="btn btn-primary btn-sm" id='genimagewlegend'>Generate Image with Legend</button>
-				<span class='tooltip'>
+				<button class="btn btn-primary btn-sm" id='genimagewlegend'>Export as Image with Legend</button>
+				<span class='tooltip' data-bs-toggle="tooltip" data-bs-html="true" title="<ul>
+					Generates an image version of the results including the legend and saves to your system.
+					<li>Re-generate the image to reflect any customization changes.</li>
+					</ul>">
 					?
-					<ul class='tooltiptext'>
-						Generate an image version of the above results including the legend.
-						<li>Save the generated image by right-clicking and selecting 'Save image as...'.
-							<br>
-							or with the Save Image button that shows after generating an image.
-						</li>
-						<li>Re-generate the image to reflect any customization changes.</li>
-					</ul>
 				</span>
 				<div id='saveimagediv' style="display: none;">
 					<button class="btn btn-primary btn-sm" id='saveimage'>Save Image</button>
@@ -219,6 +215,10 @@
 
 
 		<script type="text/javascript">
+			var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+			var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+				return new bootstrap.Tooltip(tooltipTriggerEl)
+			})
 			function sleep(time) {
 				return new Promise((resolve) => setTimeout(resolve, time));
 			}
@@ -235,22 +235,24 @@
 			function getStatusText(statusid) {
 				return statusDefinitions[statusid] ? statusDefinitions[statusid] : "Not Selected"
 			}
-			
-			document.getElementById("home").setAttribute('href', document.location.origin);
+
+			//document.getElementById("home").setAttribute('href', document.location.origin);
 
 
 			var statusproduct = 1;
 			var statuses = [];
 			var a = {{ data | safe}};
+			var runningThreads = {{ threads | safe}}
 			checkPDB(a);
 			let jobid = a[0].id;
 			let jobStatusTable = document.getElementById("jobstatus");
 			generateRows(60);
 
 
-			
 
-			function checkPDB(data){
+
+			function checkPDB(data) {
+				console.log(data)
 				if (data[0]['pdb'] != null && typeof (data[0]['pdb']) == 'string') {
 					data[0]['pdb'] = JSON.parse(data[0]['pdb']);
 				}
@@ -262,19 +264,36 @@
 				}
 			}
 
-			async function getData(){
+			async function getData() {
 				let fetchRes = await fetch("/fetchResults/" + jobid);
 				let fetchedData = await fetchRes.json();
-				a = fetchedData;
-				checkPDB(fetchedData);
-				let rows  = Number(document.getElementById("rowfield").value);
+				a = JSON.parse(fetchedData.data);
+				runningThreads = fetchedData.running;
+
+
+
+				checkPDB(a);
+				let rows = Number(document.getElementById("rowfield").value);
 				generateRows(rows);
 			}
 
+			function checkThreads() {
+				if (runningThreads) {
+					for (const [key, value] of Object.entries(a[0])) {
+						if (key.endsWith("stat")) {
+							let name = key.replace("stat", "");
+							if (value == 0 && !runningThreads.includes(jobid + "-" + name)) {
+								a[0][key] = 99;
+							}
+						}
+					}
+				}
+			}
 
-			function resubmitJob(button, sitename, data){
+
+			function resubmitJob(button, sitename, data) {
 				button.style.visibility = "hidden";
-				let req = {sitename : sitename, "jobid" : data['id'], "seq" : data['seq']}
+				let req = { sitename: sitename, "jobid": data['id'], "seq": data['seq'] }
 				fetch('/resubmit', {
 					method: 'POST',
 					headers: {
@@ -282,11 +301,14 @@
 						'Content-Type': 'application/json'
 					},
 					body: JSON.stringify(req)
-					})
+				})
 					.then(response => response.json())
 					.then(response => {
-						a[0][sitename+"stat"] = 0;
-						generateRows(60)
+						a[0][sitename + "stat"] = 0;
+						document.getElementById(sitename + "_statusMessage").innerText = "Waiting..."
+						sleep(3000).then(() => {
+							getData();
+						})
 					});
 			}
 
@@ -304,24 +326,26 @@
 							sites.push(name); //push sites with status 1 or 3 into array
 						}
 
-						
-						const jobUnresponsive = a[0]['timestamp_update'] == undefined ? true : (((new Date()) - (new Date(a[0]['timestamp_update']))) / 60000) > 5;
 
-						if (a[0][key] == 0 && jobUnresponsive){
+						let jobUnresponsive = a[0]['timestamp_update'] == undefined ? true : (((new Date()) - (new Date(a[0]['timestamp_update']))) / 60000) > 5;
+						const threadName = jobid + "-" + name;
+						jobUnresponsive = !runningThreads.includes(threadName);
+						if (a[0][key] == 0 && jobUnresponsive) {
 							a[0][key] = 99;
 						}
 						statuses.push(a[0][key])
-						
+
 						const siteStatusRow = document.createElement("tr");
 						const siteNameCell = document.createElement("td");
 						siteNameCell.innerText = name.toUpperCase();
 						const siteStatusCell = document.createElement("td");
+						siteStatusCell.id = name + "_statusMessage";
 						siteStatusCell.innerText = getStatusText(a[0][key]);
 						const siteResubmitCell = document.createElement("td");
-						if (![0,1,3].includes(a[0][key])){
+						if (![0, 1, 3].includes(a[0][key])) {
 							const resubmitButton = document.createElement("button");
 							resubmitButton.innerText = "Retry";
-							resubmitButton.onclick = () => {resubmitJob(resubmitButton, name, a[0])};
+							resubmitButton.onclick = () => { resubmitJob(resubmitButton, name, a[0]) };
 							siteResubmitCell.appendChild(resubmitButton);
 						}
 						siteStatusRow.appendChild(siteNameCell);
@@ -408,7 +432,7 @@
 
 			}
 
-			
+
 			//*
 			//*/
 			// if (statusproduct != 0) {
@@ -530,35 +554,46 @@
 			}
 
 			$('#genimage').on('click', function () {
-				table = document.getElementById('mytable')
-				html2canvas(table, { scrollY: (window.pageYOffset * -1) }).then(function (canvas) {
-					const myNode = document.getElementById("imgoutput");
-					while (myNode.firstChild) {
-						myNode.removeChild(myNode.firstChild);
-					}
-					document.getElementById('imgoutput').append(canvas);
-				});
-				document.getElementById('saveimagediv').style.display = "inline";
+				table = document.getElementById('mytable');
+				htmlToImage.toPng(table, { backgroundColor: "white" })
+					.then(function (dataUrl) {
+						var img = new Image();
+						img.src = dataUrl;
+						document.getElementById("imgoutput").innerHTML = "";
+						document.getElementById("imgoutput").appendChild(img);
+
+						var link = document.createElement('a');
+						link.download = 'results.png';
+						link.href = dataUrl;
+						link.click();
+					});
 			});
 
 			$('#genimagewlegend').on('click', function () {
-				table = document.getElementById('fullresults')
-				html2canvas(table, { scrollY: (window.pageYOffset * -1) }).then(function (canvas) {
-					const myNode = document.getElementById("imgoutput");
-					while (myNode.firstChild) {
-						myNode.removeChild(myNode.firstChild);
-					}
-					document.getElementById('imgoutput').append(canvas);
-				});
-				document.getElementById('saveimagediv').style.display = "inline";
+				table = document.getElementById('fullresults');
+				htmlToImage.toPng(table, { backgroundColor: "white" })
+					.then(function (dataUrl) {
+						var img = new Image();
+						img.src = dataUrl;
+						document.getElementById("imgoutput").innerHTML = "";
+						document.getElementById("imgoutput").appendChild(img);
+
+						var link = document.createElement('a');
+						link.download = 'results.png';
+						link.href = dataUrl;
+						link.click();
+					})
+					.catch(function (error) {
+						console.error('oops, something went wrong!', error);
+					});
 			});
 
 			$('#saveimage').on('click', function () {
-				var canvas = document.getElementsByTagName("canvas")[0];
-				imglink = canvas.toDataURL("image/png", 1.0);
+				//var canvas = document.getElementsByTagName("canvas")[0];
+				//imglink = canvas.toDataURL("image/png", 1.0);
 
 				var saveEle = document.createElement('a');
-				saveEle.href = imglink;
+				saveEle.href = document.getElementById("imgoutput").getAttribute("data");
 				saveEle.download = "output.png";
 				saveEle.click();
 			});

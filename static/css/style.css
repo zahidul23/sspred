@@ -49,3 +49,19 @@ table.toggles td{
   height: 46px;
   vertical-align: middle;
 }
+
+.tooltip-inner{
+  max-width: initial;
+  width: auto;
+  text-align: start;
+}
+
+.tooltip-inner ul{
+  margin: 0;
+  padding: 10px;
+  padding-left: 28px;
+}
+
+#sitesData td:first-child{ 
+  text-align: right; 
+}
