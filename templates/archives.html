@@ -29,12 +29,13 @@
 		</li>
 	</ul>
 
-	<div>CTRL+F to find your sequence</div>
-	<div><a id='prevPage' style='display:initial' href=''>Previous</a>
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<a id='nextPage' href=''>Next</a>
+	
+	<div style="display: flex;">
+		<input type="text" class="input-group-text" id="search" oninput="search()" placeholder="Search" style="width: 50%;">
+		<button class="btn btn-primary btn-sm" id='prevPage'>Previous</button>
+		<button class="btn btn-primary btn-sm" id='nextPage'>Next</button>
 	</div>
-	<table class="table table-hover" id="myTable">
+	<table class="table table-hover" id="results">
 		<thead class="table-dark">
 			<tr>
 				<th>Link</th>
@@ -42,37 +43,22 @@
 				<th>Sequence</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody id="resultsBody">
 		</tbody>
 	</table>
 	<script type="text/javascript">
-
-
-		//var times = {{timedata}};
-		//var names = {{namedata | safe}};
-		//var seq = {{seqdata | safe}};
-
 		var data = {{ data | safe}};
-		var page = {{ pagenum }};
 
-		var prevNum = page - 1;
-		var nextNum = page + 1;
+		var rows = data.rows;
+		var page = data.pagenum;
+
+		var lastSearch;
 
 
-		var prevURL = document.location.origin + '/archive/' + prevNum;
-		var nextURL = document.location.origin + '/archive/' + nextNum;
-		//document.getElementById("home").setAttribute('href', document.location.origin);
-		document.getElementById("nextPage").setAttribute('href', nextURL);
-		document.getElementById("prevPage").setAttribute('href', prevURL);
+		document.getElementById("prevPage").onclick = goPrevPage;
+		document.getElementById("nextPage").onclick = goNextPage;
 
-		if (prevNum < 1) {
-			document.getElementById("prevPage").removeAttribute("href");
-		}
-
-		//$.each(times, function(index,value){
-
-		//});
-
+		
 
 		function decodeBase62(c) {
 			code = c;
@@ -87,60 +73,60 @@
 			return timestamp;
 		}
 
+		function populateTable(data){
+			document.getElementById("prevPage").disabled = page < 2;
+			document.getElementById("nextPage").disabled = data.length < 21;
+			
+			$('#resultsBody').empty();
+			for (var i = 0; i < data.length; i++) {
+				if (i == 21) break;
+				var time = new Date(decodeBase62(data[i]['id']));
+				var readabletime = time.toLocaleString('en-US', { year: "2-digit", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+				var str = [""
+					, "<tr>"
+					, "<td><a href='http://" + document.domain + ":" + location.port + "/dboutput/" + data[i]['id'] + "'>" + data[i]['id'] + "<\/a><\/td>"
+					, "<td nowrap id='" + time.toString() + "' >" + readabletime + "<\/td>"
+					, "<td nowrap>" + data[i]['seq'] + "<\/td>"
+					, "<\/tr>"
+				].join("").replace(",", "");
 
-		for (var i = 0; i < data.length; i++) {
-			var time = new Date(decodeBase62(data[i]['id']));
-			var readabletime = time.toLocaleString('en-US', { year: "2-digit", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
-			var str = [""
-				, "<tr>"
-				, "<td><a href='http://" + document.domain + ":" + location.port + "/dboutput/" + data[i]['id'] + "'>" + data[i]['id'] + "<\/a><\/td>"
-				, "<td nowrap id='" + time.toString() + "' >" + readabletime + "<\/td>"
-				, "<td nowrap>" + data[i]['seq'] + "<\/td>"
-				, "<\/tr>"
-			].join("").replace(",", "");
-
-			$('#myTable').append(str);
-		}
-
-
-
-		function sortTable() {
-			var table, rows, switching, i, x, y, shouldSwitch;
-			table = document.getElementById("myTable");
-			switching = true;
-			/*Make a loop that will continue until
-			no switching has been done:*/
-			while (switching) {
-				//start by saying: no switching is done:
-				switching = false;
-				rows = table.rows;
-				/*Loop through all table rows (except the
-				first, which contains table headers):*/
-				for (i = 1; i < (rows.length - 1); i++) {
-					//start by saying there should be no switching:
-					shouldSwitch = false;
-					/*Get the two elements you want to compare,
-					one from current row and one from the next:*/
-					x = rows[i].getElementsByTagName("TD")[0];
-					y = rows[i + 1].getElementsByTagName("TD")[0];
-					//check if the two rows should switch place:
-					if (x.innerHTML < y.innerHTML) {
-						//if so, mark as a switch and break the loop:
-
-						shouldSwitch = true;
-						break;
-					}
-				}
-				if (shouldSwitch) {
-					/*If a switch has been marked, make the switch
-					and mark that a switch has been done:*/
-					rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-					switching = true;
-				}
+				$('#resultsBody').append(str);
 			}
 		}
 
-		//sortTable();
+		function goPrevPage(){
+			page--;
+			search();
+		}
+		function goNextPage(){
+			page++;
+			search();
+		}
+
+
+		function search(){
+			let allowedChars = "ARNDCEQGHILKMFPSTWYV"
+			allowedChars += allowedChars.toLowerCase();
+			let query = document.getElementById("search").value;
+			query = query.toUpperCase();
+			query = Array.from(query).filter(c => allowedChars.includes(c)).join("");
+			document.getElementById("search").value = query;
+			if (lastSearch == query+page){
+				return;
+			}
+			lastSearch = query;
+			fetch("/searchArchive/" + page + "/" + query)
+			.then(response => {
+				response.json()
+				.then(json => {
+					page = json.pagenum;
+					populateTable(JSON.parse(json.rows))
+				})})
+
+		}
+
+		search();
+
 
 
 

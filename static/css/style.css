@@ -1,12 +1,11 @@
 body {
 	font-family:monospace;
-  font-size: medium;
   margin: 8px;
 }
 
 
 #container {
-  display: flex;
+  display: block;
   justify-content: center;
 }
 

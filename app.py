@@ -234,34 +234,45 @@ def errorpage():
 	return('There are too many jobs running, please try again later')
 
 
-@app.route('/archive/<page>')
+@app.route('/archive/<page>/')
 def showall(page):
 	if page[0] == '0':
 		return("Page not found")
 	if page.isdigit():
 		if int(page) >= 1:
-			#'''
-			namelist = []
-			timelist= []
-			seqlist= []
+			return render_template('archives.html', data = showSearch(page, ""))
+	else:
+		return("Page not found")
+
+@app.route('/searchArchive/<page>/')	
+@app.route('/searchArchive/<page>/<query>')
+def showSearch(page, query=""):
+	if page[0] == '0':
+		return("Page not found")
+	if page.isdigit():
+		if int(page) >= 1:
+			query = query.upper()
+			allowedChars = "ARNDCEQGHILKMFPSTWYV"
+			for c in query:
+				if c not in allowedChars:
+					return 400;
+			query = "%" + query + "%"
 			conn = getConn()
 			cursor = conn.cursor(cursor_factory=RealDictCursor)
-			limit = 20
+			limit = 21
 			offset = int(page) -1
-			offset = offset * limit
+			offset = offset * 20
 			cursor.execute('''
 					SELECT id, seq
 					FROM seqtable 
+				  	WHERE seq LIKE %s
 					ORDER BY id desc LIMIT %s OFFSET %s
-			''',(limit, offset))
+			''',(query, limit, offset))
 			jsonresults = json.dumps(cursor.fetchall(), indent=2, default=str)
 			
 			cursor.close()		
 
-			return render_template('archives.html', data = jsonresults, pagenum = page)
-			'''
-			return(page)
-			'''
+			return {'rows' : jsonresults, 'pagenum' : page}
 	else:
 		return("Page not found")
 
