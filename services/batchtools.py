@@ -151,10 +151,11 @@ def emailRequestWait(session, query, findLine, randName, printmsg = '', sleepTim
 #Takes url to check, optional message for printing, and optional sleep time and cancel time in seconds. Defaults to 20 sec sleep time, 15 min wait to cancel
 #Returns the url when successful
 #Returns the url when successful
-def requestWait(rowid, servicename, requesturl, message = None, sleepTime = 20 , cancelAfter = 1500):
+def requestWait(rowid, servicename, requesturl, message = None, sleepTime = 20 , cancelAfter = 1500, proxies = {}):
 	stime  = time.time()
 	conn = getConn()
-	while not requests.get(requesturl).ok and time.time() < stime + cancelAfter: #loops until requesturl is found or cancelAfter min elapse
+	resp = requests.get(requesturl, proxies=proxies)
+	while not resp.ok and time.time() < stime + cancelAfter: #loops until requesturl is found or cancelAfter min elapse
 		updateStatus(rowid, servicename, message, conn)
 		print(message)
 		if ((time.time()-stime) > (60 * 5)):  # if 5 min elapsed, increase sleep to 1 min
@@ -162,8 +163,9 @@ def requestWait(rowid, servicename, requesturl, message = None, sleepTime = 20 ,
 		if ((time.time()-stime) > (60 * 10)): # if 10 min elapsed, increase sleep to 2 min 
 			sleepTime = 60 * 2
 		time.sleep(sleepTime)
+		resp = requests.get(requesturl, proxies=proxies)
 	conn.close()
-	return requests.get(requesturl)
+	return resp
 
 def updateStatus(rowid, servicename, message, conn):
 	cursor = conn.cursor()

@@ -15,6 +15,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from psycopg2 import sql
 
+from fp.fp import FreeProxy
+
 conn = batchtools.getConn()
 
 def getConn():
@@ -370,8 +372,16 @@ def saveDuration(id, name):
 	cursor.close()
 
 def getSiteAvailability(siteName):
-	r = requests.get(siteURLS.get(siteName))
-	return r.status_code
+	with requests.Session() as session:
+		if (siteName == "yaspin"):
+			proxy = FreeProxy(https=True).get()
+			session.proxies = {
+				'http': proxy,
+				'https': proxy
+				}
+		r = session.get(siteURLS.get(siteName))
+		print(r)
+		return r.status_code
 
 def run(predService, seq, name, ssObject,
  startTime, post_data, pdbdata):

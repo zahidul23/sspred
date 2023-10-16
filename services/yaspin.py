@@ -4,6 +4,8 @@ from guerrillamail import GuerrillaMailSession
 
 from services import ss, batchtools
 
+from fp.fp import FreeProxy
+
 def get(seq, rowid):
 
 	SS = ss.SS("Yaspin")
@@ -49,7 +51,13 @@ def get(seq, rowid):
 	# 'email': email_address}
 	
 	# fasta = {'seq_file': ''}
-	r= requests.post('https://www.ibi.vu.nl/programs/yaspinwww/', headers=headers, data = data)
+	proxy = FreeProxy(https=True).get()
+	proxies = {
+	'http': proxy,
+	'https': proxy
+	}
+	
+	r= requests.post('https://www.ibi.vu.nl/programs/yaspinwww/', headers=headers, data = data, proxies=proxies, allow_redirects=False)
 	
 	if (r.status_code == 500):
 		SS.pred += "Server Down"
@@ -59,8 +67,10 @@ def get(seq, rowid):
 		return SS
 	
 	result_url = r.url + 'results.out'
+	if (r.status_code == 302):
+		result_url = r.headers['Location'] + 'results.out'
 	
-	requesturl = batchtools.requestWait(rowid, "yaspin", result_url, 'Yaspin Not Ready', )
+	requesturl = batchtools.requestWait(rowid, "yaspin", result_url, 'Yaspin Not Ready', proxies=proxies)
 	
 	if requesturl:
 		raw = requesturl.text.splitlines()
