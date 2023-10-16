@@ -370,7 +370,7 @@ def saveDuration(id, name):
 	cursor.close()
 
 def getSiteAvailability(siteName):
-	r = requests.get(siteURLS.get(siteName))
+	r = requests.get(siteURLS.get(siteName), timeout=5)
 	return r.status_code
 
 def run(predService, seq, name, ssObject,
