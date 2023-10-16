@@ -121,7 +121,7 @@ siteLimit = {
 
 siteURLS = {
 	"psi":"http://bioinf.cs.ucl.ac.uk/psipred/",
-	"yaspin":"http://www.ibi.vu.nl/programs/yaspinwww/",
+	"yaspin":"https://ibi.vu.nl/programs/yaspinwww/",
 	"pss":"https://zhanglab.ccmb.med.umich.edu/PSSpred/",
 	"jpred":"http://www.compbio.dundee.ac.uk/jpred/",
 	"sable":"https://sable.cchmc.org/",
