@@ -51,13 +51,10 @@ def get(seq, rowid):
 	# 'email': email_address}
 	
 	# fasta = {'seq_file': ''}
-	proxy = FreeProxy(https=True).get()
-	proxies = {
-	'http': proxy,
-	'https': proxy
-	}
 	
-	r= requests.post('https://www.ibi.vu.nl/programs/yaspinwww/', headers=headers, data = data, proxies=proxies, allow_redirects=False)
+	url = 'https://www.ibi.vu.nl/programs/yaspinwww/'
+	proxies = batchtools.getProxy(url)
+	r= requests.post(url, headers=headers, data = data, proxies=proxies, timeout=15, allow_redirects=False)
 	
 	if (r.status_code == 500):
 		SS.pred += "Server Down"
