@@ -7,6 +7,7 @@ import html
 from bs4 import BeautifulSoup
 import psycopg2
 from psycopg2 import sql
+from fp.fp import FreeProxy
 #Contains functions related to output that are meant to be applied to multiple scripts
 
 #Creates a random string to use for a prediction name. Can take a time and create a string from that
@@ -210,3 +211,21 @@ def getConn():
 
 def updateDB(id, cols, vals):
 	conn = getConn()
+
+def getProxy(forURL=None):
+	try:
+		proxy = FreeProxy(https=True).get(repeat=True)
+		proxies = {
+			'http': proxy,
+			'https': proxy
+		}
+		ip = proxy.split(':')[1][2:]
+		if (forURL is not None):
+			r = requests.get(forURL, proxies=proxies, timeout=15, stream=True)
+			if r.raw.connection.sock and r.raw.connection.sock.getpeername()[0] == ip:
+				return proxies
+			else:
+				return getProxy(forURL)
+		return proxies
+	except:
+		return getProxy(forURL)

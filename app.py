@@ -372,16 +372,12 @@ def saveDuration(id, name):
 	cursor.close()
 
 def getSiteAvailability(siteName):
-	with requests.Session() as session:
-		if (siteName == "yaspin"):
-			proxy = FreeProxy(https=True).get()
-			session.proxies = {
-				'http': proxy,
-				'https': proxy
-				}
-		r = session.get(siteURLS.get(siteName))
-		print(r)
-		return r.status_code
+	url = siteURLS.get(siteName)
+	proxies = {}
+	if (siteName == "yaspin"):
+		proxies = batchtools.getProxy(url)
+	r = requests.get(url, timeout=15, proxies=proxies)
+	return r.status_code
 
 def run(predService, seq, name, ssObject,
  startTime, post_data, pdbdata):
